@@ -76,7 +76,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'description' => 'RatePAY Rechnung',
                         'action' => 'pigmbh_ratepay',
                         'active' => 0,
-                        'position' => 0,
+                        'position' => 1,
                         'additionaldescription' => ''
                     )
             );
@@ -86,7 +86,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'description' => 'RatePAY Ratenzahlung',
                         'action' => 'pigmbh_ratepay',
                         'active' => 0,
-                        'position' => 0,
+                        'position' => 2,
                         'additionaldescription' => ''
                     )
             );
@@ -96,7 +96,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'description' => 'RatePAY Lastschrift',
                         'action' => 'pigmbh_ratepay',
                         'active' => 0,
-                        'position' => 0,
+                        'position' => 3,
                         'additionaldescription' => ''
                     )
             );
@@ -273,11 +273,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
            Shopware()->Log()->Debug("RatePAY: sUserId is empty");
            return;
         }
+        Shopware()->Template()->addTemplateDir(dirname(__FILE__) . '/View/');
         $validation = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation();
         if ($validation->isRatePAYPayment()) {
-            $view->sRegisterFinished = "false";
-            $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true': 'false';
-            Shopware()->Log()->Debug("RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
             $view->ratepayValidateAgeValid = $validation->isAgeValid() ? 'true': 'false';
             Shopware()->Log()->Debug("RatePAY: isAgeValid->" . $view->ratepayValidateAgeValid);
             $view->ratepayValidateTelephoneNumber = $validation->isTelephoneNumberSet() ? 'true': 'false';
@@ -288,6 +286,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             Shopware()->Log()->Debug("RatePAY: isCompanyNameSet->" . $view->ratepayValidateCompanyName);
             $view->ratepayValidateIsB2B = $validation->isCompanyNameSet() || $validation->isUSTSet() ? 'true': 'false';
             Shopware()->Log()->Debug("RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
+            $view->extendsTemplate('frontend/RatePAYConfirm.tpl');
         }
     }
 

@@ -32,7 +32,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     {
         $today = new DateTime("now");
         $birthday = $this->_user->getBilling()->getBirthday();
-        return ($birthday->diff($today)->y > 18) && $this->isBirthdayValid() && !$this->isBirthdaySetToDefault();
+        return ($birthday->diff($today)->y > 18) && $this->_isBirthdayValid() && !$this->_isBirthdaySetToDefault();
     }
 
     /**
@@ -40,7 +40,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
      *
      * @return boolean
      */
-    public function isBirthdaySetToDefault()
+    private function _isBirthdaySetToDefault()
     {
         $birthday = $this->_user->getBilling()->getBirthday();
         return $birthday->format('Y-m-d') === '-0001-11-30';
@@ -51,7 +51,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
      *
      * @return boolean
      */
-    public function isBirthdayValid()
+    private function _isBirthdayValid()
     {
         $birthday = $this->_user->getBilling()->getBirthday();
         return preg_match("/^\d{4}-\d{2}-\d{2}$/", $birthday->format('Y-m-d')) !== 0;
