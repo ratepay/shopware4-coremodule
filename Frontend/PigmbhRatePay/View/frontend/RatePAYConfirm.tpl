@@ -2,14 +2,16 @@
 {block name='frontend_checkout_confirm_payment' append}
 <div class="dispatch-methods">
     <h3 class="underline">RatePAY</h3>
-    <input type="checkbox"> AGB
     <p class="none">
-        <label for="test">TEST</label>
+        <label for="test">Umsatzsteuer-ID</label>
         <input id="test" type="text">
     </p>
     <p class="none">
-        <label for="test2">TEST2</label>
+        <label for="test2">Telefon-nummer</label>
         <input id="test2" type="text">
+    </p>
+    <p>
+        <input type="checkbox"> AGB
     </p>
 </div>
 {/block}

@@ -11,7 +11,11 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
 
     public function indexAction()
     {
-        
+
+    }
+
+    private function saveUserData(){
+
     }
 
     private function invoice()
