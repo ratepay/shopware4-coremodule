@@ -51,6 +51,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         $this->_createPluginConfigTranslation();
         $this->_subscribeEvents();
         $this->_createMenu();
+        $this->Plugin()->setActive(true);
         return true;
     }
 
@@ -75,7 +76,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'name' => 'pigmbhratepayinvoice',
                         'description' => 'RatePAY Rechnung',
                         'action' => 'pigmbh_ratepay',
-                        'active' => 0,
+                        'active' => 1,
                         'position' => 1,
                         'additionaldescription' => ''
                     )
@@ -85,7 +86,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'name' => 'pigmbhratepayrate',
                         'description' => 'RatePAY Ratenzahlung',
                         'action' => 'pigmbh_ratepay',
-                        'active' => 0,
+                        'active' => 1,
                         'position' => 2,
                         'additionaldescription' => ''
                     )
@@ -95,7 +96,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'name' => 'pigmbhratepaydebit',
                         'description' => 'RatePAY Lastschrift',
                         'action' => 'pigmbh_ratepay',
-                        'active' => 0,
+                        'active' => 1,
                         'position' => 3,
                         'additionaldescription' => ''
                     )
@@ -217,10 +218,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
     {
         try {
             $this->subscribeEvent(
-                    'Enlight_Controller_Dispatcher_ControllerPath_Frontend_PigmbhRatePay', 'frontendPaymentController'
+                    'Enlight_Controller_Dispatcher_ControllerPath_Frontend_PigmbhRatepay', 'frontendPaymentController'
             );
             $this->subscribeEvent(
-                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatePay', 'onBackendController'
+                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatepay', 'onBackendController'
             );
             $this->subscribeEvent(
                     'Enlight_Controller_Action_PostDispatch_Frontend_Checkout', 'preValidation'
@@ -228,9 +229,40 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             $this->subscribeEvent(
                     'Shopware_Modules_Admin_GetPaymentMeans_DataFilter', 'filterPayments'
             );
+            $this->subscribeEvent(
+                    'Shopware_Controllers_Backend_Config::saveFormAction::before', 'beforeSavePluginConfig'
+            );
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create events.' . $exception->getMessage());
+        }
+    }
+
+    public function beforeSavePluginConfig(Enlight_Hook_HookArgs $arguments)
+    {
+        $request = $arguments->getSubject()->Request();
+        $parameter = $request->getParams();
+
+        if ($parameter['name'] !== $this->getName() || $parameter['controller'] !== 'config') {
+            return;
+        }
+
+        foreach ($parameter['elements'] as $element) {
+            if (in_array($element['name'], array('RatePayProfileID', 'RatePaySecurityCode')) && empty($element['values'][0]['value'])) {
+                Shopware()->Log()->Warn('RatePAY: Credentials are missing!');
+                return;
+            }
+            if ($element['name'] === 'RatePayProfileID') {
+                $profileID = $element['values'][0]['value'];
+            }
+            if ($element['name'] === 'RatePaySecurityCode') {
+                $securityCode = $element['values'][0]['value'];
+            }
+        }
+
+// save profile_request into DB
+        if (!$this->getRatepayConfig($profileID, $securityCode)) {
+            Shopware()->Log()->Err('RatePAY: Profile_Request failed!');
         }
     }
 
@@ -272,7 +304,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             return;
         }
 
-        // Check for the right Action
+// Check for the right Action
         if (!in_array('confirm', array($request->get('action'), $view->sTargetAction)) || $request->get('controller') !== 'checkout') {
             return;
         }
@@ -322,12 +354,89 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             Shopware()->Log()->Debug("RatePAY: Filter RatePAY-payments");
             $payments = array();
             foreach ($return as $payment) {
-                if(!in_array($payment['name'], array('pigmbhratepayinvoice', 'pigmbhratepaydebit', 'pigmbhratepayrate'))){
+                if (!in_array($payment['name'], array('pigmbhratepayinvoice', 'pigmbhratepaydebit', 'pigmbhratepayrate'))) {
                     $payments[] = $payment;
                 }
             }
         }
         return $payments;
+    }
+
+    private function getRatepayConfig($profileId, $securityCode)
+    {
+        $xmlstr = '<response version="1.0" xmlns="urn://www.ratepay.com/payment/1_0">
+ <head>
+ <system-id>test.mypayment.de</system-id>
+ <operation>CONFIGURATION_REQUEST</operation>
+ <response-type>CONFIGURATION_SETTINGS</response-type>
+ <processing>
+ <timestamp>2012-04-30T12:27:39.234</timestamp>
+ <status code="OK">Successful</status>
+ <reason code="306">Calculation configuration read successful</reason>
+ <result code="500">Calculation configuration processed</result>
+ </processing>
+ </head>
+ <content>
+ <installment-configuration-result name="Standardconfig" type="DEFAULT">
+ <interestrate-min>5.90</interestrate-min>
+ <interestrate-default>9.90</interestrate-default>
+ <interestrate-max>12.90</interestrate-max>
+ <interest-rate-merchant-towards-bank>12.90</interest-rate-merchant-towards-bank>
+ <month-number-min>3</month-number-min>
+ <month-number-max>36</month-number-max>
+ <month-longrun>25</month-longrun>
+ <amount-min-longrun>1000</amount-min-longrun>
+ <month-allowed>3,4,5,6,9,12,15,18,24,36</month-allowed>
+ <valid-payment-firstdays>1,15,28</valid-payment-firstdays>
+ <payment-firstday>28</payment-firstday>
+ <payment-amount>200.00</payment-amount>
+ <payment-lastrate>4.00</payment-lastrate>
+ <rate-min-normal>20.00</rate-min-normal>
+ <rate-min-longrun>10.00</rate-min-longrun>
+ <service-charge>3.95</service-charge>
+ <min-difference-dueday>28</min-difference-dueday>
+ </installment-configuration-result>
+ </content>
+</response>';
+        $response = new SimpleXMLElement($xmlstr);
+        $status = (string) $response->children()->head->children()->processing->children()->status->attributes();
+        $return = false;
+        if ($status === "OK") {
+            $content = (array) $response->children()->content->children()->children();
+            $sql = 'REPLACE INTO `pigmbh_ratepay_configprofile` ('
+                    . '`profileId`, `interestrateMin`, `interestrateDefault`, `interestrateMax`, `interestrateMerchantTowardsBank`'
+                    . ',`monthNumberMin`, `monthNumberMax`, `monthLongrun`, `amountMinLongrun`, `monthAllowed`'
+                    . ',`validPaymentFirstdays`, `paymentFirstday`, `paymentAmount`, `paymentLastrate`, `rateMinNormal`, `rateMinLongrun`'
+                    . ',`serviceCharge`, `minDifferenceDueday`'
+                    . ') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            $configData = array(
+                $profileId,
+                $content['interestrate-min'],
+                $content['interestrate-default'],
+                $content['interestrate-max'],
+                $content['interest-rate-merchant-towards-bank'],
+                $content['month-number-min'],
+                $content['month-number-max'],
+                $content['month-longrun'],
+                $content['amount-min-longrun'],
+                $content['month-allowed'],
+                $content['valid-payment-firstdays'],
+                $content['payment-firstday'],
+                $content['payment-amount'],
+                $content['payment-lastrate'],
+                $content['rate-min-normal'],
+                $content['rate-min-longrun'],
+                $content['service-charge'],
+                $content['min-difference-dueday']
+            );
+            try {
+                Shopware()->Db()->query($sql, $configData);
+                $return = true;
+            } catch (Exception $exception) {
+                Shopware()->Log()->Err($exception->getMessage());
+            }
+        }
+        return $return;
     }
 
 }
