@@ -120,7 +120,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest
         return array(
             '@version' => '1.0',
             '@xmlns' => "urn://www.ratepay.com/payment/1_0",
-            'head' => $this->getHead()->toArray()
+            'head' => $this->getHead()->toArray(),
+            'content' => array(
+                'customer' => $this->getCustomer(),
+                'shopping-basket' => $this->getShoppingBasket(),
+                'payment' => $this->getPayment()
+            )
         );
     }
 

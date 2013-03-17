@@ -50,7 +50,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head
     }
 
     /**
-     * This function sets the value for $_head
+     * This function sets the value for $_systemId
      *
      * @param string $systemId
      */

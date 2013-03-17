@@ -66,12 +66,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     private $_phone;
 
     /**
-     * @var type
+     * @var Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
      */
     private $_billingAddresses;
 
     /**
-     * @var type
+     * @var Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
      */
     private $_shippingAddresses;
 
@@ -288,7 +288,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     /**
      * This function returns the value of $_billingAddresses
      *
-     * @return string
+     * @return Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
      */
     public function getBillingAddresses()
     {
@@ -298,9 +298,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     /**
      * This function sets the value for $_billingAddresses
      *
-     * @param type $billingAddresses
+     * @param Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address $billingAddresses
      */
-    public function setBillingAddresses($billingAddresses)
+    public function setBillingAddresses(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address $billingAddresses)
     {
         $this->_billingAddresses = $billingAddresses;
     }
@@ -308,7 +308,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     /**
      * This function returns the value of $_shippingAddresses
      *
-     * @return string
+     * @return Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
      */
     public function getShippingAddresses()
     {
@@ -318,9 +318,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     /**
      * This function sets the value for $_shippingAddresses
      *
-     * @param type $shippingAddresses
+     * @param Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address $shippingAddresses
      */
-    public function setShippingAddresses($shippingAddresses)
+    public function setShippingAddresses(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address $shippingAddresses)
     {
         $this->_shippingAddresses = $shippingAddresses;
     }
