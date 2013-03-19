@@ -117,7 +117,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
      */
     public function setStreetNumber($streetNumber)
     {
-        $this->_streetNumber = $streetNumber;
+        $this->_streetNumber = (string)$streetNumber;
     }
 
     /**
@@ -137,7 +137,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
      */
     public function setZipCode($zipCode)
     {
-        $this->_zipCode = $zipCode;
+        $this->_zipCode = (string)$zipCode;
     }
 
     /**
@@ -269,7 +269,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address
     {
         $return = array(
             '@type' => $this->getType(),
-            'street' => $this->getStreet(),
+            '%street' => $this->getStreet(),
             'street-number' => $this->getStreetNumber(),
             'zip-code' => $this->getZipCode(),
             'city' => $this->getCity(),

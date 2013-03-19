@@ -178,11 +178,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head
             $return['transaction-id'] = $this->getTransactionId();
         }
         if ($this->_operationSubstring != null) {
-            unset($return['operation']);
-            $return['$operation'] = array(
-                $this->getOperation(),
-                'substring',
-                $this->getOperationSubstring()
+            $return['operation'] = array(
+                '@subtype' => $this->getOperationSubstring(),
+                $this->getOperation()
             );
         }
         return $return;

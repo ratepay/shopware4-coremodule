@@ -10,19 +10,49 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
 {
 
     private $_zendHttpClient;
+    protected $config = array(
+        'strictredirects' => false,
+        'adapter' => 'Zend_Http_Client_Adapter_Curl',
+        'curloptions' => array(
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_POST => 1,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: text/xml; charset=UTF-8",
+                "Accept: */*",
+                "Cache-Control: no-cache",
+                "Pragma: no-cache",
+                "Connection: keep-alive"
+            )
+        ),
+        'maxredirects' => 5,
+        'useragent' => 'Zend_Http_Client',
+        'timeout' => 10,
+        'httpversion' => Zend_Http_Client::HTTP_1,
+        'keepalive' => false,
+        'storeresponse' => true,
+        'strict' => true,
+        'output_stream' => false,
+        'encodecookies' => true,
+        'rfc3986_strict' => false
+    );
 
     public function __construct($sandbox = true)
     {
         $uri = $sandbox ? 'https://webservices-int.eos-payment.com/custom/ratepay/xml/1_0' : '';
-        $this->_zendHttpClient = new Zend_Http_Client($uri);
+        $this->_zendHttpClient = new Zend_Http_Client($uri, $this->config);
     }
 
-    public function init(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit $initModel)
+    public function xmlRequest($Model)
     {
-        $xml = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::convertToXml($initModel, 'payment');
-        $this->_zendHttpClient->setRawData($xml->asXML());
+        $xml = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::convertToXml($Model, 'request');
+        $this->_zendHttpClient->setRawData(trim($xml->asXML(), "\xef\xbb\xbf"), "text/xml; charset=UTF-8");
         $result = $this->_zendHttpClient->request('POST');
-        return new SimpleXMLElement($result->getBody());
+        $dom = new DOMDocument();
+        $dom->loadXML($result->getBody());
+        return $dom;
     }
 
     public function getLastResponse()

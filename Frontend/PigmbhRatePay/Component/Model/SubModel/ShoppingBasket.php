@@ -9,17 +9,17 @@
 class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket {
 
     /**
-     * @var string 
+     * @var string
      */
     private $_amount;
 
     /**
-     * @var string 
+     * @var string
      */
     private $_currency;
 
     /**
-     * @var array 
+     * @var array
      */
     private $_items;
 
@@ -83,11 +83,14 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingB
      * @return array
      */
     public function toArray() {
-        return array(
+        $return = array(
             '@amount' => $this->getAmount(),
-            '@currency' => $this->getCurrency(),
-            'items' => $this->getItems()
+            '@currency' => $this->getCurrency()
         );
+        foreach($this->getItems() as $item){
+            $return['items'][] = $item->toArray();
+        }
+        return $return;
     }
 
 }

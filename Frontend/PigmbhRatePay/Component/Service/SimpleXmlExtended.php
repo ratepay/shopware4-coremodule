@@ -18,16 +18,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_SimpleXmlExtende
      * @param bool $utfMode
      * @return SimpleXMLElement
      */
-    public function addCDataChild($sName, $sValue, $utfMode = true)
+     public function addCDataChild($sName, $sValue)
     {
-        if (!$utfMode) {
-            $sValue = utf8_encode($sValue);
-        }
-
-        $sValue = html_entity_decode($sValue);
-        $sValue = str_replace("&#039;", "'", $sValue);
-
         $oNodeOld = dom_import_simplexml($this);
+        $oNodeNew = new DOMNode();
         $oDom = new DOMDocument();
         $oDataNode = $oDom->appendChild($oDom->createElement($sName));
         $oDataNode->appendChild($oDom->createCDATASection($sValue));

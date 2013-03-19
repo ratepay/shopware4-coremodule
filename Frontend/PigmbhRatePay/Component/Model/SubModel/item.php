@@ -6,7 +6,8 @@
  * @category   PayIntelligent
  * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
  */
-class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
+class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item
+{
 
     /**
      * @var string
@@ -38,7 +39,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @return string
      */
-    public function getArticleName() {
+    public function getArticleName()
+    {
         return $this->_articleName;
     }
 
@@ -47,7 +49,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @param string $articleName
      */
-    public function setArticleName($articleName) {
+    public function setArticleName($articleName)
+    {
         $this->_articleName = $articleName;
     }
 
@@ -56,7 +59,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @return string
      */
-    public function getArticleNumber() {
+    public function getArticleNumber()
+    {
         return $this->_articleNumber;
     }
 
@@ -65,7 +69,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @param string $articleNumber
      */
-    public function setArticleNumber($articleNumber) {
+    public function setArticleNumber($articleNumber)
+    {
         $this->_articleNumber = $articleNumber;
     }
 
@@ -74,7 +79,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @return string
      */
-    public function getQuantity() {
+    public function getQuantity()
+    {
         return $this->_quantity;
     }
 
@@ -83,7 +89,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @param string $quantity
      */
-    public function setQuantity($quantity) {
+    public function setQuantity($quantity)
+    {
         $this->_quantity = $quantity;
     }
 
@@ -92,7 +99,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @return string
      */
-    public function getTaxRate() {
+    public function getTaxRate()
+    {
         return $this->_taxRate;
     }
 
@@ -101,7 +109,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @param string $taxRate
      */
-    public function setTaxRate($taxRate) {
+    public function setTaxRate($taxRate)
+    {
         $this->_taxRate = $taxRate;
     }
 
@@ -110,7 +119,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @return string
      */
-    public function getUnitPriceGross() {
+    public function getUnitPriceGross()
+    {
         return $this->_unitPriceGross;
     }
 
@@ -119,8 +129,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @param string $unitPriceGross
      */
-    public function setUnitPriceGross($unitPriceGross) {
-        $this->_unitPriceGross = $unitPriceGross;
+    public function setUnitPriceGross($unitPriceGross)
+    {
+        $this->_unitPriceGross = (float)$unitPriceGross;
     }
 
     /**
@@ -128,13 +139,16 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item {
      *
      * @return array
      */
-    public function toArray() {
+    public function toArray()
+    {
         return array(
-            'item' => $this->getArticleName(),
-            '@article-number' => $this->getArticleNumber(),
-            '@quantity' => $this->getQuantity(),
-            '@tax-rate' => $this->getTaxRate(),
-            '@unit-price-gross' => $this->getUnitPriceGross()
+            'item' => array(
+                '@article-number' => $this->getArticleNumber(),
+                '@quantity' => $this->getQuantity(),
+                '@tax-rate' => $this->getTaxRate(),
+                '@unit-price-gross' => $this->getUnitPriceGross(),
+                $this->getArticleName()
+            )
         );
     }
 

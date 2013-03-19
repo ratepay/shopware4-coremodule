@@ -101,6 +101,16 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'additionaldescription' => ''
                     )
             );
+            $this->createPayment(
+                    array(
+                        'name' => 'pigmbhratepayprepayment',
+                        'description' => 'RatePAY Vorkasse',
+                        'action' => 'pigmbh_ratepay',
+                        'active' => 1,
+                        'position' => 4,
+                        'additionaldescription' => ''
+                    )
+            );
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception("Can not create payment." . $exception->getMessage());

@@ -27,22 +27,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     /**
      * @var string
      */
-    private $_title;
-
-    /**
-     * @var string
-     */
     private $_gender;
 
     /**
      * @var string
      */
     private $_dateOfBirth;
-
-    /**
-     * @var string
-     */
-    private $_ipAddress;
 
     /**
      * @var string
@@ -146,26 +136,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     }
 
     /**
-     * This function returns the value of $_title
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->_title;
-    }
-
-    /**
-     * This function sets the value for $_title
-     *
-     * @param string $title
-     */
-    public function setTitle($title)
-    {
-        $this->_title = $title;
-    }
-
-    /**
      * This function returns the value of $_gender
      *
      * @return string
@@ -203,26 +173,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
     public function setDateOfBirth($dateOfBirth)
     {
         $this->_dateOfBirth = $dateOfBirth;
-    }
-
-    /**
-     * This function returns the value of $_ipAddress
-     *
-     * @return string
-     */
-    public function getIpAddress()
-    {
-        return $this->_ipAddress;
-    }
-
-    /**
-     * This function sets the value for $_ipAddress
-     *
-     * @param string $ipAddress
-     */
-    public function setIpAddress($ipAddress)
-    {
-        $this->_ipAddress = $ipAddress;
     }
 
     /**
@@ -396,10 +346,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
             'first-name' => $this->getFirstName(),
             'last-name' => $this->getLastName(),
             'salutation' => $this->getSalutaion(),
-            'title' => $this->getTitle(),
             'gender' => $this->getGender(),
             'date-of-birth' => $this->getDateOfBirth(),
-            'ip-address' => $this->getIpAddress(),
             'contacts' => array(
                 'email' => $this->getEmail(),
                 'phone' => array(
@@ -407,11 +355,14 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
                 )
             ),
             'addresses' => array(
-                'address' => array(
-                    $this->getBillingAddresses(),
-                    $this->getShippingAddresses()
+                0 => array(
+                    'address' => $this->getBillingAddresses()->toArray(),
+                ),
+                1 => array(
+                    'address' => $this->getShippingAddresses()->toArray(),
                 )
-            )
+            ),
+            'customer-allow-credit-inquiry' => 'yes'
         );
 
         if ($this->_companyName != null && $this->_vatId != null) {

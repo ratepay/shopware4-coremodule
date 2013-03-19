@@ -122,9 +122,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest
             '@xmlns' => "urn://www.ratepay.com/payment/1_0",
             'head' => $this->getHead()->toArray(),
             'content' => array(
-                'customer' => $this->getCustomer(),
-                'shopping-basket' => $this->getShoppingBasket(),
-                'payment' => $this->getPayment()
+                'customer' => $this->getCustomer()->toArray(),
+                'shopping-basket' => $this->getShoppingBasket()->toArray(),
+                'payment' => $this->getPayment()->toArray()
             )
         );
     }

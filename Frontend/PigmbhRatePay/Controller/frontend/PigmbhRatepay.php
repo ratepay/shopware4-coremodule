@@ -19,7 +19,6 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     private $_request;
     private $_modelFactory;
 
-
     public function init()
     {
         $this->_config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
@@ -49,6 +48,9 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             case 'pigmbhratepaydebit':
                 $this->debit();
                 break;
+            case 'pigmbhratepayprepayment':
+                $this->prepayment();
+                break;
             default:
                 break;
         }
@@ -73,15 +75,18 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     private function invoice()
     {
         $paymentInitModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit());
-        $result = $this->_request->init($paymentInitModel->toArray());
-        $status = $result->{'head'}->{'processing'}->{'status'}->attributes();
-        if ($status['code'] === 'OK') {
-            $transactionId = $result->{'head'}->{'transaction-id'};
+        $result = $this->_request->xmlRequest($paymentInitModel->toArray());
+        if ($this->validateResponse('PAYMENT_INIT', $result)) {
+            Shopware()->Session()->RatePAY['transactionId'] = $result->getElementsByTagName('transaction-id')->item(0)->nodeValue;
+            $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest());
+            $result = $this->_request->xmlRequest($paymentRequestModel->toArray());
+            if($this->validateResponse('PAYMENT_REQUEST', $result)){
+                echo "saveOrder";
+            }else{
+                echo "RedirectToConfirmPage";
+            }
         }
-
-
-
-        
+        exit;
     }
 
     private function debit()
@@ -92,6 +97,72 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     private function rate()
     {
 
+    }
+
+    private function prepayment()
+    {
+
+    }
+
+    /**
+     * Validates the Response
+     *
+     * @param string $requestType
+     * @return boolean|array
+     */
+    public function validateResponse($requestType = '', $response = null)
+    {
+        $return = false;
+        $statusCode = '';
+        $resultCode = '';
+        $reasonCode = '';
+        if ($response != null) {
+            $statusCode = (string) $response->getElementsByTagName('status')->item(0)->getAttribute('code');
+            $resultCode = (string) $response->getElementsByTagName('result')->item(0)->getAttribute('code');
+            $reasonCode = (string) $response->getElementsByTagName('reason')->item(0)->getAttribute('code');
+        }
+        switch ($requestType) {
+            case 'PAYMENT_INIT':
+                if ($statusCode == "OK" && $resultCode == "350") {
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_REQUEST':
+                if ($statusCode == "OK" && $resultCode == "402") {
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_CONFIRM':
+                if ($statusCode == "OK" && $resultCode == "400") {
+                    $this->error = '';
+                    $return = true;
+                }
+                break;
+            case 'CONFIRMATION_DELIVER':
+                if ($statusCode == "OK" && $resultCode == "404") {
+                    $this->error = '';
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_CHANGE':
+                if ($statusCode == "OK" && $resultCode == "403") {
+                    $this->error = '';
+                    $return = true;
+                }
+                break;
+            case 'CONFIGURATION_REQUEST':
+                if ($statusCode == "OK" && $resultCode == "500") {
+                    $return = true;
+                }
+                break;
+            case 'CALCULATION_REQUEST':
+                $successCodes = array('603', '671', '688', '689', '695', '696', '697', '698', '699');
+                if ($statusCode == "OK" && in_array($reasonCode, $successCodes) && $resultCode == "502") {
+                    $return = true;
+                }
+                break;
+        }
+        return $return;
     }
 
 }

@@ -44,12 +44,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit
         return array(
             '@version' => '1.0',
             '@xmlns' => "urn://www.ratepay.com/payment/1_0",
-            'head' => $this->getHead()->toArray(),
-            'content'=>array(
-                'customer',
-                'shopping-basket',
-                'payment'
-            )
+            'head' => $this->getHead()->toArray()
         );
     }
 
