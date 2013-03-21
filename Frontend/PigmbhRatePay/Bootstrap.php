@@ -78,7 +78,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 1,
-                        'additionaldescription' => ''
+                        'additionaldescription' => '',
+                        'template' => 'RatePAYInvoice.tpl'
                     )
             );
             $this->createPayment(
@@ -88,7 +89,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 2,
-                        'additionaldescription' => ''
+                        'additionaldescription' => '',
+                        'template' => 'RatePAYRate.tpl'
                     )
             );
             $this->createPayment(
@@ -98,7 +100,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 3,
-                        'additionaldescription' => ''
+                        'additionaldescription' => '',
+                        'template' => 'RatePAYDebit.tpl'
                     )
             );
             $this->createPayment(
@@ -108,7 +111,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 4,
-                        'additionaldescription' => ''
+                        'additionaldescription' => '',
+                        'template' => 'RatePAYPrepayment.tpl'
                     )
             );
         } catch (Exception $exception) {
@@ -237,6 +241,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                     'Enlight_Controller_Action_PostDispatch_Frontend_Checkout', 'preValidation'
             );
             $this->subscribeEvent(
+                    'Enlight_Controller_Action_PreDispatch_Frontend_Checkout', 'onCheckoutConfirm'
+            );
+            $this->subscribeEvent(
                     'Shopware_Modules_Admin_GetPaymentMeans_DataFilter', 'filterPayments'
             );
             $this->subscribeEvent(
@@ -314,7 +321,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             return;
         }
 
-// Check for the right Action
+        // Check for the right Action
         if (!in_array('confirm', array($request->get('action'), $view->sTargetAction)) || $request->get('controller') !== 'checkout') {
             return;
         }
@@ -327,6 +334,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         $validation = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation();
 
         if ($validation->isRatePAYPayment()) {
+            $view->sRegisterFinished = 'false';
             $view->ratepayValidateTelephoneNumber = $validation->isTelephoneNumberSet() ? 'true' : 'false';
             Shopware()->Log()->Debug("RatePAY: isTelephoneNumberSet->" . $view->ratepayValidateTelephoneNumber);
             $view->ratepayValidateUST = $validation->isUSTSet() ? 'true' : 'false';
@@ -337,8 +345,41 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             Shopware()->Log()->Debug("RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
             $view->ratepayValidateIsAddressValid = $validation->isAddressValid() ? 'true' : 'false';
             Shopware()->Log()->Debug("RatePAY: isAddressValid->" . $view->ratepayValidateIsAddressValid);
-            $view->extendsTemplate('frontend/RatePAYConfirm.tpl');
+            $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true' : 'false';
+            Shopware()->Log()->Debug("RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
+            $view->ratepayValidateisAgeValid = $validation->isAgeValid() ? 'true' : 'false';
+            Shopware()->Log()->Debug("RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
+
         }
+    }
+
+    /**
+     * Extends the confirmationpage with an Errorbox, if there is an error.
+     *
+     * @param Enlight_Event_EventArgs $arguments
+     * @return null
+     */
+    public function onCheckoutConfirm(Enlight_Event_EventArgs $arguments)
+    {
+        $params = $arguments->getRequest()->getParams();
+        if ($arguments->getRequest()->getActionName() !== 'confirm' || $params['showError'] != 1) {
+            return;
+        }
+        $pigmbhErrorMessage = Shopware()->Session()->RatePAY['errorMessage'];
+        $view = $arguments->getSubject()->View();
+        $content = '{if $pigmbhErrorMessage}' .
+                '<div class="grid_20">' .
+                '<div class="error">' .
+                '<div class="center">' .
+                '<strong>' .
+                '{$pigmbhErrorMessage}' .
+                '</strong>' .
+                '</div>' .
+                '</div>' .
+                '</div>' .
+                '{/if}';
+        $view->extendsBlock("frontend_index_content_top", $content, "append");
+        $view->pigmbhErrorMessage = $pigmbhErrorMessage;
     }
 
     /**

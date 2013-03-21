@@ -25,6 +25,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         $this->_user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', Shopware()->Session()->sUserId);
         $this->_request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
         $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout();
+        unset(Shopware()->Session()->RatePAY['errorMessage']);
     }
 
     /**
@@ -32,85 +33,80 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
      */
     public function indexAction()
     {
-        $requestParams = $this->Request()->getParams();
-        if (count(preg_grep("/^ratepay_.*$/", array_keys($requestParams))) !== 0) {
-            Shopware()->Log()->Info('RatePAY: UpdateUserData');
-            $this->updateUserData($requestParams);
-        }
-
-        switch ($this->getPaymentShortName()) {
-            case 'pigmbhratepayinvoice':
-                $this->invoice();
-                break;
-            case 'pigmbhratepayrate':
-                $this->rate();
-                break;
-            case 'pigmbhratepaydebit':
-                $this->debit();
-                break;
-            case 'pigmbhratepayprepayment':
-                $this->prepayment();
-                break;
-            default:
-                break;
+        if (preg_match("/^pigmbhratepay(invoice|rate|debit|prepayment)$/", $this->getPaymentShortName())) {
+            $this->_proceedPayment();
+        } else {
+            $this->_error('Die Zahlart ' . $this->getPaymentShortName() . ' wird nicht unterst&uuml;tzt!');
         }
     }
 
     /**
      * Updates phone, ustid, company and the birthday for the current user.
      *
-     * @param array $userData
+     *
      */
-    private function updateUserData($userData)
+    public function saveUserDataAction()
     {
-        Shopware()->Db()->update('s_user_billingaddress', array(
-            'phone' => $userData['ratepay_phone'] ? : $this->_user->getPhone(),
-            'ustid' => $userData['ratepay_ustid'] ? : $this->_user->getVatId(),
-            'company' => $userData['ratepay_company'] ? : $this->_user->getCompany(),
-            'birthday' => $userData['ratepay_birthday'] ? : $this->_user->getBirthday()->format("Y-m-d")
-                ), 'userID=' . $this->_user->getCustomer()->getId()
-        );
+        Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
+        $requestParameter = $this->Request()->getParams();
+        $user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', $requestParameter['userid']);
+        $updateData = array();
+        if(!is_null($user)){
+            $updateData['phone'] = $requestParameter['ratepay_phone'] ? : $user->getPhone();
+            $updateData['ustid'] = $requestParameter['ratepay_ustid'] ? : $user->getVatId();
+            $updateData['company'] = $requestParameter['ratepay_company'] ? : $user->getCompany();
+            $updateData['birthday'] = $requestParameter['ratepay_birthday'] ? : $user->getBirthday()->format("Y-m-d");
+        }
+
+        try{
+            Shopware()->Db()->update('s_user_billingaddress', $updateData, 'userID=' . $requestParameter['userid']);
+            echo "OK";
+        }  catch (Exception $exception){
+            Shopware()->Log()->Err('Fehler beim Updaten der UserDaten: ' . $exception->getMessage());
+            echo "NOK";
+        }
     }
 
-    private function invoice()
+    private function _proceedPayment()
     {
         $paymentInitModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit());
         $result = $this->_request->xmlRequest($paymentInitModel->toArray());
-        if ($this->validateResponse('PAYMENT_INIT', $result)) {
+        if ($this->_validateResponse('PAYMENT_INIT', $result)) {
             Shopware()->Session()->RatePAY['transactionId'] = $result->getElementsByTagName('transaction-id')->item(0)->nodeValue;
             $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest());
             $result = $this->_request->xmlRequest($paymentRequestModel->toArray());
-            if($this->validateResponse('PAYMENT_REQUEST', $result)){
-                echo "saveOrder";
-            }else{
-                echo "RedirectToConfirmPage";
+            if ($this->_validateResponse('PAYMENT_REQUEST', $result)) {
+                //TODO: saveOrder & PAYMENT_CONFIRM
+                echo 'finishOrder';
+            } else {
+                $this->_error(); //TODO Error nachtragen
             }
         }
+
+        var_dump($result);
+        echo (string) $result->getElementsByTagName('status')->item(0)->nodeValue."<br>";
+        echo (string) $result->getElementsByTagName('result')->item(0)->nodeValue."<br>";
+        echo (string) $result->getElementsByTagName('reason')->item(0)->nodeValue."<br>";
         exit;
     }
 
-    private function debit()
+    private function _error($message = 'Ein Fehler ist aufgetreten.')
     {
-
-    }
-
-    private function rate()
-    {
-
-    }
-
-    private function prepayment()
-    {
-
+        Shopware()->Session()->RatePAY['errorMessage'] = $message;
+        $this->redirect(Shopware()->Front()->Router()->assemble(array(
+                    'controller' => 'checkout',
+                    'action' => 'confirm',
+                    'showError' => true
+                )));
     }
 
     /**
      * Validates the Response
      *
      * @param string $requestType
-     * @return boolean|array
+     * @return boolean
      */
-    public function validateResponse($requestType = '', $response = null)
+    private function _validateResponse($requestType = '', $response = null)
     {
         $return = false;
         $statusCode = '';
@@ -134,19 +130,16 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                 break;
             case 'PAYMENT_CONFIRM':
                 if ($statusCode == "OK" && $resultCode == "400") {
-                    $this->error = '';
                     $return = true;
                 }
                 break;
             case 'CONFIRMATION_DELIVER':
                 if ($statusCode == "OK" && $resultCode == "404") {
-                    $this->error = '';
                     $return = true;
                 }
                 break;
             case 'PAYMENT_CHANGE':
                 if ($statusCode == "OK" && $resultCode == "403") {
-                    $this->error = '';
                     $return = true;
                 }
                 break;

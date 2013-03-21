@@ -18,7 +18,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
      */
     public function getModel($modelName)
     {
-//        var_dump(get_class($modelName));
         switch ($modelName) {
             case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit'):
                 $this->fillPaymentInit($modelName);
@@ -65,7 +64,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $head->setSystemId(Shopware()->Shop()->getHost());
 
         $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
-        $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getShipping()->getCountryId());
+        $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
         $customer = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer();
 
         $shopBillingAddress = $shopUser->getBilling();
@@ -74,7 +73,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $billingAddress->setLastName($shopBillingAddress->getLastName());
         $billingAddress->setSalutation($shopBillingAddress->getSalutation());
         $billingAddress->setCompany($shopBillingAddress->getCompany());
-        $billingAddress->setType('DELIVERY');
+        $billingAddress->setType('BILLING');
         $billingAddress->setCountryCode($shopCountry->getIso());
         $billingAddress->setCity($shopBillingAddress->getCity());
         $billingAddress->setStreet($shopBillingAddress->getStreet());
@@ -82,9 +81,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $billingAddress->setZipCode($shopBillingAddress->getZipCode());
         $customer->setBillingAddresses($billingAddress);
 
-        $shopShippingAddress = $shopUser->getShipping();
+
+        $shopShippingAddress = $shopUser->getShipping() === null ?: $shopUser->getBilling();
         $shippingAddress = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address();
-        $shippingAddress->setType('BILLING');
+        $shippingAddress->setType('DELIVERY');
         $shippingAddress->setCountryCode($shopCountry->getIso());
         $shippingAddress->setCity($shopShippingAddress->getCity());
         $shippingAddress->setStreet($shopShippingAddress->getStreet());
