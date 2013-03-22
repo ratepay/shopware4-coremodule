@@ -50,32 +50,57 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
         $requestParameter = $this->Request()->getParams();
         $user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', $requestParameter['userid']);
+        $debitUser = Shopware()->Models()->find('Shopware\Models\Customer\Debit', $requestParameter['userid']);
+
+        $return = 'OK';
+
         $updateData = array();
-        if(!is_null($user)){
+        if (!is_null($user)) {
             $updateData['phone'] = $requestParameter['ratepay_phone'] ? : $user->getPhone();
             $updateData['ustid'] = $requestParameter['ratepay_ustid'] ? : $user->getVatId();
             $updateData['company'] = $requestParameter['ratepay_company'] ? : $user->getCompany();
             $updateData['birthday'] = $requestParameter['ratepay_birthday'] ? : $user->getBirthday()->format("Y-m-d");
+            try {
+                Shopware()->Db()->update('s_user_billingaddress', $updateData, 'userID=' . $requestParameter['userid']);
+                Shopware()->Log()->Info('Kundendaten aktualisiert.');
+            } catch (Exception $exception) {
+                Shopware()->Log()->Err('Fehler beim Updaten der Userdaten: ' . $exception->getMessage());
+                $return = 'NOK';
+            }
         }
-
-        try{
-            Shopware()->Db()->update('s_user_billingaddress', $updateData, 'userID=' . $requestParameter['userid']);
-            echo "OK";
-        }  catch (Exception $exception){
-            Shopware()->Log()->Err('Fehler beim Updaten der UserDaten: ' . $exception->getMessage());
-            echo "NOK";
+        $updateData = array();
+        if (!is_null($debitUser)) {
+            $updateData = array(
+                $requestParameter['ratepay_debit_accountnumber'] ? : $debitUser->getAccount(),
+                $requestParameter['ratepay_debit_bankcode'] ? : $debitUser->getBankCode(),
+                $requestParameter['ratepay_debit_bankname'] ? : $debitUser->getBankName(),
+                $requestParameter['ratepay_debit_accountholder'] ? : $debitUser->getAccountHolder(),
+                $requestParameter['userid']
+            );
+            try {
+                $sql = "REPLACE INTO `s_user_debit` " .
+                        "(`account`, `bankcode`, `bankname`, `bankholder`, `userID`)" .
+                        "VALUES(?, ?, ?, ?, ?) ";
+                Shopware()->Db()->query($sql, $updateData);
+                Shopware()->Log()->Info('Bankdaten aktualisiert.');
+            } catch (Exception $exception) {
+                Shopware()->Log()->Err('Fehler beim Updaten der Bankdaten: ' . $exception->getMessage());
+                Shopware()->Log()->Debug($updateData);
+                $return = 'NOK';
+            }
         }
+        echo $return;
     }
 
     private function _proceedPayment()
     {
         $paymentInitModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit());
         $result = $this->_request->xmlRequest($paymentInitModel->toArray());
-        if ($this->_validateResponse('PAYMENT_INIT', $result)) {
+        if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_INIT', $result)) {
             Shopware()->Session()->RatePAY['transactionId'] = $result->getElementsByTagName('transaction-id')->item(0)->nodeValue;
             $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest());
             $result = $this->_request->xmlRequest($paymentRequestModel->toArray());
-            if ($this->_validateResponse('PAYMENT_REQUEST', $result)) {
+            if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
                 //TODO: saveOrder & PAYMENT_CONFIRM
                 echo 'finishOrder';
             } else {
@@ -83,10 +108,9 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             }
         }
 
-        var_dump($result);
-        echo (string) $result->getElementsByTagName('status')->item(0)->nodeValue."<br>";
-        echo (string) $result->getElementsByTagName('result')->item(0)->nodeValue."<br>";
-        echo (string) $result->getElementsByTagName('reason')->item(0)->nodeValue."<br>";
+        echo (string) $result->getElementsByTagName('status')->item(0)->nodeValue . "<br>";
+        echo (string) $result->getElementsByTagName('result')->item(0)->nodeValue . "<br>";
+        echo (string) $result->getElementsByTagName('reason')->item(0)->nodeValue . "<br>";
         exit;
     }
 
@@ -98,64 +122,6 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                     'action' => 'confirm',
                     'showError' => true
                 )));
-    }
-
-    /**
-     * Validates the Response
-     *
-     * @param string $requestType
-     * @return boolean
-     */
-    private function _validateResponse($requestType = '', $response = null)
-    {
-        $return = false;
-        $statusCode = '';
-        $resultCode = '';
-        $reasonCode = '';
-        if ($response != null) {
-            $statusCode = (string) $response->getElementsByTagName('status')->item(0)->getAttribute('code');
-            $resultCode = (string) $response->getElementsByTagName('result')->item(0)->getAttribute('code');
-            $reasonCode = (string) $response->getElementsByTagName('reason')->item(0)->getAttribute('code');
-        }
-        switch ($requestType) {
-            case 'PAYMENT_INIT':
-                if ($statusCode == "OK" && $resultCode == "350") {
-                    $return = true;
-                }
-                break;
-            case 'PAYMENT_REQUEST':
-                if ($statusCode == "OK" && $resultCode == "402") {
-                    $return = true;
-                }
-                break;
-            case 'PAYMENT_CONFIRM':
-                if ($statusCode == "OK" && $resultCode == "400") {
-                    $return = true;
-                }
-                break;
-            case 'CONFIRMATION_DELIVER':
-                if ($statusCode == "OK" && $resultCode == "404") {
-                    $return = true;
-                }
-                break;
-            case 'PAYMENT_CHANGE':
-                if ($statusCode == "OK" && $resultCode == "403") {
-                    $return = true;
-                }
-                break;
-            case 'CONFIGURATION_REQUEST':
-                if ($statusCode == "OK" && $resultCode == "500") {
-                    $return = true;
-                }
-                break;
-            case 'CALCULATION_REQUEST':
-                $successCodes = array('603', '671', '688', '689', '695', '696', '697', '698', '699');
-                if ($statusCode == "OK" && in_array($reasonCode, $successCodes) && $resultCode == "502") {
-                    $return = true;
-                }
-                break;
-        }
-        return $return;
     }
 
 }

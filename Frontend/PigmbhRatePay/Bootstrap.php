@@ -405,7 +405,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             Shopware()->Log()->Debug("RatePAY: Filter RatePAY-payments");
             $payments = array();
             foreach ($return as $payment) {
-                if (!in_array($payment['name'], array('pigmbhratepayinvoice', 'pigmbhratepaydebit', 'pigmbhratepayrate'))) {
+                if (!in_array($payment['name'], array('pigmbhratepayinvoice', 'pigmbhratepaydebit', 'pigmbhratepayrate', 'pigmbhratepayprepayment'))) {
                     $payments[] = $payment;
                 }
             }

@@ -53,4 +53,67 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util
         }
     }
 
+    /**
+     * Validates the Response
+     *
+     * @param string $requestType
+     * @return boolean
+     */
+    public static function validateResponse($requestType = '', $response = null)
+    {
+        $return = false;
+        $statusCode = '';
+        $resultCode = '';
+        $reasonCode = '';
+        if ($response != null) {
+            $statusCode = (string) $response->getElementsByTagName('status')->item(0)->getAttribute('code');
+            $resultCode = (string) $response->getElementsByTagName('result')->item(0)->getAttribute('code');
+            $reasonCode = (string) $response->getElementsByTagName('reason')->item(0)->getAttribute('code');
+        }
+        switch ($requestType) {
+            case 'PROFILE_REQUEST':
+                if ($statusCode == "OK" && $resultCode == "500") {
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_INIT':
+                if ($statusCode == "OK" && $resultCode == "350") {
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_REQUEST':
+                if ($statusCode == "OK" && $resultCode == "402") {
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_CONFIRM':
+                if ($statusCode == "OK" && $resultCode == "400") {
+                    $return = true;
+                }
+                break;
+            case 'CONFIRMATION_DELIVER':
+                if ($statusCode == "OK" && $resultCode == "404") {
+                    $return = true;
+                }
+                break;
+            case 'PAYMENT_CHANGE':
+                if ($statusCode == "OK" && $resultCode == "403") {
+                    $return = true;
+                }
+                break;
+            case 'CONFIGURATION_REQUEST':
+                if ($statusCode == "OK" && $resultCode == "500") {
+                    $return = true;
+                }
+                break;
+            case 'CALCULATION_REQUEST':
+                $successCodes = array('603', '671', '688', '689', '695', '696', '697', '698', '699');
+                if ($statusCode == "OK" && in_array($reasonCode, $successCodes) && $resultCode == "502") {
+                    $return = true;
+                }
+                break;
+        }
+        return $return;
+    }
+
 }

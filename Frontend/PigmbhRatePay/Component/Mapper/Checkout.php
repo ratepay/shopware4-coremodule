@@ -82,7 +82,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $customer->setBillingAddresses($billingAddress);
 
 
-        $shopShippingAddress = $shopUser->getShipping() === null ?: $shopUser->getBilling();
+        $shopShippingAddress = $shopUser->getShipping() === null ? : $shopUser->getBilling();
         $shippingAddress = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address();
         $shippingAddress->setType('DELIVERY');
         $shippingAddress->setCountryCode($shopCountry->getIso());
@@ -92,14 +92,15 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $shippingAddress->setZipCode($shopShippingAddress->getZipCode());
         $customer->setShippingAddresses($shippingAddress);
 
-        // nur bei ELV + installment(direct_debit)
-//        $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
-//        $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
-//        $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
-//        $bankAccount->setBankName($shopUser->getDebit()->getBankName());
-//        $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
-//        $customer->setBankAccount($bankAccount);
-
+        // nur bei ELV
+        if (!is_null($shopUser->getDebit())) {
+            $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
+            $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
+            $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
+            $bankAccount->setBankName($shopUser->getDebit()->getBankName());
+            $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
+            $customer->setBankAccount($bankAccount);
+        }
         $customer->setCompanyName($shopBillingAddress->getCompany());
         $customer->setVatId($shopBillingAddress->getVatId());
         $customer->setDateOfBirth($shopBillingAddress->getBirthday()->format('Y-m-d'));
