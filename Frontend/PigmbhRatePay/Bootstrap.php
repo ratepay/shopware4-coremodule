@@ -36,7 +36,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
      */
     public function getVersion()
     {
-        return "2.2.0";
+        return "3.0.0";
     }
 
     /**
@@ -51,6 +51,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         $this->_createPluginConfigTranslation();
         $this->_subscribeEvents();
         $this->_createMenu();
+        $this->_createDataBaseTables();
         $this->Plugin()->setActive(true);
         return true;
     }
@@ -201,6 +202,28 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
     }
 
+    private function _createDataBaseTables(){
+        $sqlLogging = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_logging` (" .
+                "`id` int(11) NOT NULL AUTO_INCREMENT," .
+                "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," .
+                "`version` varchar(10) DEFAULT NULL," .
+                "`operation` varchar(15) DEFAULT NULL," .
+                "`transactionId` varchar(50) DEFAULT NULL," .
+                "`request` text," .
+                "`response` text," .
+                "PRIMARY KEY (`id`)" .
+                ")";
+        try{
+            Shopware()->Db()->query($sqlLogging);
+        }  catch (Exception $exception){
+            $this->uninstall();
+            throw new Exception('Can not create Database.' . $exception->getMessage());
+        }
+        
+    }
+
+    
+
     /**
      * Creates the Menuentry for the RatePAY-logging
      */
@@ -212,7 +235,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 'label' => 'RatePAY',
                 'class' => 'sprite-cards-stack',
                 'active' => 1,
-                'controller' => 'PigmbhRatePay',
+                'controller' => 'PigmbhRatepayLogging',
                 'action' => 'index',
                 'parent' => $parent
                     )
@@ -235,7 +258,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                     'Enlight_Controller_Dispatcher_ControllerPath_Frontend_PigmbhRatepay', 'frontendPaymentController'
             );
             $this->subscribeEvent(
-                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatepay', 'onBackendController'
+                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatepayLogging', 'onBackendController'
             );
             $this->subscribeEvent(
                     'Enlight_Controller_Action_PostDispatch_Frontend_Checkout', 'preValidation'
@@ -292,7 +315,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
     public function frontendPaymentController(Enlight_Event_EventArgs $arguments)
     {
         Shopware()->Template()->addTemplateDir($this->Path() . 'View/');
-        return $this->Path() . 'Controller/frontend/PigmbhRatepay.php';
+        return $this->Path() . '/Controller/frontend/PigmbhRatepay.php';
     }
 
     /**
@@ -303,7 +326,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
     public function onBackendController()
     {
         Shopware()->Template()->addTemplateDir($this->Path() . 'View/');
-        return $this->Path() . "Controller/backend/";
+        return $this->Path() . "/Controller/backend/PigmbhRatepayLogging.php";
     }
 
     /**

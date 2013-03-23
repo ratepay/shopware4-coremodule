@@ -10,6 +10,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
 {
 
     private $_zendHttpClient;
+    private $_logging;
     protected $config = array(
         'strictredirects' => false,
         'adapter' => 'Zend_Http_Client_Adapter_Curl',
@@ -43,6 +44,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
     {
         $uri = $sandbox ? 'https://webservices-int.eos-payment.com/custom/ratepay/xml/1_0' : '';
         $this->_zendHttpClient = new Zend_Http_Client($uri, $this->config);
+        $this->_logging = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging();
     }
 
     public function xmlRequest($Model)
@@ -52,6 +54,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
         $result = $this->_zendHttpClient->request('POST');
         $dom = new DOMDocument();
         $dom->loadXML($result->getBody());
+        $this->_logging->logRequest($this->getLastRequest(), $this->getLastResponse());
         return $dom;
     }
 
