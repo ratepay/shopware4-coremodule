@@ -16,4 +16,5 @@
         <label for='ratepay_debit_accountholder'>Konto-Inhaber:</label>
         <input id='ratepay_debit_accountholder' type='text' class='text'>
     </p>
+    {include file='frontend/RatePAYAGBs.tpl'}
 {/if}
