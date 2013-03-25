@@ -25,6 +25,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
             case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest'):
                 $this->fillPaymentRequest($modelName);
                 break;
+            case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm'):
+                $this->fillPaymentConfirm($modelName);
+                break;
             default:
                 throw new Exception('The submitted Class is not supported!');
                 break;
@@ -152,6 +155,18 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $paymentRequestModel->setPayment($payment);
         $paymentRequestModel->setShoppingBasket($basket);
     }
+
+    private function fillPaymentConfirm(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm &$paymentConfirmModel){
+        $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
+        $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
+        $head->setOperation('PAYMENT_CONFIRM');
+        $head->setProfileId($config->get('RatePayProfileID'));
+        $head->setSecurityCode($config->get('RatePaySecurityCode'));
+        $head->setSystemId(Shopware()->Shop()->getHost());
+        $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
+        $paymentConfirmModel->setHead($head);
+    }
+
 
     /**
      * Return the full amount to pay.

@@ -22,8 +22,8 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
         var me = this;
         me.store = me.listStore;
         me.items = [
-        me.createOverviewGrid(me),
-        me.createDetailGrid(me)
+            me.createOverviewGrid(me),
+            me.createDetailGrid(me)
         ];
         me.callParent(arguments);
     },
@@ -43,12 +43,12 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
             {
                 text: 'Version',
                 dataIndex: 'version',
-                width:150
+                width:100
             },
             {
                 text: 'Operation',
                 dataIndex: 'operation',
-                width:100
+                width:200
             },
             {
                 text: 'TransactionId',

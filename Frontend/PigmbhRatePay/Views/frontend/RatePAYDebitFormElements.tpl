@@ -1,5 +1,4 @@
-{if $sPayment.name == 'pigmbhratepaydebit'}
-    {include file='frontend/RatePAYFormElements.tpl'}
+{if $ratepayValidateisDebitSet == 'false'}
     <p class='none'>
         <label for='ratepay_debit_accountnumber'>Kontonummer:</label>
         <input id='ratepay_debit_accountnumber' type='text' class='text'>
@@ -16,5 +15,4 @@
         <label for='ratepay_debit_accountholder'>Konto-Inhaber:</label>
         <input id='ratepay_debit_accountholder' type='text' class='text'>
     </p>
-    {include file='frontend/RatePAYAGBs.tpl'}
 {/if}

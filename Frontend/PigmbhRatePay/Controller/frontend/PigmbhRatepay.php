@@ -25,7 +25,6 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         $this->_user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', Shopware()->Session()->sUserId);
         $this->_request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
         $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout();
-        unset(Shopware()->Session()->RatePAY['errorMessage']);
     }
 
     /**
@@ -33,6 +32,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
      */
     public function indexAction()
     {
+        unset(Shopware()->Session()->RatePAY['errorMessage']);
         if (preg_match("/^pigmbhratepay(invoice|rate|debit|prepayment)$/", $this->getPaymentShortName())) {
             $this->_proceedPayment();
         } else {
@@ -71,17 +71,13 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         $updateData = array();
         if (!is_null($debitUser)) {
             $updateData = array(
-                $requestParameter['ratepay_debit_accountnumber'] ? : $debitUser->getAccount(),
-                $requestParameter['ratepay_debit_bankcode'] ? : $debitUser->getBankCode(),
-                $requestParameter['ratepay_debit_bankname'] ? : $debitUser->getBankName(),
-                $requestParameter['ratepay_debit_accountholder'] ? : $debitUser->getAccountHolder(),
-                $requestParameter['userid']
+                'account' => $requestParameter['ratepay_debit_accountnumber'] ? : $debitUser->getAccount(),
+                'bankcode' => $requestParameter['ratepay_debit_bankcode'] ? : $debitUser->getBankCode(),
+                'bankname' => $requestParameter['ratepay_debit_bankname'] ? : $debitUser->getBankName(),
+                'bankholder' => $requestParameter['ratepay_debit_accountholder'] ? : $debitUser->getAccountHolder()
             );
             try {
-                $sql = "REPLACE INTO `s_user_debit` " .
-                        "(`account`, `bankcode`, `bankname`, `bankholder`, `userID`)" .
-                        "VALUES(?, ?, ?, ?, ?) ";
-                Shopware()->Db()->query($sql, $updateData);
+                Shopware()->Db()->update('s_user_debit', $updateData, "`userID`=" . $requestParameter['userid']);
                 Shopware()->Log()->Info('Bankdaten aktualisiert.');
             } catch (Exception $exception) {
                 Shopware()->Log()->Err('Fehler beim Updaten der Bankdaten: ' . $exception->getMessage());
@@ -101,17 +97,24 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest());
             $result = $this->_request->xmlRequest($paymentRequestModel->toArray());
             if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
-                //TODO: saveOrder & PAYMENT_CONFIRM
-                echo 'finishOrder';
+                $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $this->createPaymentUniqueId(), 17);
+                $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm());
+                $result = $this->_request->xmlRequest($paymentConfirmModel->toArray());
+                if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CONFIRM', $result)) {
+                    $this->redirect(Shopware()->Front()->Router()->assemble(array(
+                                'controller' => 'checkout',
+                                'action' => 'finish'
+                            ))
+                    );
+                } else {
+                    $this->_error('Order konnte nicht validiert werden.');
+                }
             } else {
-                $this->_error(); //TODO Error nachtragen
+                $this->_error('Order wurde nicht erfolgreich &uuml;bermittelt.');
             }
+        } else {
+            $this->_error('Bezahlvorgang konnte nicht initialisiert werden.');
         }
-
-        echo (string) $result->getElementsByTagName('status')->item(0)->nodeValue . "<br>";
-        echo (string) $result->getElementsByTagName('result')->item(0)->nodeValue . "<br>";
-        echo (string) $result->getElementsByTagName('reason')->item(0)->nodeValue . "<br>";
-        exit;
     }
 
     private function _error($message = 'Ein Fehler ist aufgetreten.')
@@ -121,7 +124,26 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                     'controller' => 'checkout',
                     'action' => 'confirm',
                     'showError' => true
-                )));
+                ))
+        );
+    }
+
+    public function calcDesignAction()
+    {
+        Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
+        $calcPath = realpath(dirname(__FILE__) . '/../../Views/frontend/Ratenrechner/php/');
+        require_once $calcPath . '/PiRatepayRateCalc.php';
+        require_once $calcPath . '/path.php';
+        require_once $calcPath . '/PiRatepayRateCalcDesign.php';
+    }
+
+    public function calcRequestAction()
+    {
+        Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
+        $calcPath = realpath(dirname(__FILE__) . '/../../Views/frontend/Ratenrechner/php/');
+        require_once $calcPath . '/PiRatepayRateCalc.php';
+        require_once $calcPath . '/path.php';
+        require_once $calcPath . '/PiRatepayRateCalcRequest.php';
     }
 
 }

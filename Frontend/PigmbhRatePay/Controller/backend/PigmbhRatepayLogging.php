@@ -27,7 +27,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayLogging extends Shopware_Control
         $start = intval($this->Request()->getParam("start"));
         $limit = intval($this->Request()->getParam("limit"));
 
-        $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->limit($limit, $start)->query();
+        $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->limit($limit, $start)->order('id DESC')->query();
 
         $store = array();
         foreach ($data as $row) {

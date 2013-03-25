@@ -1,6 +1,3 @@
-<div class='error' style='display: none;'>
-    <div id='ratepay_error'></div>
-</div>
 {if $ratepayValidateIsB2B == 'true'}
     {if $ratepayValidateUST != 'true'}
         <p class='none'>
@@ -40,11 +37,6 @@
             }
         );
     {/if}
-    {if $ratepayValidateisAgeValid != 'true'}
-    $("#ratepay_error").append('Das angegebene Alter ist unter 18!');
-    $("#ratepay_error").parent().show();
-    {/if}
-
 
     $("#basketButton").click(function(){
         var requestParams = 'userid=' + "{$sUserData.billingaddress.userID}";

@@ -128,10 +128,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
             'getZipCode'
         );
         $return = true;
-        foreach ($classFunctions as $function) {
-            if (call_user_func(array($billingAddress, $function)) !== call_user_func(array($shippingAddress, $function))) {
-                Shopware()->Log()->Debug('RatePAY: areAddressesEqual-> The value of ' . $function . " differs.");
-                $return = false;
+        if (!is_null($shippingAddress)) {
+            foreach ($classFunctions as $function) {
+                if (call_user_func(array($billingAddress, $function)) !== call_user_func(array($shippingAddress, $function))) {
+                    Shopware()->Log()->Debug('RatePAY: areAddressesEqual-> The value of ' . $function . " differs.");
+                    $return = false;
+                }
             }
         }
         return $return;
@@ -156,6 +158,25 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     public function isCurrencyValid()
     {
         return Shopware()->Shop()->getCurrency()->getCurrency() === "EUR";
+    }
+
+    /**
+     * Checks if the customer has debit data saved
+     * Returns true if data is aviable, otherwise false.
+     *
+     * @return boolean
+     */
+    public function isDebitSet()
+    {
+        $return = false;
+        if (!is_null($this->_user->getDebit())) {
+            $account = $this->_user->getDebit()->getAccount();
+            $accountholder = $this->_user->getDebit()->getAccountHolder();
+            $bankcode = $this->_user->getDebit()->getBankCode();
+            $bankname = $this->_user->getDebit()->getBankName();
+            $return = (!empty($account) && !empty($accountholder) && !empty($bankcode) && !empty($bankname));
+        }
+        return $return;
     }
 
 }

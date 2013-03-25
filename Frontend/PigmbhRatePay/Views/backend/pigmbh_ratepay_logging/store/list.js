@@ -8,6 +8,7 @@
 Ext.define('Shopware.apps.PigmbhRatepayLogging.store.List', {
     extend:'Ext.data.Store',
     autoLoad: false,
+    remoteSort : true,
     pageSize:10,
     model:'Shopware.apps.PigmbhRatepayLogging.model.Main'
 });

@@ -202,7 +202,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
     }
 
-    private function _createDataBaseTables(){
+    private function _createDataBaseTables()
+    {
         $sqlLogging = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_logging` (" .
                 "`id` int(11) NOT NULL AUTO_INCREMENT," .
                 "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," .
@@ -213,16 +214,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`response` text," .
                 "PRIMARY KEY (`id`)" .
                 ")";
-        try{
+        try {
             Shopware()->Db()->query($sqlLogging);
-        }  catch (Exception $exception){
+        } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create Database.' . $exception->getMessage());
         }
-        
     }
-
-    
 
     /**
      * Creates the Menuentry for the RatePAY-logging
@@ -314,7 +312,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
      */
     public function frontendPaymentController(Enlight_Event_EventArgs $arguments)
     {
-        Shopware()->Template()->addTemplateDir($this->Path() . 'View/');
+        Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
         return $this->Path() . '/Controller/frontend/PigmbhRatepay.php';
     }
 
@@ -325,7 +323,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
      */
     public function onBackendController()
     {
-        Shopware()->Template()->addTemplateDir($this->Path() . 'View/');
+        Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
         return $this->Path() . "/Controller/backend/PigmbhRatepayLogging.php";
     }
 
@@ -353,7 +351,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             Shopware()->Log()->Debug("RatePAY: sUserId is empty");
             return;
         }
-        Shopware()->Template()->addTemplateDir(dirname(__FILE__) . '/View/');
+        Shopware()->Template()->addTemplateDir(dirname(__FILE__) . '/Views/');
         $validation = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation();
 
         if ($validation->isRatePAYPayment()) {
@@ -372,7 +370,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             Shopware()->Log()->Debug("RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
             $view->ratepayValidateisAgeValid = $validation->isAgeValid() ? 'true' : 'false';
             Shopware()->Log()->Debug("RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
-
+            $view->ratepayValidateisDebitSet = $validation->isDebitSet() ? 'true' : 'false';
+            Shopware()->Log()->Debug("RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
         }
     }
 
@@ -385,23 +384,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
     public function onCheckoutConfirm(Enlight_Event_EventArgs $arguments)
     {
         $params = $arguments->getRequest()->getParams();
-        if ($arguments->getRequest()->getActionName() !== 'confirm' || $params['showError'] != 1) {
+        if ($arguments->getRequest()->getActionName() !== 'confirm' || $params['showError'] !== '1') {
             return;
         }
         $pigmbhErrorMessage = Shopware()->Session()->RatePAY['errorMessage'];
         $view = $arguments->getSubject()->View();
-        $content = '{if $pigmbhErrorMessage}' .
-                '<div class="grid_20">' .
-                '<div class="error">' .
-                '<div class="center">' .
-                '<strong>' .
-                '{$pigmbhErrorMessage}' .
-                '</strong>' .
-                '</div>' .
-                '</div>' .
-                '</div>' .
-                '{/if}';
-        $view->extendsBlock("frontend_index_content_top", $content, "append");
         $view->pigmbhErrorMessage = $pigmbhErrorMessage;
     }
 
@@ -418,7 +405,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
     public function filterPayments(Enlight_Event_EventArgs $arguments)
     {
         $return = $arguments->getReturn();
-        if (empty(Shopware()->Session()->sUserId) || Shopware()->Config()->get('currency')) {
+        $currency = Shopware()->Config()->get('currency');
+        if (empty(Shopware()->Session()->sUserId) || empty($currency)) {
             return;
         }
 
@@ -429,6 +417,16 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             $payments = array();
             foreach ($return as $payment) {
                 if (!in_array($payment['name'], array('pigmbhratepayinvoice', 'pigmbhratepaydebit', 'pigmbhratepayrate', 'pigmbhratepayprepayment'))) {
+                    $payments[] = $payment;
+                }
+            }
+        }
+        // Debit & B2B is forbidden
+        if($validation->isCompanyNameSet() || $validation->isUSTSet()){
+            Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Debit");
+            $payments = array();
+            foreach ($return as $payment) {
+                if (!in_array($payment['name'], array('pigmbhratepaydebit'))) {
                     $payments[] = $payment;
                 }
             }
