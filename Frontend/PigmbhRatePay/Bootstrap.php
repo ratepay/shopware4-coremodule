@@ -214,8 +214,17 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`response` text," .
                 "PRIMARY KEY (`id`)" .
                 ")";
+
+        $sqlConfig = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_config` (" .
+                "`profileId` varchar(500) NOT NULL," .
+                "`invoiceStatus` int(1) NOT NULL, " .
+                "`debitStatus` int(1) NOT NULL, " .
+                "`rateStatus` int(1) NOT NULL, " .
+                "PRIMARY KEY (`profileId`)" .
+                ")";
         try {
             Shopware()->Db()->query($sqlLogging);
+            Shopware()->Db()->query($sqlConfig);
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create Database.' . $exception->getMessage());
@@ -298,9 +307,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             }
         }
 
-// save profile_request into DB
-        if (!$this->getRatepayConfig($profileID, $securityCode)) {
-            Shopware()->Log()->Err('RatePAY: Profile_Request failed!');
+        if ($this->getRatepayConfig($profileID, $securityCode)) {
+            Shopware()->Log()->Info('RatePAY: Ruleset successfully updated.');
         }
     }
 
@@ -410,105 +418,117 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             return;
         }
 
-        $payments = $return;
+        $profileId = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config()->get('RatePayProfileID');
+        $paymentStati = Shopware()->Db()->fetchRow('SELECT * FROM `pigmbh_ratepay_config` WHERE `profileId`=?', array($profileId));
+        $showRate = $paymentStati['rateStatus'] == 2 ? true : false;
+        $showDebit = $paymentStati['debitStatus'] == 2 ? true : false;
+        $showInvoice = $paymentStati['invoiceStatus'] == 2 ? true : false;
+
         $validation = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation();
         if (!$validation->isAgeValid() || !$validation->isCountryValid() || !$validation->isCurrencyValid()) {
-            Shopware()->Log()->Debug("RatePAY: Filter RatePAY-payments");
-            $payments = array();
-            foreach ($return as $payment) {
-                if (!in_array($payment['name'], array('pigmbhratepayinvoice', 'pigmbhratepaydebit', 'pigmbhratepayrate', 'pigmbhratepayprepayment'))) {
-                    $payments[] = $payment;
-                }
-            }
+            $showRate = false;
+            $showDebit = false;
+            $showInvoice = false;
         }
-        // Debit & B2B is forbidden
-        if($validation->isCompanyNameSet() || $validation->isUSTSet()){
-            Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Debit");
-            $payments = array();
-            foreach ($return as $payment) {
-                if (!in_array($payment['name'], array('pigmbhratepaydebit'))) {
-                    $payments[] = $payment;
-                }
-            }
+
+        if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
+            // Debit & B2B is forbidden
+            $showDebit = false;
         }
+
+        $payments = array();
+        foreach ($return as $payment) {
+            if ($payment['name'] === 'pigmbhratepayinvoice' && !$showInvoice) {
+                Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Invoice");
+                continue;
+            }
+            if ($payment['name'] === 'pigmbhratepaydebit' && !$showDebit) {
+                Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Debit");
+                continue;
+            }
+            if ($payment['name'] === 'pigmbhratepayrate' && !$showRate) {
+                Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Rate");
+                continue;
+            }
+            $payments[] = $payment;
+        }
+
         return $payments;
     }
 
     private function getRatepayConfig($profileId, $securityCode)
     {
-        $xmlstr = '<response version="1.0" xmlns="urn://www.ratepay.com/payment/1_0">
- <head>
- <system-id>test.mypayment.de</system-id>
- <operation>CONFIGURATION_REQUEST</operation>
- <response-type>CONFIGURATION_SETTINGS</response-type>
- <processing>
- <timestamp>2012-04-30T12:27:39.234</timestamp>
- <status code="OK">Successful</status>
- <reason code="306">Calculation configuration read successful</reason>
- <result code="500">Calculation configuration processed</result>
- </processing>
- </head>
- <content>
- <installment-configuration-result name="Standardconfig" type="DEFAULT">
- <interestrate-min>5.90</interestrate-min>
- <interestrate-default>9.90</interestrate-default>
- <interestrate-max>12.90</interestrate-max>
- <interest-rate-merchant-towards-bank>12.90</interest-rate-merchant-towards-bank>
- <month-number-min>3</month-number-min>
- <month-number-max>36</month-number-max>
- <month-longrun>25</month-longrun>
- <amount-min-longrun>1000</amount-min-longrun>
- <month-allowed>3,4,5,6,9,12,15,18,24,36</month-allowed>
- <valid-payment-firstdays>1,15,28</valid-payment-firstdays>
- <payment-firstday>28</payment-firstday>
- <payment-amount>200.00</payment-amount>
- <payment-lastrate>4.00</payment-lastrate>
- <rate-min-normal>20.00</rate-min-normal>
- <rate-min-longrun>10.00</rate-min-longrun>
- <service-charge>3.95</service-charge>
- <min-difference-dueday>28</min-difference-dueday>
- </installment-configuration-result>
- </content>
-</response>';
-        $response = new SimpleXMLElement($xmlstr);
-        $status = (string) $response->children()->head->children()->processing->children()->status->attributes();
-        $return = false;
-        if ($status === "OK") {
-            $content = (array) $response->children()->content->children()->children();
-            $sql = 'REPLACE INTO `pigmbh_ratepay_configprofile` ('
-                    . '`profileId`, `interestrateMin`, `interestrateDefault`, `interestrateMax`, `interestrateMerchantTowardsBank`'
-                    . ',`monthNumberMin`, `monthNumberMax`, `monthLongrun`, `amountMinLongrun`, `monthAllowed`'
-                    . ',`validPaymentFirstdays`, `paymentFirstday`, `paymentAmount`, `paymentLastrate`, `rateMinNormal`, `rateMinLongrun`'
-                    . ',`serviceCharge`, `minDifferenceDueday`'
-                    . ') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            $configData = array(
-                $profileId,
-                $content['interestrate-min'],
-                $content['interestrate-default'],
-                $content['interestrate-max'],
-                $content['interest-rate-merchant-towards-bank'],
-                $content['month-number-min'],
-                $content['month-number-max'],
-                $content['month-longrun'],
-                $content['amount-min-longrun'],
-                $content['month-allowed'],
-                $content['valid-payment-firstdays'],
-                $content['payment-firstday'],
-                $content['payment-amount'],
-                $content['payment-lastrate'],
-                $content['rate-min-normal'],
-                $content['rate-min-longrun'],
-                $content['service-charge'],
-                $content['min-difference-dueday']
+        $factory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout();
+        $profileRequestModel = $factory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest());
+        $head = $profileRequestModel->getHead();
+        $head->setProfileId($profileId);
+        $head->setSecurityCode($securityCode);
+        $profileRequestModel->setHead($head);
+        $requestService = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService();
+        $response = $requestService->xmlRequest($profileRequestModel->toArray());
+
+        if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PROFILE_REQUEST', $response)) {
+            $sql = "REPLACE INTO `pigmbh_ratepay_config`"
+                    . "(`profileId`, `invoiceStatus`,`debitStatus`,`rateStatus`) "
+                    . "VALUES(?, ?, ?, ?);";
+            $data = array(
+                $response->getElementsByTagName('profile-id')->item(0)->nodeValue,
+                $response->getElementsByTagName('activation-status-invoice')->item(0)->nodeValue,
+                $response->getElementsByTagName('activation-status-elv')->item(0)->nodeValue,
+                $response->getElementsByTagName('activation-status-installment')->item(0)->nodeValue
             );
             try {
-                Shopware()->Db()->query($sql, $configData);
-                $return = true;
+                $this->clearRuleSet();
+                $this->setRuleSet(
+                        'pigmbhratepayinvoice', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-invoice-min')->item(0)->nodeValue
+                );
+                $this->setRuleSet(
+                        'pigmbhratepayinvoice', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue
+                );
+                $this->setRuleSet(
+                        'pigmbhratepaydebit', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-elv-min')->item(0)->nodeValue
+                );
+                $this->setRuleSet(
+                        'pigmbhratepaydebit', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue
+                );
+                $this->setRuleSet(
+                        'pigmbhratepayrate', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue
+                );
+                $this->setRuleSet(
+                        'pigmbhratepayrate', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue
+                );
+                Shopware()->Db()->query($sql, $data);
+                return true;
             } catch (Exception $exception) {
                 Shopware()->Log()->Err($exception->getMessage());
+                return false;
             }
+        } else {
+            Shopware()->Log()->Err('RatePAY: Profile_Request failed!');
+            return false;
         }
-        return $return;
+    }
+
+    private function setRuleSet($paymentName, $firstRule, $firstValue)
+    {
+        $payment = $this->Payments()->findOneBy(array('name' => $paymentName));
+        $ruleset = new Shopware\Models\Payment\RuleSet;
+        $ruleset->setPayment($payment);
+        $ruleset->setRule1($firstRule);
+        $ruleset->setValue1($firstValue);
+        $ruleset->setRule2('');
+        $ruleset->setValue2(0);
+        Shopware()->Models()->persist($ruleset);
+    }
+
+    private function clearRuleSet()
+    {
+        $sql = "DELETE FROM `s_core_rulesets` "
+                . "WHERE `paymentID` IN("
+                . "SELECT `id` FROM `s_core_paymentmeans` "
+                . "WHERE `name` LIKE 'pigmbhratepay%'"
+                . ") AND `rule1` LIKE 'ORDERVALUE%';";
+        Shopware()->Db()->query($sql);
     }
 
 }

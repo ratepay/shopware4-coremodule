@@ -28,6 +28,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
             case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm'):
                 $this->fillPaymentConfirm($modelName);
                 break;
+            case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest'):
+                $this->fillProfileRequest($modelName);
+                break;
             default:
                 throw new Exception('The submitted Class is not supported!');
                 break;
@@ -156,7 +159,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $paymentRequestModel->setShoppingBasket($basket);
     }
 
-    private function fillPaymentConfirm(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm &$paymentConfirmModel){
+    /**
+     * Fills an object of the class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm
+     *
+     * @param Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm $paymentConfirmModel
+     */
+    private function fillPaymentConfirm(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm &$paymentConfirmModel)
+    {
         $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
         $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
         $head->setOperation('PAYMENT_CONFIRM');
@@ -167,6 +176,21 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
         $paymentConfirmModel->setHead($head);
     }
 
+    /**
+     * Fills an object of the class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest
+     *
+     * @param Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest $profileRequestModel
+     */
+    private function fillProfileRequest(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest &$profileRequestModel)
+    {
+        $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
+        $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
+        $head->setOperation('PROFILE_REQUEST');
+        $head->setProfileId($config->get('RatePayProfileID'));
+        $head->setSecurityCode($config->get('RatePaySecurityCode'));
+        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
+        $profileRequestModel->setHead($head);
+    }
 
     /**
      * Return the full amount to pay.

@@ -42,7 +42,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
 
     public function __construct($sandbox = true)
     {
-        $uri = $sandbox ? 'https://webservices-proj02.eos-payment.com/custom/ratepay/xml/1_0' : '';
+        $uri = $sandbox ? 'https://webservices-int.eos-payment.com/custom/ratepay/xml/1_0' : '';
         $this->_zendHttpClient = new Zend_Http_Client($uri, $this->config);
         $this->_logging = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging();
     }
