@@ -24,7 +24,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         $this->_config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
         $this->_user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', Shopware()->Session()->sUserId);
         $this->_request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
-        $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout();
+        $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory();
     }
 
     /**

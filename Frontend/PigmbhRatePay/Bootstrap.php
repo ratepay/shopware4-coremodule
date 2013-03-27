@@ -458,7 +458,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
 
     private function getRatepayConfig($profileId, $securityCode)
     {
-        $factory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout();
+        $factory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory();
         $profileRequestModel = $factory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest());
         $head = $profileRequestModel->getHead();
         $head->setProfileId($profileId);

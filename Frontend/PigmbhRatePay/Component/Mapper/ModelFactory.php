@@ -6,7 +6,7 @@
  * @category   PayIntelligent
  * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
  */
-class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_Checkout
+class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
 {
 
     /**
