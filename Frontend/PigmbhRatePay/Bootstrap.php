@@ -282,6 +282,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             $this->subscribeEvent(
                     'Shopware_Controllers_Backend_Config::saveFormAction::before', 'beforeSavePluginConfig'
             );
+            $this->subscribeEvent(
+                    'Enlight_Controller_Action_PostDispatch_Backend_Order', 'extendOrderDetailView'
+            );
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create events.' . $exception->getMessage());
@@ -532,6 +535,30 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 . "WHERE `name` LIKE 'pigmbhratepay%'"
                 . ") AND `rule1` LIKE 'ORDERVALUE%';";
         Shopware()->Db()->query($sql);
+    }
+    
+    /**
+     * extends the Orderdetailview
+     *
+     * @param Enlight_Event_EventArgs $arguments
+     */
+    public function extendOrderDetailView(Enlight_Event_EventArgs $arguments)
+    {
+        $arguments->getSubject()->View()->addTemplateDir(
+                $this->Path() . 'Views/backend/pigmbh_ratepay_orderdetail/'
+        );
+
+        if ($arguments->getRequest()->getActionName() === 'load') {
+            $arguments->getSubject()->View()->extendsTemplate(
+                    'backend/order/view/detail/ratepaydetailorder.js'
+            );
+        }
+
+        if ($arguments->getRequest()->getActionName() === 'index') {
+            $arguments->getSubject()->View()->extendsTemplate(
+                    'backend/order/ratepayapp.js'
+            );
+        }
     }
 
 }
