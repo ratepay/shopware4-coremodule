@@ -18,6 +18,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     private $_user;
     private $_request;
     private $_modelFactory;
+    private $_logging;
 
     public function init()
     {
@@ -25,6 +26,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         $this->_user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', Shopware()->Session()->sUserId);
         $this->_request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
         $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory();
+        $this->_logging = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging();
     }
 
     /**
@@ -101,6 +103,10 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                 $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm());
                 $result = $this->_request->xmlRequest($paymentConfirmModel->toArray());
                 if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CONFIRM', $result)) {
+                    $this->_logging->updatePaymentLoggings(Shopware()->Session()->RatePAY['transactionId'], array(
+                        'lastname' => Shopware()->Session()->sUserData['billingaddress']['lastname'],
+                        'firstname' => Shopware()->Session()->sUserData['billingaddress']['firstname']
+                    ));
                     $this->redirect(Shopware()->Front()->Router()->assemble(array(
                                 'controller' => 'checkout',
                                 'action' => 'finish'

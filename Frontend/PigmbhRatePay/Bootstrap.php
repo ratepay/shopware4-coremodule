@@ -207,9 +207,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         $sqlLogging = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_logging` (" .
                 "`id` int(11) NOT NULL AUTO_INCREMENT," .
                 "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," .
-                "`version` varchar(10) DEFAULT NULL," .
-                "`operation` varchar(15) DEFAULT NULL," .
-                "`transactionId` varchar(50) DEFAULT NULL," .
+                "`version` varchar(10) DEFAULT 'N/A'," .
+                "`operation` varchar(15) DEFAULT 'N/A'," .
+                "`suboperation` varchar(25) DEFAULT 'N/A'," .
+                "`transactionId` varchar(50) DEFAULT 'N/A'," .
+                "`firstname` varchar(100) DEFAULT 'N/A'," .
+                "`lastname` varchar(100) DEFAULT 'N/A'," .
                 "`request` text," .
                 "`response` text," .
                 "PRIMARY KEY (`id`)" .
@@ -432,8 +435,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
 
         if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-            // Debit & B2B is forbidden
-            $showDebit = false;
+            // Rate & B2B is forbidden
+            $showRate = false;
         }
 
         $payments = array();
