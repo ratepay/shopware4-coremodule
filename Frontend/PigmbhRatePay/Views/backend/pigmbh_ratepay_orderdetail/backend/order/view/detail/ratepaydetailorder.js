@@ -9,27 +9,71 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayDetailOrder', {
         var me = this;
         var tabPanel = me.callParent(arguments);
 
-  
-        if(me.isOrderValid()){
-// TODO: Remove tabs, die nicht mehr zugänglich sein sollen!
-//         
-//        Ext.Array.each(tabPanel.items.items, function(item) {
-//            console.log(item.id);
-//        });
-            tabPanel.add(Ext.create('Shopware.apps.Order.view.detail.RatePayTab', {
-                title: 'RatePAY-Test',
+        if(me.isRatePAYOrder()){
+            tabPanel = me.createRatePAYTabPanel();
+        }
+        return tabPanel;
+    },
+    isRatePAYOrder: function(){
+        // Check if order is RatePAY order!
+        return true;
+    },
+
+    /**
+     * Creates the tab panel for the detail page.
+     * @return Ext.tab.Panel
+     */
+    createRatePAYTabPanel: function() {
+        var me = this;
+
+        return Ext.create('Ext.tab.Panel', {
+            name: 'main-tab',
+            items: [
+            Ext.create('Shopware.apps.Order.view.detail.Overview', {
+                title: me.snippets.overview,
+                record: me.record,
+                orderStatusStore: me.orderStatusStore,
+                paymentStatusStore:  me.paymentStatusStore
+            }), Ext.create('Shopware.apps.Order.view.detail.Detail',{
+                title: me.snippets.details,
+                record: me.record,
+                paymentsStore: me.paymentsStore,
+                shopsStore: me.shopsStore,
+                countriesStore: me.countriesStore
+            }), Ext.create('Shopware.apps.Order.view.detail.Communication',{
+                title: me.snippets.communication,
+                record: me.record
+            }), Ext.create('Shopware.apps.Order.view.detail.Document',{
+                record: me.record,
+                documentTypesStore: me.documentTypesStore
+            }), Ext.create('Shopware.apps.Order.view.detail.OrderHistory', {
+                title: me.snippets.history,
                 historyStore: me.historyStore,
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
-            }));
-        }
-
-        return tabPanel;
-    },
-    isOrderValid: function(){
-        // Check if order is RatePAY order!
-        return true;
+            }), Ext.create('Shopware.apps.Order.view.detail.RatePayTab', {
+                title: 'Artikelverwaltung',
+                historyStore: me.historyStore,
+                record: me.record,
+                orderStatusStore: me.orderStatusStore,
+                paymentStatusStore:  me.paymentStatusStore
+            }), Ext.create('Shopware.apps.Order.view.detail.RatePayLog', {
+                title: 'RatePAY Log',
+                historyStore: me.historyStore,
+                record: me.record,
+                orderStatusStore: me.orderStatusStore,
+                paymentStatusStore:  me.paymentStatusStore
+            }),Ext.create('Shopware.apps.Order.view.detail.RatePayTab', {
+                title: 'RatePAY History',
+                historyStore: me.historyStore,
+                record: me.record,
+                orderStatusStore: me.orderStatusStore,
+                paymentStatusStore:  me.paymentStatusStore
+            })
+            ]
+        });
     }
+
 });
 //{/block}

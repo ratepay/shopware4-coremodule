@@ -129,12 +129,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $payment->setCurrency(Shopware()->Currency()->getShortName());
         $payment->setMethod($this->getPaymentMethod());
         if ($this->getPaymentMethod() === 'INSTALLMENT') {
-            //Daten aus ConfigurationRequest benötigt!!
-//            $payment->setDirectPayType();
-//            $payment->setInstallmentAmount();
-//            $payment->setInstallmentNumber();
-//            $payment->setInterestRate();
-//            $payment->setLastInstallmentAmount();
+            $payment->setDirectPayType('BANK-TRANSFER');
+            $payment->setInstallmentAmount(Shopware()->Session()->RatePAY['ratenrechner']['amount']);
+            $payment->setInstallmentNumber(Shopware()->Session()->RatePAY['ratenrechner']['number_of_rates']);
+            $payment->setInterestRate(Shopware()->Session()->RatePAY['ratenrechner']['interest_rate']);
+            $payment->setLastInstallmentAmount(Shopware()->Session()->RatePAY['ratenrechner']['last_rate']);
         }
 
         $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();

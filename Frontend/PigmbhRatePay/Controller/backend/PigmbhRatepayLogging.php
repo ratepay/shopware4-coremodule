@@ -26,8 +26,14 @@ class Shopware_Controllers_Backend_PigmbhRatepayLogging extends Shopware_Control
     {
         $start = intval($this->Request()->getParam("start"));
         $limit = intval($this->Request()->getParam("limit"));
-
-        $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->limit($limit, $start)->order('id DESC')->query();
+        $orderId = $this->Request()->getParam("orderId");
+        if (!is_null($orderId)) {
+            $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->join("s_order", "`s_order`.`transactionID`=`pigmbh_ratepay_logging`.`transactionId`")->limit($limit, $start)->order('pigmbh_ratepay_logging.id DESC')->where("`s_order`.`id`=?", $orderId)->query();
+            $total = Shopware()->Db()->fetchOne("SELECT count(*) FROM `pigmbh_ratepay_logging` JOIN `s_order` ON `s_order`.`transactionID`=`pigmbh_ratepay_logging`.`transactionId` WHERE `s_order`.`id`=?", array($orderId));
+        } else {
+            $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->limit($limit, $start)->order('id DESC')->query();
+            $total = Shopware()->Db()->fetchOne("SELECT count(*) FROM `pigmbh_ratepay_logging`");
+        }
 
         $store = array();
         foreach ($data as $row) {
@@ -35,13 +41,13 @@ class Shopware_Controllers_Backend_PigmbhRatepayLogging extends Shopware_Control
             preg_match("/(.*)(<\?.*)/s", $row['request'], $matchesRequest);
             $row['request'] = $matchesRequest[1] . "\n" . $this->formatXml(trim($matchesRequest[2]));
 
-            $matchesResponse= array();
+            $matchesResponse = array();
             preg_match("/(.*)(<response xml.*)/s", $row['response'], $matchesResponse);
             $row['response'] = $matchesResponse[1] . "\n" . $this->formatXml(trim($matchesResponse[2]));
 
             $store[] = $row;
         }
-        $total = Shopware()->Db()->fetchOne("SELECT count(*) FROM `pigmbh_ratepay_logging`");
+
         $this->View()->assign(array(
             "data" => $store,
             "total" => $total,

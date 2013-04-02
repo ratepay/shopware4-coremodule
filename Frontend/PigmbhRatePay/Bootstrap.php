@@ -283,6 +283,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                     'Shopware_Controllers_Backend_Config::saveFormAction::before', 'beforeSavePluginConfig'
             );
             $this->subscribeEvent(
+                    'Shopware_Controllers_Backend_Order::deletePositionAction::before', 'beforeDeleteOrderPosition'
+            );
+            $this->subscribeEvent(
+                    'Shopware_Controllers_Backend_Order::deleteAction::before', 'beforeDeleteOrder'
+            );
+            $this->subscribeEvent(
                     'Enlight_Controller_Action_PostDispatch_Backend_Order', 'extendOrderDetailView'
             );
         } catch (Exception $exception) {
@@ -536,7 +542,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 . ") AND `rule1` LIKE 'ORDERVALUE%';";
         Shopware()->Db()->query($sql);
     }
-    
+
     /**
      * extends the Orderdetailview
      *
