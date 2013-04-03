@@ -28,7 +28,12 @@ class Shopware_Controllers_Backend_PigmbhRatepayLogging extends Shopware_Control
         $limit = intval($this->Request()->getParam("limit"));
         $orderId = $this->Request()->getParam("orderId");
         if (!is_null($orderId)) {
-            $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->join("s_order", "`s_order`.`transactionID`=`pigmbh_ratepay_logging`.`transactionId`")->limit($limit, $start)->order('pigmbh_ratepay_logging.id DESC')->where("`s_order`.`id`=?", $orderId)->query();
+            $sql = "SELECT log.* FROM `pigmbh_ratepay_logging` AS log "
+                    . "JOIN `s_order` ON `s_order`.`transactionID`=`log`.`transactionId` "
+                    . "WHERE `s_order`.`id`=? "
+                    . "ORDER BY log.id DESC";
+
+            $data = Shopware()->Db()->query($sql, array($orderId));
             $total = Shopware()->Db()->fetchOne("SELECT count(*) FROM `pigmbh_ratepay_logging` JOIN `s_order` ON `s_order`.`transactionID`=`pigmbh_ratepay_logging`.`transactionId` WHERE `s_order`.`id`=?", array($orderId));
         } else {
             $data = Shopware()->Db()->select()->from("pigmbh_ratepay_logging")->limit($limit, $start)->order('id DESC')->query();

@@ -31,48 +31,92 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayLog', {
             columns:[
             {
                 header: 'Datum',
-                dataIndex: 'date'
+                dataIndex: 'date',
+                width:125
             },
 
             {
                 header: 'Version',
-                dataIndex: 'version'
+                dataIndex: 'version',
+                width:50
             },
 
             {
                 header: 'Operation',
-                dataIndex: 'operation'
+                dataIndex: 'operation',
+                width:125
             },
 
             {
                 header: 'Suboperation',
-                dataIndex: 'suboperation'
+                dataIndex: 'suboperation',
+                width:125
             },
 
             {
                 header: 'Transaction-ID',
-                dataIndex: 'transactionId'
+                dataIndex: 'transactionId',
+                width:150
             },
 
             {
                 header: 'FirstName',
-                dataIndex: 'firstname'
+                dataIndex: 'firstname',
+                width:100
             },
 
             {
                 header: 'LastName',
-                dataIndex: 'lastname'
+                dataIndex: 'lastname',
+                width:100
             },
-
             {
                 header: 'Request',
-                dataIndex: 'request'
+                xtype:'actioncolumn',
+                width:50,
+                items: [{
+                    iconCls:'sprite-documents-stack',
+                    handler: function(grid, rowIndex, colIndex) {
+                        var rec = grid.getStore().getAt(rowIndex);
+                        Ext.create('Ext.window.Window', {
+                            title:'Request-XML',
+                            height: 350,
+                            width: 450,
+                            layout: 'fit',
+                            items: {
+                                xtype: 'textareafield',
+                                grow: false,
+                                value: rec.get('request')
+                            }
+                        }).show();
+                    }
+                }]
             },
-
             {
                 header: 'Response',
-                dataIndex: 'response'
+                xtype:'actioncolumn',
+                width:60,
+                items: [{
+                    iconCls:'sprite-documents-stack',
+                    handler: function(grid, rowIndex, colIndex) {
+                        var rec = grid.getStore().getAt(rowIndex);
+                        Ext.create('Ext.window.Window', {
+                            title:'Response-XML',
+                            height: 350,
+                            width: 450,
+                            layout: 'fit',
+                            items: {
+                                xtype: 'textareafield',
+                                grow: false,
+                                value: rec.get('response')
+                            }
+                        }).show();
+                    }
+                }]
             },
+            {
+                width:100
+            }
             ]
         });
     }
