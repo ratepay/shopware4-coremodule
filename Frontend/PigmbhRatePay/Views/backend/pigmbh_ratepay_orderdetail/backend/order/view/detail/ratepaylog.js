@@ -1,6 +1,6 @@
 //{namespace name=backend/order/main}
-//{block name="backend/order/view/detail/RatepayLog"}
-Ext.define('Shopware.apps.Order.view.detail.RatePayLog', {
+//{block name="backend/order/view/detail/ratepaylog"}
+Ext.define('Shopware.apps.Order.view.detail.ratepaylog', {
 
     /**
      * Define that the additional information is an Ext.panel.Panel extension

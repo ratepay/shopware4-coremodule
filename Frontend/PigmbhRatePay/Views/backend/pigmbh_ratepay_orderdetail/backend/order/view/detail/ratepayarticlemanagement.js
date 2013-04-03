@@ -3,35 +3,36 @@
 Ext.define('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
 
     /**
-     * Define that the additional information is an Ext.panel.Panel extension
+     * Define that the additional information is an Ext.tab.Panel extension
      * @string
      */
-    extend:'Ext.form.Panel',
+    extend:'Ext.tab.Panel',
+
     autoScroll:true,
+    layout:'fit',
     initComponent: function() {
         var me = this;
-        this.items = [
-        me.createMainPanel()
+        me.items =  [
+        {
+            title: 'Artikel&uuml;bersicht',
+            items:[
+                Ext.create('Shopware.apps.Order.view.detail.ratepayoverview')
+            ]
+        },
+        {
+            title: 'Versand/Stornierung',
+            items:[
+                Ext.create('Shopware.apps.Order.view.detail.ratepaydelivery')
+            ]
+        },
+        {
+            title: 'Retoure',
+            items:[
+                Ext.create('Shopware.apps.Order.view.detail.ratepayretoure')
+            ]
+        }
         ];
         this.callParent(arguments);
-    },
-
-    createMainPanel: function(){
-        return Ext.create('Ext.tab.Panel', {
-            layout:'fit',
-            items: [
-            {
-                title: 'Artikel&uuml;bersicht'
-            },
-            {
-                title: 'Versand/Stornierung'
-            },
-            {
-                title: 'Retoure'
-            }
-            ]
-        });
     }
-
 });
 //{/block}

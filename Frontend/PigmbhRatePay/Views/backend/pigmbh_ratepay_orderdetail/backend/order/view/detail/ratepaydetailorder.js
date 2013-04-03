@@ -69,13 +69,13 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydetailorder', {
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
-            }), Ext.create('Shopware.apps.Order.view.detail.RatePayLog', {
+            }), Ext.create('Shopware.apps.Order.view.detail.ratepaylog', {
                 title: 'RatePAY Log',
                 historyStore: me.historyStore,
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
-            }),Ext.create('Shopware.apps.Order.view.detail.RatepayTab', {
+            }),Ext.create('Shopware.apps.Order.view.detail.ratepayhistory', {
                 title: 'RatePAY History',
                 historyStore: me.historyStore,
                 record: me.record,
