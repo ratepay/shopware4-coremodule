@@ -26,8 +26,8 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayLog', {
                     'orderId': id
                 }
             }),
-            height: '100%',
             sortableColumns : false,
+            autoScroll:true,
             columns:[
             {
                 header: 'Datum',
@@ -56,7 +56,7 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayLog', {
             {
                 header: 'Transaction-ID',
                 dataIndex: 'transactionId',
-                width:150
+                width:125
             },
 
             {
@@ -73,7 +73,7 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayLog', {
             {
                 header: 'Request',
                 xtype:'actioncolumn',
-                width:50,
+                width:60,
                 items: [{
                     iconCls:'sprite-documents-stack',
                     handler: function(grid, rowIndex, colIndex) {

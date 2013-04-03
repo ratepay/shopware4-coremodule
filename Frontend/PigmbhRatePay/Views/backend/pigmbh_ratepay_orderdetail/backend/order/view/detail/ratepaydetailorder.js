@@ -1,6 +1,6 @@
 ////{block name="backend/order/view/detail/window" append}
 //{namespace name=backend/order/view/main}
-Ext.define('Shopware.apps.Order.view.detail.RatePayDetailOrder', {
+Ext.define('Shopware.apps.Order.view.detail.ratepaydetailorder', {
 
     override: 'Shopware.apps.Order.view.detail.Window',
 
@@ -15,8 +15,19 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayDetailOrder', {
         return tabPanel;
     },
     isRatePAYOrder: function(){
-        // Check if order is RatePAY order!
-        return true;
+        var me = this;
+        var paymentName = '';
+        for(i=0;i< me.paymentsStore.data.items.length;i++){
+            if(me.paymentsStore.data.items[i].data.id == this.record.get('paymentId')){
+                paymentName = me.paymentsStore.data.items[i].data.name;
+            }
+        }
+
+        if(paymentName.search(/^pigmbhratepay(invoice|rate|debit)$/) != -1){
+            return true;
+        }else{
+            return false;
+        }
     },
 
     /**
@@ -52,7 +63,7 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayDetailOrder', {
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
-            }), Ext.create('Shopware.apps.Order.view.detail.RatePayTab', {
+            }), Ext.create('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
                 title: 'Artikelverwaltung',
                 historyStore: me.historyStore,
                 record: me.record,
@@ -64,7 +75,7 @@ Ext.define('Shopware.apps.Order.view.detail.RatePayDetailOrder', {
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
-            }),Ext.create('Shopware.apps.Order.view.detail.RatePayTab', {
+            }),Ext.create('Shopware.apps.Order.view.detail.RatepayTab', {
                 title: 'RatePAY History',
                 historyStore: me.historyStore,
                 record: me.record,
