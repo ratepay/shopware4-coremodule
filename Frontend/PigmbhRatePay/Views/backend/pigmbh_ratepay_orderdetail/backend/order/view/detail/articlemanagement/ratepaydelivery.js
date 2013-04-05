@@ -105,7 +105,10 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         },
         {
             iconCls:'sprite-minus-circle-frame',
-            text: 'Auswahl stornieren'
+            text: 'Auswahl stornieren',
+            handler: function(){
+                me.toolbarCancel();
+            }
         }
         ];
     },
@@ -158,6 +161,55 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             });
         }
 
+    },
+    toolbarCancel:function(){
+        var me = this;
+        var items = new Array();
+        var id = me.record.get('id');
+        var error = false;
+        for(i=0;i< me.store.data.items.length;i++){
+            var row = me.store.data.items[i].data;
+            var item = new Object();
+            if(row.quantityDeliver >(row.quantity - row.cancelled)){
+                error = true;
+            }
+            item['id'] = row.articleID;
+            item['articlenumber'] = row.articleordernumber;
+            item['name'] =row.name;
+            item['price'] =row.price;
+            item['taxRate'] =row.tax_rate;
+            item['quantity'] = row.quantity - row.quantityDeliver;
+            item['delivered'] = row.delivered;
+            item['returned'] = row.returned;
+            item['cancelled'] = row.cancelled;
+            item['cancelledItems'] = row.quantityDeliver - row.cancelled;
+            items.push(item);
+        }
+
+        if(error == true){
+            Ext.Msg.alert('Cancellation fail', 'Anz. must be smaller than quantity!');
+            return false;
+        }else{
+            Ext.Ajax.request({
+                url: '{url controller=PigmbhRatepayOrderDetail action=cancelItems}',
+                method:'POST',
+                async:false,
+                params: {
+                    orderId:id,
+                    items:Ext.encode(items)
+                },
+                success: function(){
+                    var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+                    me.store = positionStore.load({
+                        params:{
+                            'orderId': id
+                        }
+                    });
+
+                    me.reconfigure(me.store);
+                }
+            });
+        }
     }
 
 });

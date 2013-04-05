@@ -9,6 +9,18 @@
 class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
 {
 
+    private $_transactionId;
+
+    public function getTransactionId()
+    {
+        return $this->_transactionId;
+    }
+
+    public function setTransactionId($transactionId)
+    {
+        $this->_transactionId = $transactionId;
+    }
+
     /**
      * Expects an instance of a paymentmodel and fill it with shopdata
      *
@@ -33,6 +45,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
                 break;
             case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery'):
                 $this->fillConfirmationDelivery($modelName);
+                break;
+            case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange'):
+                $this->fillPaymentChange($modelName);
                 break;
             default:
                 throw new Exception('The submitted Class is not supported!');
@@ -127,11 +142,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $customer->setPhone($shopBillingAddress->getPhone());
         $customer->setNationality($shopCountry->getIso());
 
+        $method = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::getPaymentMethod(Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']);
         $payment = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment();
         $payment->setAmount($this->getAmount());
         $payment->setCurrency(Shopware()->Currency()->getShortName());
-        $payment->setMethod($this->getPaymentMethod());
-        if ($this->getPaymentMethod() === 'INSTALLMENT') {
+        $payment->setMethod($method);
+        if ($method === 'INSTALLMENT') {
             $payment->setDirectPayType('BANK-TRANSFER');
             $payment->setInstallmentAmount(Shopware()->Session()->RatePAY['ratenrechner']['amount']);
             $payment->setInstallmentNumber(Shopware()->Session()->RatePAY['ratenrechner']['number_of_rates']);
@@ -193,6 +209,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
         $profileRequestModel->setHead($head);
     }
+
     /**
      * Fills an object of the class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery
      *
@@ -210,6 +227,91 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
     }
 
     /**
+     * Fills an object of the class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery
+     *
+     * @param Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange $paymentChangeModel
+     */
+    private function fillPaymentChange(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange &$paymentChangeModel)
+    {
+        $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
+        $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
+        $head->setOperation('PAYMENT_CHANGE');
+        $head->setTransactionId($this->_transactionId);
+        $head->setProfileId($config->get('RatePayProfileID'));
+        $head->setSecurityCode($config->get('RatePaySecurityCode'));
+        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
+
+        $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `transactionID`=?", array($this->_transactionId));
+
+        $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', $order['userID']);
+        $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
+        $customer = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer();
+
+        $shopBillingAddress = $shopUser->getBilling();
+        $billingAddress = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address();
+        $billingAddress->setFirstName($shopBillingAddress->getFirstName());
+        $billingAddress->setLastName($shopBillingAddress->getLastName());
+        $billingAddress->setSalutation($shopBillingAddress->getSalutation());
+        $billingAddress->setCompany($shopBillingAddress->getCompany());
+        $billingAddress->setType('BILLING');
+        $billingAddress->setCountryCode($shopCountry->getIso());
+        $billingAddress->setCity($shopBillingAddress->getCity());
+        $billingAddress->setStreet($shopBillingAddress->getStreet());
+        $billingAddress->setStreetNumber($shopBillingAddress->getStreetNumber());
+        $billingAddress->setZipCode($shopBillingAddress->getZipCode());
+        $customer->setBillingAddresses($billingAddress);
+
+
+        $shopShippingAddress = $shopUser->getShipping() === null ? : $shopUser->getBilling();
+        $shippingAddress = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address();
+        $shippingAddress->setType('DELIVERY');
+        $shippingAddress->setCountryCode($shopCountry->getIso());
+        $shippingAddress->setCity($shopShippingAddress->getCity());
+        $shippingAddress->setStreet($shopShippingAddress->getStreet());
+        $shippingAddress->setStreetNumber($shopShippingAddress->getStreetNumber());
+        $shippingAddress->setZipCode($shopShippingAddress->getZipCode());
+        $customer->setShippingAddresses($shippingAddress);
+
+        // nur bei ELV
+        if (!is_null($shopUser->getDebit())) {
+            $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
+            $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
+            $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
+            $bankAccount->setBankName($shopUser->getDebit()->getBankName());
+            $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
+            $customer->setBankAccount($bankAccount);
+        }
+        $customer->setCompanyName($shopBillingAddress->getCompany());
+        $customer->setVatId($shopBillingAddress->getVatId());
+        $customer->setDateOfBirth($shopBillingAddress->getBirthday()->format('Y-m-d'));
+        $customer->setEmail($shopUser->getEmail());
+        $customer->setFirstName($shopBillingAddress->getFirstName());
+        $customer->setLastName($shopBillingAddress->getLastName());
+        $gender = 'U';
+        if ($shopBillingAddress->getSalutation() === 'mr') {
+            $gender = 'M';
+        } else if ($shopBillingAddress->getSalutation() === 'ms.') {
+            $gender = 'F';
+        }
+        $customer->setGender($gender);
+        $customer->setSalutaion($shopBillingAddress->getSalutation());
+        $customer->setPhone($shopBillingAddress->getPhone());
+        $customer->setNationality($shopCountry->getIso());
+
+        $order = Shopware()->Db()->fetchRow("SELECT `name`,`currency` FROM `s_order` "
+                . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
+                . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+
+        $payment = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment();
+        $payment->setMethod(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::getPaymentMethod($order['name']));
+        $payment->setCurrency($order['currency']);
+
+        $paymentChangeModel->setPayment($payment);
+        $paymentChangeModel->setHead($head);
+        $paymentChangeModel->setCustomer($customer);
+    }
+
+    /**
      * Return the full amount to pay.
      *
      * @return float
@@ -222,31 +324,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             return empty($basket['AmountWithTaxNumeric']) ? $basket['AmountNumeric'] : $basket['AmountWithTaxNumeric'];
         } else {
             return $basket['AmountNetNumeric'];
-        }
-    }
-
-    /**
-     * Return the methodname for RatePAY
-     *
-     * @return string
-     */
-    public function getPaymentMethod()
-    {
-        $payment = Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name'];
-        switch ($payment) {
-            case 'pigmbhratepayinvoice':
-                return 'INVOICE';
-                break;
-            case 'pigmbhratepayrate':
-                return 'INSTALLMENT';
-                break;
-            case 'pigmbhratepaydebit':
-                return 'ELV';
-                break;
-            case 'pigmbhratepayprepayment':
-            default:
-                return 'PREPAYMENT';
-                break;
         }
     }
 

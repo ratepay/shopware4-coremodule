@@ -116,4 +116,28 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util
         return $return;
     }
 
+    /**
+     * Return the methodname for RatePAY
+     *
+     * @return string
+     */
+    public static function getPaymentMethod($payment)
+    {
+        switch ($payment) {
+            case 'pigmbhratepayinvoice':
+                return 'INVOICE';
+                break;
+            case 'pigmbhratepayrate':
+                return 'INSTALLMENT';
+                break;
+            case 'pigmbhratepaydebit':
+                return 'ELV';
+                break;
+            case 'pigmbhratepayprepayment':
+            default:
+                return 'PREPAYMENT';
+                break;
+        }
+    }
+
 }

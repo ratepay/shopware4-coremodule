@@ -81,7 +81,67 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         if ($result === true) {
             foreach ($items as $item) {
                 $bind = array(
-                    'delivered' => $item->quantity
+                    'delivered' => $item->delivered + $item->quantity
+                );
+                $this->updateItem($orderId, $item->articlenumber, $bind);
+            }
+        }
+
+        $this->View()->assign(array(
+            "orderID" => $orderId,
+            "result" => $result,
+            "success" => true
+                )
+        );
+    }
+
+    public function cancelItemsAction()
+    {
+        $orderId = $this->Request()->getParam("orderId");
+        $items = json_decode($this->Request()->getParam("items"));
+        $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
+
+        $basketItems = array();
+        foreach ($items as $item) {
+            $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
+            if($item->quantity <= 0){
+                continue;
+            }
+            $basketItem->setArticleName($item->name);
+            $basketItem->setArticleNumber($item->articlenumber);
+            $basketItem->setQuantity($item->quantity);
+            $basketItem->setTaxRate($item->taxRate);
+            $basketItem->setUnitPriceGross($item->price);
+            $basketItems[] = $basketItem;
+        }
+
+        $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
+        $basket->setAmount($order["invoice_amount"]);
+        $basket->setCurrency($order['currency']);
+        $basket->setItems($basketItems);
+
+        $this->_modelFactory->setTransactionId($order['transactionID']);
+        $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange());
+        $head = $paymentChange->getHead();
+        $head->setOperationSubstring('partial-cancellation');
+        $paymentChange->setHead($head);
+        $paymentChange->setShoppingBasket($basket);
+
+        $response = $this->_request->xmlRequest($paymentChange->toArray());
+        $result = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
+        if ($result === true) {
+            foreach ($items as $item) {
+                $bind = array(
+                    'cancelled' => $item->cancelled + $item->cancelledItems
+                );
+                $this->updateItem($orderId, $item->articlenumber, $bind);
+            }
+        }
+
+        if ($result === true) {
+            foreach ($items as $item) {
+                $bind = array(
+                    'cancelled' => $item->cancelled + $item->quantity
                 );
                 $this->updateItem($orderId, $item->articlenumber, $bind);
             }
