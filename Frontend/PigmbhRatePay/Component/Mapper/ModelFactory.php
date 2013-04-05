@@ -31,6 +31,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ProfileRequest'):
                 $this->fillProfileRequest($modelName);
                 break;
+            case is_a($modelName, 'Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery'):
+                $this->fillConfirmationDelivery($modelName);
+                break;
             default:
                 throw new Exception('The submitted Class is not supported!');
                 break;
@@ -189,6 +192,21 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
         $profileRequestModel->setHead($head);
+    }
+    /**
+     * Fills an object of the class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery
+     *
+     * @param Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery $confirmationDeliveryModel
+     */
+    private function fillConfirmationDelivery(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_ConfirmationDelivery &$confirmationDeliveryModel)
+    {
+        $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
+        $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
+        $head->setOperation('CONFIRMATION_DELIVER');
+        $head->setProfileId($config->get('RatePayProfileID'));
+        $head->setSecurityCode($config->get('RatePaySecurityCode'));
+        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
+        $confirmationDeliveryModel->setHead($head);
     }
 
     /**

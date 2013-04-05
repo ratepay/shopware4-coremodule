@@ -105,17 +105,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'template' => 'RatePAYDebit.tpl'
                     )
             );
-            $this->createPayment(
-                    array(
-                        'name' => 'pigmbhratepayprepayment',
-                        'description' => 'RatePAY Vorkasse',
-                        'action' => 'pigmbh_ratepay',
-                        'active' => 1,
-                        'position' => 4,
-                        'additionaldescription' => '',
-                        'template' => 'RatePAYPrepayment.tpl'
-                    )
-            );
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception("Can not create payment." . $exception->getMessage());
@@ -208,8 +197,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`id` int(11) NOT NULL AUTO_INCREMENT," .
                 "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," .
                 "`version` varchar(10) DEFAULT 'N/A'," .
-                "`operation` varchar(15) DEFAULT 'N/A'," .
-                "`suboperation` varchar(25) DEFAULT 'N/A'," .
+                "`operation` varchar(50) DEFAULT 'N/A'," .
+                "`suboperation` varchar(50) DEFAULT 'N/A'," .
                 "`transactionId` varchar(50) DEFAULT 'N/A'," .
                 "`firstname` varchar(100) DEFAULT 'N/A'," .
                 "`lastname` varchar(100) DEFAULT 'N/A'," .

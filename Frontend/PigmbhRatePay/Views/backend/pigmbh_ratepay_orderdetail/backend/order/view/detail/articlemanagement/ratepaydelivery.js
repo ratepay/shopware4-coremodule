@@ -8,17 +8,13 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
      */
     extend:'Ext.grid.Panel',
     autoScroll:true,
+    plugins: Ext.create('Ext.grid.plugin.CellEditing', {
+        clicksToEdit: 1
+    }),
     initComponent: function() {
         var me = this;
         var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
         var id = this.record.get('id');
-
-        console.log(positionStore.load({
-            params:{
-                'orderId': id
-            }
-        }));
-
 
         me.store = positionStore.load({
             params:{
@@ -48,7 +44,15 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
     getColumns:function () {
         return [
         {
-            header: 'Anz.'
+            header: 'Anz.',
+            dataIndex: 'quantityDeliver',
+            editor: {
+                xtype: 'numberfield',
+                hideTrigger : false,
+                allowBlank: false,
+                allowDecimals : false,
+                minValue: 0
+            }
         },
         {
             header: 'ArticleName',
@@ -82,6 +86,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
     },
 
     getToolbar:function(){
+        var me = this;
         return [
         {
             iconCls:'sprite-inbox--plus',
@@ -93,13 +98,66 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         },
         {
             iconCls:'sprite-truck',
-            text: 'Auswahl versenden'
+            text: 'Auswahl versenden',
+            handler: function(){
+                me.toolbarDeliver();
+            }
         },
         {
             iconCls:'sprite-minus-circle-frame',
             text: 'Auswahl stornieren'
         }
         ];
+    },
+
+    toolbarDeliver:function(){
+        var me = this;
+        var items = new Array();
+        var id = me.record.get('id');
+        var error = false;
+        for(i=0;i< me.store.data.items.length;i++){
+            var row = me.store.data.items[i].data;
+            var item = new Object();
+            if(row.quantityDeliver >(row.quantity - row.delivered)){
+                error = true;
+            }
+            item['id'] = row.articleID;
+            item['articlenumber'] = row.articleordernumber;
+            item['name'] =row.name;
+            item['price'] =row.price;
+            item['taxRate'] =row.tax_rate;
+            item['quantity'] = row.quantityDeliver;
+            item['delivered'] = row.delivered;
+            item['returned'] = row.returned;
+            item['cancelled'] = row.cancelled;
+            items.push(item);
+        }
+
+        if(error == true){
+            Ext.Msg.alert('Delivery fail', 'Anz. must be smaller than quantity!');
+            return false;
+        }else{
+            Ext.Ajax.request({
+                url: '{url controller=PigmbhRatepayOrderDetail action=deliverItems}',
+                method:'POST',
+                async:false,
+                params: {
+                    orderId:id,
+                    items:Ext.encode(items)
+                },
+                success: function(){
+                    var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+                    me.store = positionStore.load({
+                        params:{
+                            'orderId': id
+                        }
+                    });
+
+                    me.reconfigure(me.store);
+                }
+            });
+        }
+
     }
 
 });
