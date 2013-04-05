@@ -16,8 +16,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging
         preg_match("/<transaction-id>(.*)<\/transaction-id>/", $requestXml, $transactionMatches);
         $transactionId = $transactionMatches[1] ? : 'N/A';
 
-        preg_match("/<transaction-id>(.*)<\/transaction-id>/", $requestXml, $transactionMatchesResponse);
-        $transactionId = $transactionId == 'N/A' && $transactionMatchesResponse[1] ? $transactionMatchesResponse : 'N/A';
+        preg_match("/<transaction-id>(.*)<\/transaction-id>/", $responseXml, $transactionMatchesResponse);
+        $transactionId = $transactionId == 'N/A' && $transactionMatchesResponse[1] ? $transactionMatchesResponse[1] : $transactionId;
 
         $bind = array(
             'version' => $version,
@@ -31,17 +31,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging
             Shopware()->Db()->insert('pigmbh_ratepay_logging', $bind);
         } catch (Exception $exception) {
             Shopware()->Log()->Err('Fehler beim Loggen: ' . $exception->getMessage());
-        }
-    }
-
-    public function updatePaymentLoggings($transactionId, $bind)
-    {
-        try {
-            Shopware()->Db()->update('pigmbh_ratepay_logging', $bind,"`transactionId`=$transactionId");
-            return true;
-        } catch (Exception $exception) {
-            Shopware()->Log()->Warn($exception->getMessage());
-            return false;
         }
     }
 

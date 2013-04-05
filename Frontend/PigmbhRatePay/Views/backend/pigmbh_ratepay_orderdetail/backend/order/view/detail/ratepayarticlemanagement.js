@@ -14,21 +14,17 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
         var me = this;
         me.items =  [
         {
-            title: 'Artikel&uuml;bersicht',
-            items:[
-                Ext.create('Shopware.apps.Order.view.detail.ratepayoverview')
-            ]
-        },
-        {
             title: 'Versand/Stornierung',
             items:[
-                Ext.create('Shopware.apps.Order.view.detail.ratepaydelivery')
+            Ext.create('Shopware.apps.Order.view.detail.ratepaydelivery',{
+                record: me.record
+            })
             ]
         },
         {
             title: 'Retoure',
             items:[
-                Ext.create('Shopware.apps.Order.view.detail.ratepayretoure')
+            Ext.create('Shopware.apps.Order.view.detail.ratepayretoure')
             ]
         }
         ];

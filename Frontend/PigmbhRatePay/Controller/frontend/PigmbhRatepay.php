@@ -103,10 +103,6 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                 $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm());
                 $result = $this->_request->xmlRequest($paymentConfirmModel->toArray());
                 if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CONFIRM', $result)) {
-                    $this->_logging->updatePaymentLoggings(Shopware()->Session()->RatePAY['transactionId'], array(
-                        'lastname' => Shopware()->Session()->sUserData['billingaddress']['lastname'],
-                        'firstname' => Shopware()->Session()->sUserData['billingaddress']['firstname']
-                    ));
                     $this->redirect(Shopware()->Front()->Router()->assemble(array(
                                 'controller' => 'checkout',
                                 'action' => 'finish'

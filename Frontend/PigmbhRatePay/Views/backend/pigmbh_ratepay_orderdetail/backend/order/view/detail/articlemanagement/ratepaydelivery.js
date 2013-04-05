@@ -10,12 +10,27 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
     autoScroll:true,
     initComponent: function() {
         var me = this;
+        var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+        var id = this.record.get('id');
+
+        console.log(positionStore.load({
+            params:{
+                'orderId': id
+            }
+        }));
+
+
+        me.store = positionStore.load({
+            params:{
+                'orderId': id
+            }
+        });
         me.columns =  {
             items: me.getColumns(),
             defaults: {
                 flex: 1
             }
-        }
+        };
         me.dockedItems = [{
             xtype: 'toolbar',
             dock: 'top',
@@ -36,22 +51,32 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             header: 'Anz.'
         },
         {
-            header: 'ArticleName'
+            header: 'ArticleName',
+            dataIndex: 'name'
         },
         {
-            header: 'ArticleNummer'
+            header: 'ArticleNummer',
+            dataIndex: 'articleordernumber'
         },
         {
-            header: 'Bestellt'
+            header: 'Preis',
+            dataIndex: 'price'
         },
         {
-            header: 'Versand'
+            header: 'Bestellt',
+            dataIndex: 'quantity'
         },
         {
-            header: 'Storniert'
+            header: 'Versand',
+            dataIndex: 'delivered'
         },
         {
-            header: 'Retourniert'
+            header: 'Storniert',
+            dataIndex: 'cancelled'
+        },
+        {
+            header: 'Retourniert',
+            dataIndex: 'returned'
         },
         ];
     },
@@ -59,7 +84,15 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
     getToolbar:function(){
         return [
         {
-            iconCls:'sprite-plus-circle-frame',
+            iconCls:'sprite-inbox--plus',
+            text: 'Item hinzufügen'
+        },
+        {
+            iconCls:'sprite-inbox--plus',
+            text: 'Gutschein hinzufügen'
+        },
+        {
+            iconCls:'sprite-truck',
             text: 'Auswahl versenden'
         },
         {

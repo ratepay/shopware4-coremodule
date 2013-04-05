@@ -225,9 +225,18 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`rateStatus` int(1) NOT NULL, " .
                 "PRIMARY KEY (`profileId`)" .
                 ")";
+
+        $sqlOrderPositions = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_order_positions` (" .
+                "`s_order_details_id` int NOT NULL," .
+                "`delivered` int NOT NULL DEFAULT 0, " .
+                "`cancelled` int NOT NULL DEFAULT 0, " .
+                "`returned` int NOT NULL DEFAULT 0, " .
+                "PRIMARY KEY (`s_order_details_id`)" .
+                ")";
         try {
             Shopware()->Db()->query($sqlLogging);
             Shopware()->Db()->query($sqlConfig);
+            Shopware()->Db()->query($sqlOrderPositions);
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create Database.' . $exception->getMessage());
@@ -268,7 +277,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                     'Enlight_Controller_Dispatcher_ControllerPath_Frontend_PigmbhRatepay', 'frontendPaymentController'
             );
             $this->subscribeEvent(
-                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatepayLogging', 'onBackendController'
+                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatepayLogging', 'onLoggingBackendController'
+            );
+            $this->subscribeEvent(
+                    'Enlight_Controller_Dispatcher_ControllerPath_Backend_PigmbhRatepayOrderDetail', 'onOrderDetailBackendController'
             );
             $this->subscribeEvent(
                     'Enlight_Controller_Action_PostDispatch_Frontend_Checkout', 'preValidation'
@@ -290,6 +302,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             );
             $this->subscribeEvent(
                     'Enlight_Controller_Action_PostDispatch_Backend_Order', 'extendOrderDetailView'
+            );
+            $this->subscribeEvent(
+                    'Shopware_Modules_Order_SaveOrder_ProcessDetails', 'insertRatepayPositions'
             );
         } catch (Exception $exception) {
             $this->uninstall();
@@ -341,10 +356,61 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
      *
      * @param Enlight_Event_EventArgs $arguments
      */
-    public function onBackendController()
+    public function onLoggingBackendController()
     {
         Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
         return $this->Path() . "/Controller/backend/PigmbhRatepayLogging.php";
+    }
+
+    /**
+     * Loads the Backendextentions
+     *
+     * @param Enlight_Event_EventArgs $arguments
+     */
+    public function onOrderDetailBackendController()
+    {
+        Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
+        return $this->Path() . "/Controller/backend/PigmbhRatepayOrderDetail.php";
+    }
+
+    /**
+     * Saves Data into the pigmbh_ratepay_order_position
+     *
+     * @param Enlight_Event_EventArgs $arguments
+     */
+    public function insertRatepayPositions(Enlight_Event_EventArgs $arguments)
+    {
+        $ordernumber = $arguments->getSubject()->sOrderNumber;
+
+        try {
+            $isRatePAYpaymentSQL = "SELECT COUNT(*) FROM `s_order` "
+                    . "JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id`=`s_order`.`paymentID` "
+                    . "WHERE  `s_order`.`ordernumber`=? AND`s_core_paymentmeans`.`name` LIKE 'pigmbhratepay%';";
+            $isRatePAYpayment = Shopware()->Db()->fetchOne($isRatePAYpaymentSQL, array($ordernumber));
+            Shopware()->Log()->Debug($isRatePAYpayment);
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err($exception->getMessage());
+            $isRatePAYpayment = 0;
+        }
+
+        if ($isRatePAYpayment != 0) {
+            $sql = "SELECT `id` FROM `s_order_details` WHERE `ordernumber`=?;";
+            $rows = Shopware()->Db()->fetchAll($sql, array($ordernumber));
+            $values = "";
+            foreach ($rows as $row) {
+                $values .= "(" . $row['id'] . "),";
+            }
+            $values = substr($values, 0, -1);
+            $sqlInsert = "INSERT INTO `pigmbh_ratepay_order_positions` "
+                    . "(`s_order_details_id`) "
+                    . "VALUES " . $values;
+            try {
+                Shopware()->Db()->query($sqlInsert);
+            } catch (Exception $exception) {
+                Shopware()->Log()->Err($exception->getMessage());
+            }
+        }
+        return $ordernumber;
     }
 
     /**

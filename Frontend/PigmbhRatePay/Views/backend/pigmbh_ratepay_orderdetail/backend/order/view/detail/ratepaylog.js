@@ -85,6 +85,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaylog', {
                             layout: 'fit',
                             items: {
                                 xtype: 'textareafield',
+                                readOnly : true,
                                 grow: false,
                                 value: rec.get('request')
                             }
@@ -107,6 +108,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaylog', {
                             layout: 'fit',
                             items: {
                                 xtype: 'textareafield',
+                                readOnly : true,
                                 grow: false,
                                 value: rec.get('response')
                             }
