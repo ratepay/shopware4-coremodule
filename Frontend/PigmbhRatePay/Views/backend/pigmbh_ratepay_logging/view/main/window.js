@@ -22,8 +22,8 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
         var me = this;
         me.store = me.listStore;
         me.items = [
-            me.createOverviewGrid(me),
-            me.createDetailGrid(me)
+        me.createOverviewGrid(me),
+        me.createDetailGrid(me)
         ];
         me.callParent(arguments);
     },
@@ -36,24 +36,45 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
             width:'100%',
             columns: [
             {
-                text: 'Datum',
+                header: 'Datum',
                 dataIndex: 'date',
-                width:150
+                flex:2
             },
+
             {
-                text: 'Version',
+                header: 'Version',
                 dataIndex: 'version',
-                width:100
+                flex:1
             },
+
             {
-                text: 'Operation',
+                header: 'Operation',
                 dataIndex: 'operation',
-                width:200
+                flex:2
             },
+
             {
-                text: 'TransactionId',
+                header: 'Suboperation',
+                dataIndex: 'suboperation',
+                flex:2
+            },
+
+            {
+                header: 'Transaction-ID',
                 dataIndex: 'transactionId',
-                width:350
+                flex:2
+            },
+
+            {
+                header: 'FirstName',
+                dataIndex: 'firstname',
+                flex:1
+            },
+
+            {
+                header: 'LastName',
+                dataIndex: 'lastname',
+                flex:1
             }
             ],
             dockedItems: [{

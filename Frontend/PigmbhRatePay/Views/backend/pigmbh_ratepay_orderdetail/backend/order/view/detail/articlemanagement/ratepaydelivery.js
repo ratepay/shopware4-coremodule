@@ -8,6 +8,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
      */
     extend:'Ext.grid.Panel',
     autoScroll:true,
+    layout:'fit',
     plugins: Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
     }),
@@ -133,6 +134,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             item['delivered'] = row.delivered;
             item['returned'] = row.returned;
             item['cancelled'] = row.cancelled;
+            item['deliveredItems'] = row.quantityDeliver;
             items.push(item);
         }
 
@@ -170,7 +172,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         for(i=0;i< me.store.data.items.length;i++){
             var row = me.store.data.items[i].data;
             var item = new Object();
-            if(row.quantityDeliver >(row.quantity - row.cancelled)){
+            if(row.quantityDeliver > (row.quantity - row.cancelled)){
                 error = true;
             }
             item['id'] = row.articleID;
@@ -182,7 +184,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             item['delivered'] = row.delivered;
             item['returned'] = row.returned;
             item['cancelled'] = row.cancelled;
-            item['cancelledItems'] = row.quantityDeliver - row.cancelled;
+            item['cancelledItems'] = row.quantityDeliver;
             items.push(item);
         }
 

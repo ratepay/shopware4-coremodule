@@ -7,7 +7,7 @@
  */
 Ext.define('Shopware.apps.PigmbhRatepayLogging.model.Main', {
     extend : 'Ext.data.Model',
-    fields: [ 'date', 'version', 'operation', 'transactionId', 'request','response'],
+    fields: [ 'date', 'version', 'operation', 'suboperation', 'transactionId', 'firstname', 'lastname','request','response'],
     proxy : {
         type : 'ajax',
         api:{

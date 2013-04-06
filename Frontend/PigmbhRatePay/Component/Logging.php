@@ -7,10 +7,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging
     {
         $version = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->getVersion();
 
-        preg_match("/<operation>(.*)<\/operation>/", $requestXml, $operationMatches);
+        preg_match("/<operation.*>(.*)<\/operation>/", $requestXml, $operationMatches);
         $operation = $operationMatches[1];
 
-        preg_match("/<operation subtype=\"(.*)\">/", $requestXml, $operationSubtypeMatches);
+        preg_match('/<operation subtype=\"(.*)">(.*)<\/operation>/', $requestXml, $operationSubtypeMatches);
         $operationSubtype = $operationSubtypeMatches[1] ?: 'N/A';
 
         preg_match("/<transaction-id>(.*)<\/transaction-id>/", $requestXml, $transactionMatches);
@@ -27,6 +27,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging
             'request' => $requestXml,
             'response' => $responseXml
         );
+
         try {
             Shopware()->Db()->insert('pigmbh_ratepay_logging', $bind);
         } catch (Exception $exception) {

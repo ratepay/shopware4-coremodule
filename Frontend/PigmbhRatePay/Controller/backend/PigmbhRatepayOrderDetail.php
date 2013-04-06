@@ -31,7 +31,18 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
     {
         $orderId = $this->Request()->getParam("orderId");
 
-        $sql = "SELECT `articleID`, `name`, `articleordernumber`, `price`, `quantity`, (`quantity` - `delivered` - `cancelled`) AS `quantityDeliver`,(`delivered`) AS `quantityReturn`,`delivered`, `cancelled`, `returned`, `tax_rate` "
+        $sql = "SELECT "
+            ."`articleID`, "
+            ."`name`, "
+            ."`articleordernumber`, "
+            ."`price`, "
+            ."`quantity`, "
+            ."(`quantity` - `delivered` - `cancelled`) AS `quantityDeliver`, "
+            ."(`delivered` - `returned`) AS `quantityReturn`, "
+            ."`delivered`, "
+            ."`cancelled`, "
+            ."`returned`, "
+            ."`tax_rate` "
                 . "FROM `s_order_details` AS detail "
                 . "INNER JOIN `pigmbh_ratepay_order_positions` AS ratepay ON detail.`id`=ratepay.`s_order_details_id` "
                 . "WHERE detail.`orderId`=? "
@@ -58,6 +69,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $basketItems = array();
         foreach ($items as $item) {
             $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
+            if($item->quantity == 0){
+                continue;
+            }
             $basketItem->setArticleName($item->name);
             $basketItem->setArticleNumber($item->articlenumber);
             $basketItem->setQuantity($item->quantity);
@@ -81,14 +95,13 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         if ($result === true) {
             foreach ($items as $item) {
                 $bind = array(
-                    'delivered' => $item->delivered + $item->quantity
+                    'delivered' => $item->delivered + $item->deliveredItems
                 );
                 $this->updateItem($orderId, $item->articlenumber, $bind);
             }
         }
 
         $this->View()->assign(array(
-            "orderID" => $orderId,
             "result" => $result,
             "success" => true
                 )
@@ -138,17 +151,57 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
             }
         }
 
+        $this->View()->assign(array(
+            "result" => $result,
+            "success" => true
+                )
+        );
+    }
+
+    public function returnItemsAction()
+    {
+        $orderId = $this->Request()->getParam("orderId");
+        $items = json_decode($this->Request()->getParam("items"));
+        $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
+
+        $basketItems = array();
+        foreach ($items as $item) {
+            $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
+            if($item->quantity <= 0){
+                continue;
+            }
+            $basketItem->setArticleName($item->name);
+            $basketItem->setArticleNumber($item->articlenumber);
+            $basketItem->setQuantity($item->quantity);
+            $basketItem->setTaxRate($item->taxRate);
+            $basketItem->setUnitPriceGross($item->price);
+            $basketItems[] = $basketItem;
+        }
+
+        $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
+        $basket->setAmount($order["invoice_amount"]);
+        $basket->setCurrency($order['currency']);
+        $basket->setItems($basketItems);
+
+        $this->_modelFactory->setTransactionId($order['transactionID']);
+        $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange());
+        $head = $paymentChange->getHead();
+        $head->setOperationSubstring('partial-return');
+        $paymentChange->setHead($head);
+        $paymentChange->setShoppingBasket($basket);
+
+        $response = $this->_request->xmlRequest($paymentChange->toArray());
+        $result = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
         if ($result === true) {
             foreach ($items as $item) {
                 $bind = array(
-                    'cancelled' => $item->cancelled + $item->quantity
+                    'returned' => $item->returned + $item->returnedItems
                 );
                 $this->updateItem($orderId, $item->articlenumber, $bind);
             }
         }
 
         $this->View()->assign(array(
-            "orderID" => $orderId,
             "result" => $result,
             "success" => true
                 )
