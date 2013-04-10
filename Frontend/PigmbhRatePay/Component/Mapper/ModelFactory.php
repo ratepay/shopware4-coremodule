@@ -80,6 +80,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
     private function fillPaymentRequest(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest &$paymentRequestModel)
     {
         $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
+        $method = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::getPaymentMethod(Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']);
+
         $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
         $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
         $head->setOperation('PAYMENT_REQUEST');
@@ -117,7 +119,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $customer->setShippingAddresses($shippingAddress);
 
         // nur bei ELV
-        if (!is_null($shopUser->getDebit())) {
+        if ($method === 'ELV') {
             $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
             $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
             $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
@@ -142,7 +144,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $customer->setPhone($shopBillingAddress->getPhone());
         $customer->setNationality($shopCountry->getIso());
 
-        $method = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::getPaymentMethod(Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']);
         $payment = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment();
         $payment->setAmount($this->getAmount());
         $payment->setCurrency(Shopware()->Currency()->getShortName());

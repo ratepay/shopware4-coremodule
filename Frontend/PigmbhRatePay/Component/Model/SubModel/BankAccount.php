@@ -18,7 +18,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccou
     /**
      * @var string
      */
-    private $_bankAccount;
+    private $_bankAccountNumber;
 
     /**
      * @var string
@@ -57,7 +57,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccou
      */
     public function getBankAccount()
     {
-        return $this->_bankAccount;
+        return $this->_bankAccountNumber;
     }
 
     /**
@@ -65,9 +65,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccou
      *
      * @param string $bankAccount
      */
-    public function setBankAccount($bankAccount)
+    public function setBankAccount($bankAccountNumber)
     {
-        $this->_bankAccount = $bankAccount;
+        $this->_bankAccountNumber = $bankAccountNumber;
     }
 
     /**
@@ -119,7 +119,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccou
     {
         return array(
             'owner' => $this->getOwner(),
-            'bank-account' => $this->getBankAccount(),
+            'bank-account-number' => $this->getBankAccount(),
             'bank-code' => $this->getBankCode(),
             'bank-name' => $this->getBankName()
         );

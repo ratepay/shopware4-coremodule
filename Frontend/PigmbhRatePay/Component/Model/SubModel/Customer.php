@@ -370,7 +370,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Customer
             $return['vat-id'] = $this->getVatId();
         }
         if ($this->_bankAccount != null) {
-            $return['bank-account'] = $this->getCompanyName();
+            $return['bank-account'] = $this->getBankAccount()->toArray();
         }
         return $return;
     }

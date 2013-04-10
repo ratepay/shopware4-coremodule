@@ -1,4 +1,5 @@
 {if $ratepayValidateisDebitSet == 'false'}
+    <input id='ratepay_debit_updatedebitdata' type='hidden' value='true'>
     <p class='none'>
         <label for='ratepay_debit_accountnumber'>Kontonummer:</label>
         <input id='ratepay_debit_accountnumber' type='text' class='text'>

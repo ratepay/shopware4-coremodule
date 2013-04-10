@@ -3,42 +3,42 @@
 
 class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment {
     /**
-     * @var string 
+     * @var string
      */
     private $_method;
     /**
-     * @var string 
+     * @var string
      */
     private $_currency;
     /**
-     * @var float 
+     * @var float
      */
     private $_amount;
     /**
-     * @var integer 
+     * @var integer
      */
     private $_installmentNumber;
     /**
-     * @var float 
+     * @var float
      */
     private $_installmentAmount;
     /**
-     * @var float 
+     * @var float
      */
     private $_lastInstallmentAmount;
     /**
-     * @var float 
+     * @var float
      */
     private $_interestRate;
     /**
-     * @var integer 
+     * @var integer
      */
     private $_paymentFirstday;
     /**
-     * @var string 
+     * @var string
      */
     private $_directPayType;
-    
+
     public function getMethod() {
         return $this->_method;
     }
@@ -125,10 +125,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment {
                 'interest-rate' => $this->getInterestRate(),
                 'payment-firstday' => $this->getPaymentFirstday()
             );
-            $return['debit-pay-type'] = $this->getPaymentFirstday();
+            $return['debit-pay-type'] = $this->getDirectPayType();
         }
         return $return;
-        
+
     }
-    
+
 }
