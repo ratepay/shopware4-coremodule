@@ -40,8 +40,8 @@ class Shopware_Controllers_Backend_PigmbhRatepayLogging extends Shopware_Control
         } else {
             $sqlTotal = "SELECT COUNT(*) FROM `pigmbh_ratepay_logging`";
             $sql = "SELECT log.*, `s_user_billingaddress`.`firstname`,`s_user_billingaddress`.`lastname` FROM `pigmbh_ratepay_logging` AS `log` "
-                    . "INNER JOIN `s_order` ON `log`.`transactionId`=`s_order`.`transactionID`"
-                    . "INNER JOIN `s_user_billingaddress` ON `s_order`.`userID`=`s_user_billingaddress`.`userID`"
+                    . "LEFT JOIN `s_order` ON `log`.`transactionId`=`s_order`.`transactionID`"
+                    . "LEFT JOIN `s_user_billingaddress` ON `s_order`.`userID`=`s_user_billingaddress`.`userID`"
                     . "ORDER BY `id` DESC "
                     . "LIMIT $start,$limit";
             $data = Shopware()->Db()->fetchAll($sql);
