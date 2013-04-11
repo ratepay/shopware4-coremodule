@@ -149,8 +149,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $payment->setCurrency(Shopware()->Currency()->getShortName());
         $payment->setMethod($method);
         if ($method === 'INSTALLMENT') {
+            $payment->setAmount(Shopware()->Session()->RatePAY['ratenrechner']['total_amount']);
             $payment->setDirectPayType('BANK-TRANSFER');
-            $payment->setInstallmentAmount(Shopware()->Session()->RatePAY['ratenrechner']['amount']);
+            $payment->setInstallmentAmount(Shopware()->Session()->RatePAY['ratenrechner']['rate']);
             $payment->setInstallmentNumber(Shopware()->Session()->RatePAY['ratenrechner']['number_of_rates']);
             $payment->setInterestRate(Shopware()->Session()->RatePAY['ratenrechner']['interest_rate']);
             $payment->setLastInstallmentAmount(Shopware()->Session()->RatePAY['ratenrechner']['last_rate']);
@@ -170,6 +171,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             $item->setUnitPriceGross($shopItem['amountnet']);
             $items[] = $item;
         }
+        $items[] = $this->getShippingAsItem(Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts']);
         $basket->setItems($items);
 
         $paymentRequestModel->setHead($head);
@@ -326,6 +328,17 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         } else {
             return $basket['AmountNetNumeric'];
         }
+    }
+
+    private function getShippingAsItem($amount)
+    {
+        $item = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
+        $item->setArticleName('Shipping');
+        $item->setArticleNumber('Shipping');
+        $item->setQuantity(1);
+        $item->setTaxRate(0);
+        $item->setUnitPriceGross($amount);
+        return $item;
     }
 
 }

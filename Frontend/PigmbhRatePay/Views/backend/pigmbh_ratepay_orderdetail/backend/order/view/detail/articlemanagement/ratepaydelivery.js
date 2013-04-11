@@ -88,14 +88,84 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
 
     getToolbar:function(){
         var me = this;
+        var id = this.record.get('id');
         return [
         {
             iconCls:'sprite-inbox--plus',
-            text: 'Item hinzufügen'
+            text: 'Artikel hinzufügen',
+            handler: function(){
+                Ext.create('Shopware.apps.Order.view.detail.ratepayadditemwindow',{
+                    parent: me,
+                    record: me.record
+                }).show();
+            }
         },
         {
-            iconCls:'sprite-inbox--plus',
-            text: 'Gutschein hinzufügen'
+            iconCls:'sprite-plus-circle-frame',
+            text: 'Gutschein hinzufügen',
+            handler: function(){
+                Ext.create('Ext.window.Window', {
+                    title: 'Gutschein hinzufügen',
+                    width: 200,
+                    height: 100,
+                    id:'creditWindow',
+                    resizable: false,
+                    layout:'fit',
+                    items:[
+                    {
+                        xtype: 'numberfield',
+                        id:'creditAmount',
+                        allowBlank: false,
+                        allowDecimals : true,
+                        minValue: 0.01,
+                        value:1.00
+                    }
+                    ],
+                    buttons: [{
+                        text:'Ok',
+                        handler: function(){
+                            var randomnumber=Math.floor(Math.random()* 10001);
+                            var creditname = 'Credit' + id + '-' + randomnumber;
+                            Ext.Ajax.request({
+                                url: '{url controller=Order action=savePosition}',
+                                method:'POST',
+                                async:false,
+                                params: {
+                                    orderId:id,
+                                    articleId:0,
+                                    articleName:creditname,
+                                    articleNumber:creditname,
+                                    id:0,
+                                    inStock:0,
+                                    mode:0,
+                                    price: Ext.getCmp('creditAmount').getValue() * -1,
+                                    quantity:1,
+                                    statusDescription:"",
+                                    statusId:0,
+                                    taxDescription:"",
+                                    taxId:1,
+                                    taxRate:0,
+                                    total:0
+                                },
+                                success: function(response){
+                                    var response = Ext.JSON.decode(response.responseText);
+                                    var ids = new Array();
+                                    ids.push(response.data.id);
+                                    me.initPositions(ids);
+                                    me.paymentChange(id,'credit');
+                                    Ext.getCmp('creditWindow').close();
+                                    me.reloadGrid();
+                                }
+                            });
+                        }
+                    },{
+                        text:'Cancel',
+                        handler: function(){
+                            Ext.getCmp('creditWindow').close();
+                        }
+                    }]
+                }).show();
+            }
         },
         {
             iconCls:'sprite-truck',
@@ -151,20 +221,13 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                     items:Ext.encode(items)
                 },
                 success: function(){
-                    var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
-                    me.store = positionStore.load({
-                        params:{
-                            'orderId': id
-                        }
-                    });
-
-                    me.reconfigure(me.store);
+                    me.reloadGrid();
                 }
             });
         }
 
     },
-    toolbarCancel:function(){
+    toolbarCancel: function(){
         var me = this;
         var items = new Array();
         var id = me.record.get('id');
@@ -201,17 +264,58 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                     items:Ext.encode(items)
                 },
                 success: function(){
-                    var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
-                    me.store = positionStore.load({
-                        params:{
-                            'orderId': id
-                        }
-                    });
-
-                    me.reconfigure(me.store);
+                    me.reloadGrid();
                 }
             });
         }
+    },
+
+    reloadGrid: function(){
+        var me = this;
+        var id = me.record.get('id');
+        var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+        me.store = positionStore.load({
+            params:{
+                'orderId': id
+            }
+        });
+
+        me.reconfigure(me.store);
+    },
+
+    initPositions: function(ids){
+        var returnValue = false;
+        Ext.Ajax.request({
+            url: '{url controller=PigmbhRatepayOrderDetail action=initPositions}',
+            method:'POST',
+            async:false,
+            params: {
+                ids:Ext.JSON.encode(ids)
+            },
+            success: function(response){
+                var response = Ext.JSON.decode(response.responseText);
+                returnValue = response.success;
+            }
+        });
+        return returnValue;
+    },
+
+    paymentChange: function(id, suboperation){
+        var returnValue = false;
+        Ext.Ajax.request({
+            url: '{url controller=PigmbhRatepayOrderDetail action=add}',
+            method:'POST',
+            async:false,
+            params: {
+                orderId:id,
+                suboperation: suboperation
+            },
+            success: function(response){
+                var response = Ext.JSON.decode(response.responseText);
+                returnValue = response.success;
+            }
+        });
+        return returnValue;
     }
 
 });

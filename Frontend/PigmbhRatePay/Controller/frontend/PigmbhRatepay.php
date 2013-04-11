@@ -87,7 +87,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                     Shopware()->Log()->Debug($updateData);
                     $return = 'NOK';
                 }
-            }else{
+            } else {
                 $insertData = array(
                     'account' => $requestParameter['ratepay_debit_accountnumber'],
                     'bankcode' => $requestParameter['ratepay_debit_bankcode'],
@@ -117,10 +117,11 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentRequest());
             $result = $this->_request->xmlRequest($paymentRequestModel->toArray());
             if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
-                $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $this->createPaymentUniqueId(), 17);
+                $orderNumber = $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $this->createPaymentUniqueId(), 17);
                 $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm());
                 $result = $this->_request->xmlRequest($paymentConfirmModel->toArray());
                 if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CONFIRM', $result)) {
+                    $this->initShipping($orderNumber);
                     $this->redirect(Shopware()->Front()->Router()->assemble(array(
                                 'controller' => 'checkout',
                                 'action' => 'finish'
@@ -164,6 +165,16 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         require_once $calcPath . '/PiRatepayRateCalc.php';
         require_once $calcPath . '/path.php';
         require_once $calcPath . '/PiRatepayRateCalcRequest.php';
+    }
+
+    private function initShipping($orderNumber)
+    {
+        try {
+            $orderID = Shopware()->Db()->fetchOne("SELECT `id` FROM `s_order` WHERE `ordernumber`=?", array($orderNumber));
+            Shopware()->Db()->query("INSERT INTO `pigmbh_ratepay_order_shipping` (`s_order_id`) VALUES(?)", array($orderID));
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err($exception->getMessage());
+        }
     }
 
 }

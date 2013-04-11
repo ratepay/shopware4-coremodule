@@ -222,10 +222,19 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`returned` int NOT NULL DEFAULT 0, " .
                 "PRIMARY KEY (`s_order_details_id`)" .
                 ")";
+
+        $sqlOrderShipping = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_order_shipping` (" .
+                "`s_order_id` int NOT NULL," .
+                "`delivered` int NOT NULL DEFAULT 0, " .
+                "`cancelled` int NOT NULL DEFAULT 0, " .
+                "`returned` int NOT NULL DEFAULT 0, " .
+                "PRIMARY KEY (`s_order_id`)" .
+                ")";
         try {
             Shopware()->Db()->query($sqlLogging);
             Shopware()->Db()->query($sqlConfig);
             Shopware()->Db()->query($sqlOrderPositions);
+            Shopware()->Db()->query($sqlOrderShipping);
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create Database.' . $exception->getMessage());

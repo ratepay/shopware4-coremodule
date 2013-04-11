@@ -6,6 +6,7 @@
 //{include file="backend/order/store/ratepaypositions.js"}
 //{include file="backend/order/model/ratepaypositions.js"}
 //{include file="backend/order/view/detail/articlemanagement/ratepaydelivery.js"}
+//{include file="backend/order/view/detail/articlemanagement/delivery/ratepayadditemwindow.js"}
 //{include file="backend/order/view/detail/articlemanagement/ratepayretoure.js"}
 //{include file="backend/order/view/detail/ratepayarticlemanagement.js"}
 
