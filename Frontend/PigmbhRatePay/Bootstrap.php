@@ -79,7 +79,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 1,
-                        'additionaldescription' => '',
+                        'additionaldescription' => 'Kauf auf Rechnung',
                         'template' => 'RatePAYInvoice.tpl'
                     )
             );
@@ -90,7 +90,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 2,
-                        'additionaldescription' => '',
+                        'additionaldescription' => 'Kauf mit Ratenzahlung',
                         'template' => 'RatePAYRate.tpl'
                     )
             );
@@ -101,7 +101,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'action' => 'pigmbh_ratepay',
                         'active' => 1,
                         'position' => 3,
-                        'additionaldescription' => '',
+                        'additionaldescription' => 'Rechnungskauf mit Lastschrift',
                         'template' => 'RatePAYDebit.tpl'
                     )
             );
