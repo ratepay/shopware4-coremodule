@@ -26,7 +26,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util
     private static function _arrayToXml(array $model, &$xml)
     {
         foreach ($model as $key => $value) {
-            if (!empty($value) && !(is_array($value) && count($value) === 0)
+            if (!self::betterEmpty($value) && !(is_array($value) && count($value) === 0)
             ) {
                 if (is_array($value)) {
                     if (!is_numeric($key)) {
@@ -51,6 +51,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util
                 }
             }
         }
+    }
+
+    private static function betterEmpty($value){
+        return empty($value) && !is_numeric($value);
     }
 
     /**
@@ -132,10 +136,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util
                 break;
             case 'pigmbhratepaydebit':
                 return 'ELV';
-                break;
-            case 'pigmbhratepayprepayment':
-            default:
-                return 'PREPAYMENT';
                 break;
         }
     }

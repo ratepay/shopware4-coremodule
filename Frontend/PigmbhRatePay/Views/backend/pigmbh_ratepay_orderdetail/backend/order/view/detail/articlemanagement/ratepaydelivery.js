@@ -285,11 +285,14 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
 
     initPositions: function(ids){
         var returnValue = false;
+        var me = this;
+        var id = me.record.get('id');
         Ext.Ajax.request({
             url: '{url controller=PigmbhRatepayOrderDetail action=initPositions}',
             method:'POST',
             async:false,
             params: {
+                orderID:id,
                 ids:Ext.JSON.encode(ids)
             },
             success: function(response){

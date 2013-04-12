@@ -27,21 +27,26 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
     public function initPositionsAction()
     {
         $ids = json_decode($this->Request()->getParam("ids"));
-        $values = "";
+        $orderID = $this->Request()->getParam("orderID");
         $success = false;
+        $sqlSelectIDs = "SELECT `id` FROM `s_order_details` WHERE `orderID`=? AND `articleID` IN (?)";
         foreach ($ids as $id) {
-            $values .= "(" . $id . "),";
+            $articleIDs .= $id . ",";
         }
-        $values = substr($values, 0, -1);
-
-        $sqlInsert = "INSERT INTO `pigmbh_ratepay_order_positions` "
-                . "(`s_order_details_id`) "
-                . "VALUES " . $values;
+        $articleIDs = substr($articleIDs, 0, -1);
         try {
+            $detailIDs = Shopware()->Db()->fetchAll($sqlSelectIDs, array($orderID, $articleIDs));
+            foreach ($detailIDs as $row) {
+                $values .= "(" . $row['id'] . "),";
+            }
+            $values = substr($values, 0, -1);
+            $sqlInsert = "INSERT INTO `pigmbh_ratepay_order_positions` "
+                    . "(`s_order_details_id`) "
+                    . "VALUES " . $values;
             Shopware()->Db()->query($sqlInsert);
             $success = true;
         } catch (Exception $exception) {
-            Shopware()->Log()->Err("SQL:" . $sqlInsert . " Exception:" . $exception->getMessage());
+            Shopware()->Log()->Err("Exception:" . $exception->getMessage());
         }
         $this->View()->assign(
                 array(
@@ -255,7 +260,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
         $basketItem->setArticleName($shippingRow['name']);
         $basketItem->setArticleNumber($shippingRow['articleordernumber']);
-        $basketItem->setQuantity($shippingRow['quantityDeliver']);
+        $basketItem->setQuantity($shippingRow['quantity']);
         $basketItem->setTaxRate($shippingRow['tax_rate']);
         $basketItem->setUnitPriceGross($shippingRow['price']);
         $basketItems[] = $basketItem;
@@ -343,7 +348,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $shippingRow['articleID'] = 0;
         $shippingRow['name'] = 'shipping';
         $shippingRow['articleordernumber'] = 'shipping';
-        $shippingRow['tax_rate'] = 0;
+        $shippingRow['tax_rate'] = "0";
         return $shippingRow;
     }
 
