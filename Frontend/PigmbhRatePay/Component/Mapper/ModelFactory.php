@@ -108,7 +108,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $customer->setBillingAddresses($billingAddress);
 
 
-        $shopShippingAddress = $shopUser->getShipping() === null ? : $shopUser->getBilling();
+        $shopShippingAddress = $shopUser->getShipping() !== null ? $shopUser->getShipping() : $shopUser->getBilling();
         $shippingAddress = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Address();
         $shippingAddress->setType('DELIVERY');
         $shippingAddress->setCountryCode($shopCountry->getIso());
