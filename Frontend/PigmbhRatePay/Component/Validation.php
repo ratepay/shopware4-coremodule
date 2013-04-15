@@ -95,22 +95,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     }
 
     /**
-     * Checks if the Addresses are Equal
-     *
-     * @return type
-     */
-    public function isAddressValid()
-    {
-        $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
-        return ($config->get('RatePayDifferentShippingaddress') && !$this->_areAddressesEqual()) || $this->_areAddressesEqual();
-    }
-
-    /**
      * Compares the Data of billing- and shippingaddress.
      *
      * @return boolean
      */
-    private function _areAddressesEqual()
+    public function isAddressValid()
     {
         $billingAddress = $this->_user->getBilling();
         $shippingAddress = $this->_user->getShipping();
@@ -135,6 +124,23 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
                     $return = false;
                 }
             }
+        }
+        return $return;
+    }
+    /**
+     * Compares the Country of billing- and shippingaddress.
+     *
+     * @return boolean
+     */
+    public function isCountryEqual()
+    {
+        $billingAddress = $this->_user->getBilling();
+        $shippingAddress = $this->_user->getShipping();
+        $return = true;
+        if (!is_null($shippingAddress)) {
+                if ($billingAddress->getCountryId() != $shippingAddress->getCountryId()) {
+                    $return = false;
+                }
         }
         return $return;
     }

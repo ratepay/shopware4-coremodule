@@ -138,10 +138,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 'label' => 'Bankdatenspeicherung aktivieren',
                 'value' => true
             ));
-            $form->setElement('boolean', 'RatePayDifferentShippingaddress', array(
-                'label' => 'Abweichende Addressen zulassen',
-                'value' => false
-            ));
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception("Can not create configelements." . $exception->getMessage());
@@ -161,8 +157,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                     'RatePaySecurityCode' => 'Security Code',
                     'RatePaySandbox' => 'Sandboxmodus',
                     'RatePayLogging' => 'Logging aktivieren',
-                    'RatePayBankData' => 'Bankdatenspeicherung aktivieren',
-                    'RatePayDifferentShippingaddress' => 'Abweichende Addressen zulassen'
+                    'RatePayBankData' => 'Bankdatenspeicherung aktivieren'
                 )
             );
 
@@ -212,6 +207,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`invoiceStatus` int(1) NOT NULL, " .
                 "`debitStatus` int(1) NOT NULL, " .
                 "`rateStatus` int(1) NOT NULL, " .
+                "`b2b-invoice` varchar(3) NOT NULL, " .
+                "`b2b-debit` varchar(3) NOT NULL, " .
+                "`b2b-rate` varchar(3) NOT NULL, " .
+                "`address-invoice` varchar(3) NOT NULL, " .
+                "`address-debit` varchar(3) NOT NULL, " .
+                "`address-rate` varchar(3) NOT NULL, " .
                 "PRIMARY KEY (`profileId`)" .
                 ")";
 
@@ -500,6 +501,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         $showDebit = $paymentStati['debitStatus'] == 2 ? true : false;
         $showInvoice = $paymentStati['invoiceStatus'] == 2 ? true : false;
 
+
         $validation = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation();
         if (!$validation->isAgeValid() || !$validation->isCountryValid() || !$validation->isCurrencyValid()) {
             $showRate = false;
@@ -508,8 +510,15 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
 
         if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-            // Rate & B2B is forbidden
-            $showRate = false;
+            $showRate = $paymentStati['b2b-rate'] == 'yes' ? : false;
+            $showDebit = $paymentStati['b2b-debit'] == 'yes' ? : false;
+            $showInvoice = $paymentStati['b2b-invoice'] == 'yes' ? : false;
+        }
+
+        if(!$validation->isAddressValid()){
+            $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() ? : false;
+            $showDebit = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() ? : false;
+            $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() ? : false;
         }
 
         $payments = array();
@@ -545,13 +554,19 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
 
         if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PROFILE_REQUEST', $response)) {
             $sql = "REPLACE INTO `pigmbh_ratepay_config`"
-                    . "(`profileId`, `invoiceStatus`,`debitStatus`,`rateStatus`) "
-                    . "VALUES(?, ?, ?, ?);";
+                    . "(`profileId`, `invoiceStatus`,`debitStatus`,`rateStatus`, `b2b-invoice`,`b2b-debit`,`b2b-rate`, `address-invoice`,`address-debit`,`address-rate`) "
+                    . "VALUES(?, ?, ?, ?, ?, ?, ?);";
             $data = array(
                 $response->getElementsByTagName('profile-id')->item(0)->nodeValue,
                 $response->getElementsByTagName('activation-status-invoice')->item(0)->nodeValue,
                 $response->getElementsByTagName('activation-status-elv')->item(0)->nodeValue,
-                $response->getElementsByTagName('activation-status-installment')->item(0)->nodeValue
+                $response->getElementsByTagName('activation-status-installment')->item(0)->nodeValue,
+                $response->getElementsByTagName('b2b-invoice')->item(0)->nodeValue,
+                $response->getElementsByTagName('b2b-elv')->item(0)->nodeValue,
+                $response->getElementsByTagName('b2b-installment')->item(0)->nodeValue,
+                $response->getElementsByTagName('delivery-address-invoice')->item(0)->nodeValue,
+                $response->getElementsByTagName('delivery-address-elv')->item(0)->nodeValue,
+                $response->getElementsByTagName('delivery-address-installment')->item(0)->nodeValue
             );
             try {
                 $this->clearRuleSet();
