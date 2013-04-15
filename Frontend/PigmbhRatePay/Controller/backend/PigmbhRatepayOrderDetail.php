@@ -12,6 +12,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
     private $_config;
     private $_modelFactory;
     private $_request;
+    private $_history;
 
     /**
      * index action is called if no other action is triggered
@@ -22,20 +23,21 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $this->_config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
         $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory();
         $this->_request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
+        $this->_history = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_History();
     }
 
     public function initPositionsAction()
     {
-        $ids = json_decode($this->Request()->getParam("ids"));
+        $articleNames = json_decode($this->Request()->getParam("articleNumber"));
         $orderID = $this->Request()->getParam("orderID");
         $success = false;
-        $sqlSelectIDs = "SELECT `id` FROM `s_order_details` WHERE `orderID`=? AND `articleID` IN (?)";
-        foreach ($ids as $id) {
-            $articleIDs .= $id . ",";
+        $sqlSelectIDs = "SELECT `id` FROM `s_order_details` WHERE `orderID`=? AND `articleordernumber` IN (?)";
+        foreach ($articleNames as $articleName) {
+            $names .= $articleName . ",";
         }
-        $articleIDs = substr($articleIDs, 0, -1);
+        $names = substr($names, 0, -1);
         try {
-            $detailIDs = Shopware()->Db()->fetchAll($sqlSelectIDs, array($orderID, $articleIDs));
+            $detailIDs = Shopware()->Db()->fetchAll($sqlSelectIDs, array($orderID, $names));
             foreach ($detailIDs as $row) {
                 $values .= "(" . $row['id'] . "),";
             }
@@ -55,7 +57,19 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
-    /**
+    public function loadHistoryStoreAction(){
+        $orderId = $this->Request()->getParam("orderId");
+        $history = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_History();
+        $historyData = $history->getHistory($orderId);
+        $this->View()->assign(
+                array(
+                    "data" => $historyData,
+                    "success" => true
+                )
+        );
+    }
+
+        /**
      * This Action loads the data from the datebase into the backendview
      */
     public function loadPositionStoreAction()
@@ -130,6 +144,10 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                     'delivered' => $item->delivered + $item->deliveredItems
                 );
                 $this->updateItem($orderId, $item->articlenumber, $bind);
+                if ($item->quantity <= 0) {
+                    continue;
+                }
+                $this->_history->logHistory($orderId, "Artikel wurde versand.", $item->name, $item->articlenumber, $item->quantity);
             }
         }
 
@@ -180,6 +198,10 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                     'cancelled' => $item->cancelled + $item->cancelledItems
                 );
                 $this->updateItem($orderId, $item->articlenumber, $bind);
+                if ($item->cancelledItems <= 0) {
+                    continue;
+                }
+                $this->_history->logHistory($orderId, "Artikel wurde storniert.", $item->name, $item->articlenumber, $item->cancelledItems);
             }
         }
 
@@ -230,6 +252,10 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                     'returned' => $item->returned + $item->returnedItems
                 );
                 $this->updateItem($orderId, $item->articlenumber, $bind);
+                if ($item->returnedItems <= 0) {
+                    continue;
+                }
+                $this->_history->logHistory($orderId, "Artikel wurde retourniert.", $item->name, $item->articlenumber, $item->returnedItems);
             }
         }
 
@@ -243,6 +269,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
     public function addAction()
     {
         $orderId = $this->Request()->getParam("orderId");
+        $insertedIds = json_decode($this->Request()->getParam("insertedIds"));
         $subOperation = $this->Request()->getParam("suboperation");
         $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
         $orderItems = Shopware()->Db()->fetchAll("SELECT * FROM `s_order_details` WHERE `orderID`=?", array($orderId));
@@ -279,6 +306,17 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
 
         $response = $this->_request->xmlRequest($paymentChange->toArray());
         $result = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
+        if ($result) {
+            $event = $subOperation === 'credit' ? 'Gutschein wurde hinzugefügt' : 'Artikel wurde hinzugefügt';
+            foreach ($insertedIds as $id) {
+                $newItems = Shopware()->Db()->fetchRow("SELECT * FROM `s_order_details` WHERE `id`=?", array($id));
+                if($newItems->quantity <= 0){
+                    continue;
+                }
+                $this->_history->logHistory($orderId, $event, $newItems['name'], $newItems['articleordernumber'], $newItems['quantity']);
+            }
+        }
+
         $this->View()->assign(array(
             "result" => $result,
             "success" => true

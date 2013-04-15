@@ -26,7 +26,6 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaylog', {
             }
         };
 
-        me.dockedItems = me.getToolbar();
         me.callParent(arguments);
 
     },
@@ -121,24 +120,6 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaylog', {
             }]
         }
         ];
-    },
-
-    getToolbar:function(){
-        var me = this;
-        var logstore = Ext.create('Shopware.apps.Order.store.RatePayLog');
-        var id = me.record.get('id');
-
-        return [{
-            xtype: 'pagingtoolbar',
-            store: logstore.load({
-                params:{
-                    'orderId': id
-                }
-            }),
-            dock: 'bottom',
-            displayInfo: true
-        }];
     }
-
 });
 //{/block}

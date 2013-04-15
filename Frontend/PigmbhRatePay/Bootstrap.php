@@ -231,11 +231,23 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "`returned` int NOT NULL DEFAULT 0, " .
                 "PRIMARY KEY (`s_order_id`)" .
                 ")";
+
+        $sqlOrderHistory = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_order_history` (" .
+                "`id` int(11) NOT NULL AUTO_INCREMENT," .
+                "`orderId` varchar(50) ," .
+                "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, " .
+                "`event` varchar(100), " .
+                "`articlename` varchar(100), " .
+                "`articlenumber` varchar(50), " .
+                "`quantity` varchar(50), " .
+                "PRIMARY KEY (`id`)" .
+                ")";
         try {
             Shopware()->Db()->query($sqlLogging);
             Shopware()->Db()->query($sqlConfig);
             Shopware()->Db()->query($sqlOrderPositions);
             Shopware()->Db()->query($sqlOrderShipping);
+            Shopware()->Db()->query($sqlOrderHistory);
         } catch (Exception $exception) {
             $this->uninstall();
             throw new Exception('Can not create Database.' . $exception->getMessage());

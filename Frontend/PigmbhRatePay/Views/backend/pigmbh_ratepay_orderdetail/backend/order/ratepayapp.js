@@ -1,5 +1,7 @@
 //{block name="backend/order/application" append}
 //Include History
+//{include file="backend/order/store/ratepayhistory.js"}
+//{include file="backend/order/model/ratepayhistory.js"}
 //{include file="backend/order/view/detail/ratepayhistory.js"}
 
 //Include ArticleOverview

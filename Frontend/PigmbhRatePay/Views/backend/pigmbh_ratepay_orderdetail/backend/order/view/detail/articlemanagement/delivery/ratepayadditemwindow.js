@@ -56,20 +56,19 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                 text: 'Auswahl zur Bestellung hinzufügen',
                 handler: function(){
                     var store = Ext.getCmp('gridNewItems').getStore();
-                    var ids = new Array();
+                    var articleNumber = new Array();
                     var insertedIds = new Array();
                     var message;
                     for(i=0;i < store.data.items.length;i++){
                         insertedIds.push(me.savePosition(store.data.items[i].data));
-                        ids.push(store.data.items[i].data.articleID);
+                        articleNumber.push(store.data.items[i].data.articleordernumber);
                     }
-                    if(me.parent.initPositions(ids)){
-                        if(me.parent.paymentChange(id,'change-order')){
+                    if(me.parent.initPositions(articleNumber)){
+                       if(me.parent.paymentChange(id,'change-order', insertedIds)){
                             message = 'Artikel wurden erfolgreich zur Bestellung hinzugefügt.';
                         }else{
-                            console.log(insertedIds);
                             for(i=0;i < insertedIds.length;i++){
-                                me.deletePosition(insertedIds[i]);
+                                me.parent.deletePosition(insertedIds[i]);
                             }
                             message = 'Artikel konnten nicht korrekt an RatePAY übermittelt werden.';
                         }
@@ -116,7 +115,13 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
         },{
             dataIndex: 'price',
             header: 'price',
-            flex: 2
+            flex: 2,
+            editor:{
+                xtype: 'numberfield',
+                allowBlank: false,
+                allowDecimals : true,
+                minValue: 0.01
+            }
         }, {
             xtype: 'actioncolumn',
             header: 'actions',
@@ -183,26 +188,6 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
             }
         });
         return insertID;
-    },
-
-    deletePosition: function(id){
-        var me = this;
-        var orderid = me.record.get('id');
-        var result = false;
-        Ext.Ajax.request({
-            url: '{url controller=Order action=deletePosition targetField=positions}',
-            method:'POST',
-            async:false,
-            params: {
-                orderID:orderid,
-                id: id
-            },
-            success: function(response){
-                var response = Ext.JSON.decode(response.responseText);
-                result = response.success;
-            }
-        });
-        return result;
     },
 
     getItem: function(id){

@@ -149,11 +149,23 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                                 },
                                 success: function(response){
                                     var response = Ext.JSON.decode(response.responseText);
-                                    var ids = new Array();
-                                    ids.push(response.data.id);
-                                    me.initPositions(ids);
-                                    me.paymentChange(id,'credit');
+                                    var articleNumber = new Array();
+                                    var insertedIds = new Array();
+                                    var message;
+                                    articleNumber.push(response.data.articleNumber);
+                                    insertedIds.push(response.data.id);
+                                    if(me.initPositions(articleNumber)){
+                                        if(me.paymentChange(id,'credit', insertedIds)){
+                                            message = 'Gutschein wurde erfolgreich zur Bestellung hinzugefügt.';
+                                        }else{
+                                            me.deletePosition(insertedIds);
+                                            message = 'Gutschein konnte nicht korrekt an RatePAY übermittelt werden.';
+                                        }
+                                    }else{
+                                        message = 'Gutschein konnte nicht der Bestellung hinzugefügt werden.';
+                                    }
                                     Ext.getCmp('creditWindow').close();
+                                    Ext.Msg.alert('Gutschein hinzufügen', message);
                                     me.reloadGrid();
                                 }
                             });
@@ -283,7 +295,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         me.reconfigure(me.store);
     },
 
-    initPositions: function(ids){
+    initPositions: function(articleNumber){
         var returnValue = false;
         var me = this;
         var id = me.record.get('id');
@@ -293,7 +305,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             async:false,
             params: {
                 orderID:id,
-                ids:Ext.JSON.encode(ids)
+                articleNumber:Ext.JSON.encode(articleNumber)
             },
             success: function(response){
                 var response = Ext.JSON.decode(response.responseText);
@@ -303,7 +315,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         return returnValue;
     },
 
-    paymentChange: function(id, suboperation){
+    paymentChange: function(id, suboperation, insertedIds){
         var returnValue = false;
         Ext.Ajax.request({
             url: '{url controller=PigmbhRatepayOrderDetail action=add}',
@@ -311,7 +323,8 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             async:false,
             params: {
                 orderId:id,
-                suboperation: suboperation
+                suboperation: suboperation,
+                insertedIds:Ext.JSON.encode(insertedIds)
             },
             success: function(response){
                 var response = Ext.JSON.decode(response.responseText);
@@ -319,6 +332,25 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             }
         });
         return returnValue;
+    },
+    deletePosition: function(id){
+        var me = this;
+        var orderid = me.record.get('id');
+        var result = false;
+        Ext.Ajax.request({
+            url: '{url controller=Order action=deletePosition targetField=positions}',
+            method:'POST',
+            async:false,
+            params: {
+                orderID:orderid,
+                id: id
+            },
+            success: function(response){
+                var response = Ext.JSON.decode(response.responseText);
+                result = response.success;
+            }
+        });
+        return result;
     }
 
 });
