@@ -57,13 +57,26 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                 handler: function(){
                     var store = Ext.getCmp('gridNewItems').getStore();
                     var ids = new Array();
+                    var insertedIds = new Array();
+                    var message;
                     for(i=0;i < store.data.items.length;i++){
-                        me.savePosition(store.data.items[i].data);
+                        insertedIds.push(me.savePosition(store.data.items[i].data));
                         ids.push(store.data.items[i].data.articleID);
                     }
-                    console.log(ids);
-                    me.parent.initPositions(ids);
-                    me.parent.paymentChange(id,'change-order');
+                    if(me.parent.initPositions(ids)){
+                        if(me.parent.paymentChange(id,'change-order')){
+                            message = 'Artikel wurden erfolgreich zur Bestellung hinzugefügt.';
+                        }else{
+                            console.log(insertedIds);
+                            for(i=0;i < insertedIds.length;i++){
+                                me.deletePosition(insertedIds[i]);
+                            }
+                            message = 'Artikel konnten nicht korrekt an RatePAY übermittelt werden.';
+                        }
+                    }else{
+                        message = 'Artikel konnten nicht der Bestellung hinzugefügt werden.';
+                    }
+                    Ext.Msg.alert('Artikel hinzufügen', message);
                     me.parent.reloadGrid();
                     me.close();
                 }
@@ -150,6 +163,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
     savePosition: function(item){
         var me = this;
         var id = me.record.get('id');
+        var insertID;
         Ext.Ajax.request({
             url: '{url controller=Order action=savePosition}',
             method:'POST',
@@ -162,8 +176,33 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                 price:item.price,
                 quantity:item.quantity,
                 taxRate: item.tax_rate
+            },
+            success: function(response){
+                var response = Ext.JSON.decode(response.responseText);
+                insertID = response.data.id;
             }
         });
+        return insertID;
+    },
+
+    deletePosition: function(id){
+        var me = this;
+        var orderid = me.record.get('id');
+        var result = false;
+        Ext.Ajax.request({
+            url: '{url controller=Order action=deletePosition targetField=positions}',
+            method:'POST',
+            async:false,
+            params: {
+                orderID:orderid,
+                id: id
+            },
+            success: function(response){
+                var response = Ext.JSON.decode(response.responseText);
+                result = response.success;
+            }
+        });
+        return result;
     },
 
     getItem: function(id){

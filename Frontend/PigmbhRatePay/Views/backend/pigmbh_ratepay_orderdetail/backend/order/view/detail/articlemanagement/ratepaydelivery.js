@@ -315,7 +315,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             },
             success: function(response){
                 var response = Ext.JSON.decode(response.responseText);
-                returnValue = response.success;
+                returnValue = response.result;
             }
         });
         return returnValue;
