@@ -121,10 +121,17 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         // nur bei ELV
         if ($method === 'ELV') {
             $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
-            $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
-            $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
-            $bankAccount->setBankName($shopUser->getDebit()->getBankName());
-            $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
+            if ($config->get('RatePayBankData') == true) {
+                $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
+                $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
+                $bankAccount->setBankName($shopUser->getDebit()->getBankName());
+                $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
+            } else {
+                $bankAccount->setBankAccount(Shopware()->Session()->RatePAY['bankdata']['account']);
+                $bankAccount->setBankCode(Shopware()->Session()->RatePAY['bankdata']['bankcode']);
+                $bankAccount->setBankName(Shopware()->Session()->RatePAY['bankdata']['bankname']);
+                $bankAccount->setOwner(Shopware()->Session()->RatePAY['bankdata']['bankholder']);
+            }
             $customer->setBankAccount($bankAccount);
         }
         $customer->setCompanyName($shopBillingAddress->getCompany());
