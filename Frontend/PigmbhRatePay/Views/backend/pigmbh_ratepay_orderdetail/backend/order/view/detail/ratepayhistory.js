@@ -27,31 +27,31 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayhistory', {
     getColumns:function(){
         return [
         {
-            header: 'Datum',
+            header: '{s namespace=RatePAY name=date}Datum{/s}',
             dataIndex: 'date',
             flex:1
         },
 
         {
-            header: 'Event',
+            header: '{s namespace=RatePAY name=event}Event{/s}',
             dataIndex: 'event',
             flex:2
         },
 
         {
-            header: 'Name',
+            header: '{s namespace=RatePAY name=name}Name{/s}',
             dataIndex: 'articlename',
             flex:2
         },
 
         {
-            header: 'Nummer',
+            header: '{s namespace=RatePAY name=number}Nummer{/s}',
             dataIndex: 'articlenumber',
             flex:1
         },
 
         {
-            header: 'Anzahl',
+            header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
             dataIndex: 'quantity',
             flex:1
         }

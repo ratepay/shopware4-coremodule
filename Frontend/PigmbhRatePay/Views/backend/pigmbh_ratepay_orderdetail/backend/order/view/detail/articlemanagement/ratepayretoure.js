@@ -46,7 +46,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
     getColumns:function () {
         return [
         {
-            header: 'Anz.',
+            header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
             dataIndex: 'quantityReturn',
             editor: {
                 xtype: 'numberfield',
@@ -57,31 +57,31 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
             }
         },
         {
-            header: 'ArticleName',
+            header: '{s namespace=RatePAY name=articlename}ArticleName{/s}',
             dataIndex: 'name'
         },
         {
-            header: 'ArticleNummer',
+            header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
             dataIndex: 'articleordernumber'
         },
         {
-            header: 'Preis',
+            header: '{s namespace=RatePAY name=price}Preis{/s}',
             dataIndex: 'price'
         },
         {
-            header: 'Bestellt',
+            header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',
             dataIndex: 'quantity'
         },
         {
-            header: 'Versand',
+            header: '{s namespace=RatePAY name=delivered}Versand{/s}',
             dataIndex: 'delivered'
         },
         {
-            header: 'Storniert',
+            header: '{s namespace=RatePAY name=cancelled}Storniert{/s}',
             dataIndex: 'cancelled'
         },
         {
-            header: 'Retourniert',
+            header: '{s namespace=RatePAY name=returned}Retourniert{/s}',
             dataIndex: 'returned'
         },
         ];
@@ -92,7 +92,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
         var id = me.record.get('id');
         return [
         {
-            text: 'Anzahl auf 0 setzen',
+            text: '{s namespace=RatePAY name=setzero}Anzahl auf 0 setzen{/s}',
             handler: function(){
                 var id = me.record.get('id');
                 var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
@@ -108,7 +108,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
         },
         {
             iconCls:'sprite-minus-circle-frame',
-            text: 'Auswahl retournieren',
+            text: '{s namespace=RatePAY name=return}Auswahl retournieren{/s}',
             handler: function(){
                 me.toolbarReturn();
             }
@@ -140,7 +140,8 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
         }
 
         if(error == true){
-            Ext.Msg.alert('Return fail', 'Anz. must be smaller than quantity!');
+            Ext.Msg.alert('{s namespace=RatePAY name=messagereturntitle}Retoure fehlgeschlagen{/s}',
+            '{s namespace=RatePAY name=messagereturntext}Es k&ouml;nnen nicht mehr Artikel retourniert werden als versand wurden!{/s}');
             return false;
         }else{
             Ext.Ajax.request({

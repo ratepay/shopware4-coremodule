@@ -14,7 +14,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
         var me = this;
         me.items =  [
         {
-            title: 'Versand/Stornierung',
+            title: '{s namespace=RatePAY name=subtabdelivery}Versand/Stornierung{/s}',
             layout:'fit',
             items:[
             Ext.create('Shopware.apps.Order.view.detail.ratepaydelivery',{
@@ -36,7 +36,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
             }
         },
         {
-            title: 'Retoure',
+            title: '{s namespace=RatePAY name=subtabreturn}Retoure{/s}',
             layout:'fit',
             items:[
             Ext.create('Shopware.apps.Order.view.detail.ratepayretoure',{

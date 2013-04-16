@@ -45,7 +45,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
     getColumns:function () {
         return [
         {
-            header: 'Anz.',
+            header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
             dataIndex: 'quantityDeliver',
             editor: {
                 xtype: 'numberfield',
@@ -56,31 +56,31 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             }
         },
         {
-            header: 'ArticleName',
+            header: '{s namespace=RatePAY name=articlename}Artikelname{/s}',
             dataIndex: 'name'
         },
         {
-            header: 'ArticleNummer',
+            header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
             dataIndex: 'articleordernumber'
         },
         {
-            header: 'Preis',
+            header: '{s namespace=RatePAY name=price}Preis{/s}',
             dataIndex: 'price'
         },
         {
-            header: 'Bestellt',
+            header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',
             dataIndex: 'quantity'
         },
         {
-            header: 'Versand',
+            header: '{s namespace=RatePAY name=delivered}Versand{/s}',
             dataIndex: 'delivered'
         },
         {
-            header: 'Storniert',
+            header: '{s namespace=RatePAY name=cancelled}Storniert{/s}',
             dataIndex: 'cancelled'
         },
         {
-            header: 'Retourniert',
+            header: '{s namespace=RatePAY name=returned}Retourniert{/s}',
             dataIndex: 'returned'
         },
         ];
@@ -91,7 +91,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         var id = me.record.get('id');
         return [
         {
-            text: 'Anzahl auf 0 setzen',
+            text: '{s namespace=RatePAY name=setzero}Anzahl auf 0 setzen{/s}',
             handler: function(){
                 var id = me.record.get('id');
                 var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
@@ -107,7 +107,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         },
         {
             iconCls:'sprite-inbox--plus',
-            text: 'Artikel hinzufügen',
+            text: '{s namespace=RatePAY name=addarticle}Artikel hinzuf&uuml;gen{/s}',
             handler: function(){
                 Ext.create('Shopware.apps.Order.view.detail.ratepayadditemwindow',{
                     parent: me,
@@ -117,10 +117,10 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         },
         {
             iconCls:'sprite-plus-circle-frame',
-            text: 'Gutschein hinzufügen',
+            text: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
             handler: function(){
                 Ext.create('Ext.window.Window', {
-                    title: 'Gutschein hinzufügen',
+                    title: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
                     width: 200,
                     height: 100,
                     id:'creditWindow',
@@ -137,7 +137,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                     }
                     ],
                     buttons: [{
-                        text:'Ok',
+                        text:'{s namespace=RatePAY name=ok}Ok{/s}',
                         handler: function(){
                             var randomnumber=Math.floor(Math.random()* 10001);
                             var creditname = 'Credit' + id + '-' + randomnumber;
@@ -171,22 +171,22 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                                     insertedIds.push(response.data.id);
                                     if(me.initPositions(articleNumber)){
                                         if(me.paymentChange(id,'credit', insertedIds)){
-                                            message = 'Gutschein wurde erfolgreich zur Bestellung hinzugefügt.';
+                                            message = '{s namespace=RatePAY name=messagecreditsuccess}Gutschein wurde erfolgreich zur Bestellung hinzugef&uuml;gt.{/s}';
                                         }else{
                                             me.deletePosition(insertedIds);
-                                            message = 'Gutschein konnte nicht korrekt an RatePAY übermittelt werden.';
+                                            message = '{s namespace=RatePAY name=messagecreditfailrequest}Gutschein konnte nicht korrekt an RatePAY &uuml;bermittelt werden.{/s}';
                                         }
                                     }else{
-                                        message = 'Gutschein konnte nicht der Bestellung hinzugefügt werden.';
+                                        message = '{s namespace=RatePAY name=messagecreditfailposition}Gutschein konnte nicht der Bestellung hinzugef&uuml;gt werden.{/s}';
                                     }
                                     Ext.getCmp('creditWindow').close();
-                                    Ext.Msg.alert('Gutschein hinzufügen', message);
+                                    Ext.Msg.alert('{s namespace=RatePAY name=messagecredittitle}Gutschein hinzuf&uuml;gen{/s}', message);
                                     me.reloadGrid();
                                 }
                             });
                         }
                     },{
-                        text:'Cancel',
+                        text:'{s namespace=RatePAY name=abort}Cancel{/s}',
                         handler: function(){
                             Ext.getCmp('creditWindow').close();
                         }
@@ -196,14 +196,14 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         },
         {
             iconCls:'sprite-truck',
-            text: 'Auswahl versenden',
+            text: '{s namespace=RatePAY name=deliver}Auswahl versenden{/s}',
             handler: function(){
                 me.toolbarDeliver();
             }
         },
         {
             iconCls:'sprite-minus-circle-frame',
-            text: 'Auswahl stornieren',
+            text: '{s namespace=RatePAY name=cancel}Auswahl stornieren{/s}',
             handler: function(){
                 me.toolbarCancel();
             }
@@ -236,7 +236,8 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         }
 
         if(error == true){
-            Ext.Msg.alert('Delivery fail', 'Anz. must be smaller than quantity!');
+            Ext.Msg.alert('{s namespace=RatePAY name=messagedeliverytitle}Versand fehlgeschlagen{/s}',
+            '{s namespace=RatePAY name=messagedeliverytext}Es k&ouml;nnen nicht mehr Artikel versendet werden als bestellt wurden!{/s}');
             return false;
         }else{
             Ext.Ajax.request({
@@ -279,7 +280,8 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         }
 
         if(error == true){
-            Ext.Msg.alert('Cancellation fail', 'Anz. must be smaller than quantity!');
+            Ext.Msg.alert('{s namespace=RatePAY name=messagecanceltitle}Stornierung fehlgeschlagen{/s}',
+            '{s namespace=RatePAY name=messagecanceltext}Es k&ouml;nnen nicht mehr Artikel storniert werden als bestellt wurden!{/s}');
             return false;
         }else{
             Ext.Ajax.request({

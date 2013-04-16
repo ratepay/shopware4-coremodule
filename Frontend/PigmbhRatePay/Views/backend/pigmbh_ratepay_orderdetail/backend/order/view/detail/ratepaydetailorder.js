@@ -64,15 +64,15 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydetailorder', {
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
             }), Ext.create('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
-                title: 'Artikelverwaltung',
+                title: '{s namespace=RatePAY name=tabarticlemanagement}Artikelverwaltung{/s}',
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,
                 paymentStatusStore:  me.paymentStatusStore
             }), Ext.create('Shopware.apps.Order.view.detail.ratepaylog', {
-                title: 'RatePAY Log',
+                title: '{s namespace=RatePAY name=tablog}RatePAY Log{/s}',
                 record: me.record
             }),Ext.create('Shopware.apps.Order.view.detail.ratepayhistory', {
-                title: 'RatePAY History',
+                title: '{s namespace=RatePAY name=tabhistory}RatePAY History{/s}',
                 historyStore: me.historyStore,
                 record: me.record,
                 orderStatusStore: me.orderStatusStore,

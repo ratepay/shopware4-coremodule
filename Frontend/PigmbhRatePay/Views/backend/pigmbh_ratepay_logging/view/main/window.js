@@ -36,43 +36,43 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
             width:'100%',
             columns: [
             {
-                header: 'Datum',
+                header: '{s namespace=RatePAY name=date}Datum{/s}',
                 dataIndex: 'date',
                 flex:2
             },
 
             {
-                header: 'Version',
+                header: '{s namespace=RatePAY name=version}Version{/s}',
                 dataIndex: 'version',
                 flex:1
             },
 
             {
-                header: 'Operation',
+                header: '{s namespace=RatePAY name=operation}Operation{/s}',
                 dataIndex: 'operation',
                 flex:2
             },
 
             {
-                header: 'Suboperation',
+                header: '{s namespace=RatePAY name=suboperation}Suboperation{/s}',
                 dataIndex: 'suboperation',
                 flex:2
             },
 
             {
-                header: 'Transaction-ID',
+                header: '{s namespace=RatePAY name=transactionid}Transaction-ID{/s}',
                 dataIndex: 'transactionId',
                 flex:2
             },
 
             {
-                header: 'FirstName',
+                header: '{s namespace=RatePAY name=firstname}FirstName{/s}',
                 dataIndex: 'firstname',
                 flex:1
             },
 
             {
-                header: 'LastName',
+                header: '{s namespace=RatePAY name=lastname}LastName{/s}',
                 dataIndex: 'lastname',
                 flex:1
             }
@@ -106,7 +106,7 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
                 xtype:'textareafield',
                 border: false,
                 layout:'fit',
-                title:'Request',
+                title:'{s namespace=RatePAY name=request}Request{/s}',
                 value: 'N/A',
                 id:'requestPanel',
                 autoScroll:true,
@@ -117,7 +117,7 @@ Ext.define('Shopware.apps.PigmbhRatepayLogging.view.main.Window', {
                 xtype:'textareafield',
                 border: false,
                 layout:'fit',
-                title:'Response',
+                title:'{s namespace=RatePAY name=response}Response{/s}',
                 value: 'N/A',
                 id:'responsePanel',
                 autoScroll:true,

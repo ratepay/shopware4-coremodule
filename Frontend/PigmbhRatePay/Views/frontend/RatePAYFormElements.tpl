@@ -1,26 +1,26 @@
 {if $ratepayValidateIsB2B == 'true'}
     {if $ratepayValidateUST != 'true'}
         <p class='none'>
-            <label for='ratepay_ustid'>Umsatzsteuer:</label>
+            <label for='ratepay_ustid'>{s namespace=RatePAY name=vatId}Umsatzsteuer{/s}:</label>
             <input id='ratepay_ustid' class='text' type="text">
         </p>
     {/if}
     {if $ratepayValidateCompanyName != 'true'}
         <p class='none'>
-            <label for='ratepay_phone'>Firmenname:</label>
-            <input id='ratepay_phone' class='text' type="text">
+            <label for='ratepay_company'>{s namespace=RatePAY name=company}Firmenname{/s}:</label>
+            <input id='ratepay_company' class='text' type="text">
         </p>
     {/if}
 {/if}
 {if $ratepayValidateTelephoneNumber != 'true'}
     <p class='none'>
-        <label for='ratepay_phone'>Telefonnummer:</label>
+        <label for='ratepay_phone'>{s namespace=RatePAY name=phone}Telefonnummer{/s}:</label>
         <input id='ratepay_phone' class='text' type="text">
     </p>
 {/if}
 {if $ratepayValidateIsBirthdayValid != 'true' || $ratepayValidateisAgeValid != 'true'}
     <p class='none'>
-        <label for='ratepay_birthday'>Geburtsdatum:</label>
+        <label for='ratepay_birthday'>{s namespace=RatePAY name=birthday}Geburtsdatum{/s}:</label>
         <input id='ratepay_birthday' class='text' type="text" value="{$sUserData.billingaddress.birthday}" readonly>
     </p>
 {/if}
@@ -53,9 +53,9 @@
                 data: requestParams
             }).done(function( msg ) {
                 if(msg == 'OK'){
-                    console.log('UserDaten erfolgreich aktualisiert.');
+                    console.log('{s namespace=RatePAY name=updateUserSuccess}UserDaten erfolgreich aktualisiert.{/s}');
                 }else{
-                    console.log('Fehler beim Aktualisieren der UserDaten. Return: ' + msg);
+                    console.log('{s namespace=RatePAY name=updateUserSuccess}Fehler beim Aktualisieren der UserDaten. Return: {/s}' + msg);
                 }
             });
         }

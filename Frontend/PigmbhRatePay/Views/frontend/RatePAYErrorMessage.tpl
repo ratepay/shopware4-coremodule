@@ -8,7 +8,7 @@
         $("#ratepay_error").parent().show();
     {/if}
     {if $ratepayValidateisAgeValid != 'true'}
-        $("#ratepay_error").append('Das angegebene Alter ist unter 18!');
+        $("#ratepay_error").append({s namespace=RatePAY name=invalidAge}'Das angegebene Alter ist unter 18!'{/s});
         $("#ratepay_error").parent().show();
     {/if}
     });

@@ -135,10 +135,10 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                             ))
                     );
                 } else {
-                    $this->_error('Order konnte nicht validiert werden.');
+                    $this->_error('Bestellung konnte nicht validiert werden.');
                 }
             } else {
-                $this->_error('Order wurde nicht erfolgreich &uuml;bermittelt.');
+                $this->_error('Bestellung wurde nicht erfolgreich &uuml;bermittelt.');
             }
         } else {
             $this->_error('Bezahlvorgang konnte nicht initialisiert werden.');
