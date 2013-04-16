@@ -35,7 +35,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     public function isRatePAYPayment()
     {
         $payment = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $this->_user->getPaymentId());
-        return in_array($payment->getName(), array("pigmbhratepayinvoice", "pigmbhratepayrate", "pigmbhratepaydebit", "pigmbhratepayprepayment"));
+        return in_array($payment->getName(), array("pigmbhratepayinvoice", "pigmbhratepayrate", "pigmbhratepaydebit"));
     }
 
     /**
