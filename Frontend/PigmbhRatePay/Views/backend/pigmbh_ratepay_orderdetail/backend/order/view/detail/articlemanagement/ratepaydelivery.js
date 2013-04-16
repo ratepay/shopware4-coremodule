@@ -88,8 +88,23 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
 
     getToolbar:function(){
         var me = this;
-        var id = this.record.get('id');
+        var id = me.record.get('id');
         return [
+        {
+            text: 'Anzahl auf 0 setzen',
+            handler: function(){
+                var id = me.record.get('id');
+                var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+                me.store = positionStore.load({
+                    params:{
+                        'orderId': id,
+                        'setToZero':true
+                    }
+                });
+
+                me.reconfigure(me.store);
+            }
+        },
         {
             iconCls:'sprite-inbox--plus',
             text: 'Artikel hinzufügen',

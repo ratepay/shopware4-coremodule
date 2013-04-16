@@ -57,7 +57,8 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
-    public function loadHistoryStoreAction(){
+    public function loadHistoryStoreAction()
+    {
         $orderId = $this->Request()->getParam("orderId");
         $history = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_History();
         $historyData = $history->getHistory($orderId);
@@ -69,12 +70,13 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
-        /**
+    /**
      * This Action loads the data from the datebase into the backendview
      */
     public function loadPositionStoreAction()
     {
         $orderId = $this->Request()->getParam("orderId");
+        $zero = $this->Request()->getParam("setToZero");
 
         $sql = "SELECT "
                 . "`articleID`, "
@@ -95,10 +97,20 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
 
         $data = Shopware()->Db()->fetchAll($sql, array($orderId));
         $data[] = $this->getShippingFromDBAsItem($orderId);
+        $positions = array();
+        if ($zero) {
+            foreach ($data as $row) {
+                $row['quantityDeliver'] = 0;
+                $row['quantityReturn'] = 0;
+                $positions[] = $row;
+            }
+        }else{
+            $positions = $data;
+        }
         $total = Shopware()->Db()->fetchOne("SELECT count(*) FROM `s_order_details` WHERE `s_order_details`.`orderId`=?;", array($orderId));
 
         $this->View()->assign(array(
-            "data" => $data,
+            "data" => $positions,
             "total" => $total,
             "success" => true
                 )
@@ -310,7 +322,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
             $event = $subOperation === 'credit' ? 'Gutschein wurde hinzugefügt' : 'Artikel wurde hinzugefügt';
             foreach ($insertedIds as $id) {
                 $newItems = Shopware()->Db()->fetchRow("SELECT * FROM `s_order_details` WHERE `id`=?", array($id));
-                if($newItems->quantity <= 0){
+                if ($newItems->quantity <= 0) {
                     continue;
                 }
                 $this->_history->logHistory($orderId, $event, $newItems['name'], $newItems['articleordernumber'], $newItems['quantity']);

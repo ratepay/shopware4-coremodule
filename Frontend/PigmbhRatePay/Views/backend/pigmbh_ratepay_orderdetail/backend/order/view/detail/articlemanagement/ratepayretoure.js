@@ -89,7 +89,23 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
 
     getToolbar:function(){
         var me = this;
+        var id = me.record.get('id');
         return [
+        {
+            text: 'Anzahl auf 0 setzen',
+            handler: function(){
+                var id = me.record.get('id');
+                var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+                me.store = positionStore.load({
+                    params:{
+                        'orderId': id,
+                        'setToZero':true
+                    }
+                });
+
+                me.reconfigure(me.store);
+            }
+        },
         {
             iconCls:'sprite-minus-circle-frame',
             text: 'Auswahl retournieren',
