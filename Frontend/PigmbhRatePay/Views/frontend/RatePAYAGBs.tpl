@@ -1,13 +1,9 @@
 <div>
     <p class="none">
         <input type="checkbox" id='ratepay_agb'>
-        {s name='ratepay_agb_first'}Ich habe die Allgemeinen Geschäftsbedingungen zur Kenntnis genommen und erkläre mich mit
-        deren Geltung einverstanden. Außerdem erkläre ich hiermit meine Einwilligung zur Verwendung
-        meiner Daten gemäß der {/s}
-
+        {s name='ratepay_agb_first'}Hiermit stimme ich der Verwendung meiner Daten gemäß der{/s}
         <a href='http://customers.ratepay.com/dse.html' >RatePAY-Datenschutzerklärung</a>
-
-        {s name='ratepay_agb_last'}und bin insbesondere damit einverstanden, zum Zwecke der Durchführung
+        {s name='ratepay_agb_last'} zu und bin insbesondere damit einverstanden, zum Zwecke der Durchführung
         des Vertrages über die von mir angegebene E-Mail-Adresse kontaktiert zu werden.{/s}
     </p>
 </div>
