@@ -56,7 +56,7 @@ if ($pi_calculator->getErrorMsg() != '') {
         <span><b><?php echo $pi_amount; ?> &euro;</b></span>
         <?php echo $pi_lang_cash_payment_price_part_two; ?>
         <br />
-        <label for="firstInput">
+        <label for="firstInput" style='width: 440px;'>
             <div class="piRpChooseInput" id="piRpChooseInputRate">
                 <input id="firstInput" class="piRpFloatLeft" type="radio" name="Zahlmethode" value="wishrate"  onClick="switchRateOrRuntime('rate');">
             </div>
@@ -83,7 +83,7 @@ if ($pi_calculator->getErrorMsg() != '') {
             </div>
         </div>
         <br class="piRpClearFix" />
-        <label for="secondInput">
+        <label for="secondInput" style='width: 440px;'>
             <div class="piRpChooseInput" id="piRpChooseInputRuntime">
                 <input id="secondInput" class="piRpFloatLeft" type="radio" name="Zahlmethode" value="runtime" onClick="switchRateOrRuntime('runtime');">
             </div>
@@ -104,7 +104,7 @@ if ($pi_calculator->getErrorMsg() != '') {
             <br class="piRpClearFix" />
             <div class="piRpMarginTop">
                 <span class="piRpVertAlignMiddle"><?php echo $pi_lang_please . " " . $pi_lang_insert_runtime; ?>:</span>
-                <select id="runtime">
+                <select id="runtime" style='position: absolute; top: -4px; left: -14px;'>
                     <?php
                     foreach ($pi_monthAllowedArray as $pi_month) {
                         echo '<option value="' . $pi_month . '">' ; if($pi_month<10) echo'&nbsp;'; echo $pi_month . ' ' . $pi_lang_months . '</option>';
