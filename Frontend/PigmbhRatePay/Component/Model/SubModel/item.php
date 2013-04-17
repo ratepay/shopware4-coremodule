@@ -111,7 +111,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item
      */
     public function setTaxRate($taxRate)
     {
-        $this->_taxRate = $taxRate;
+        $this->_taxRate = number_format((float)$taxRate, 2, '.', '');;
     }
 
     /**
