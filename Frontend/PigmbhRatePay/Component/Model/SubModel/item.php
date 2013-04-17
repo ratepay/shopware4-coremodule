@@ -131,7 +131,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item
      */
     public function setUnitPriceGross($unitPriceGross)
     {
-        $this->_unitPriceGross = (float)$unitPriceGross;
+        $this->_unitPriceGross = number_format((float)$unitPriceGross, 2, '.', '');
     }
 
     /**
