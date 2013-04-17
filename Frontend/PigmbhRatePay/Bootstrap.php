@@ -202,6 +202,15 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "PRIMARY KEY (`id`)" .
                 ")";
 
+        $sqlBankdata = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_user_bankdata` (" .
+                "`userID` int(11) NOT NULL AUTO_INCREMENT," .
+                "`bankname` varchar(200) NOT NULL," .
+                "`bankcode` varchar(200) NOT NULL," .
+                "`bankholder` varchar(200) NOT NULL," .
+                "`account` varchar(200) NOT NULL," .
+                "PRIMARY KEY (`userID`)" .
+                ")";
+
         $sqlConfig = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_config` (" .
                 "`profileId` varchar(500) NOT NULL," .
                 "`invoiceStatus` int(1) NOT NULL, " .
@@ -243,6 +252,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 "PRIMARY KEY (`id`)" .
                 ")";
         try {
+            Shopware()->Db()->query($sqlBankdata);
             Shopware()->Db()->query($sqlLogging);
             Shopware()->Db()->query($sqlConfig);
             Shopware()->Db()->query($sqlOrderPositions);

@@ -18,6 +18,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     private $_user;
 
     /**
+     * An Instance of the Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption
+     *
+     * @var Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption
+     */
+    private $_encryption;
+
+    /**
      * Constructor
      *
      * Saves the CustomerModel and initiate the Class
@@ -25,6 +32,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     public function __construct()
     {
         $this->_user = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
+        $this->_encryption = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption();
     }
 
     /**
@@ -174,15 +182,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
      */
     public function isDebitSet()
     {
-        $return = false;
-        if (!is_null($this->_user->getDebit())) {
-            $account = $this->_user->getDebit()->getAccount();
-            $accountholder = $this->_user->getDebit()->getAccountHolder();
-            $bankcode = $this->_user->getDebit()->getBankCode();
-            $bankname = $this->_user->getDebit()->getBankName();
-            $return = (!empty($account) && !empty($accountholder) && !empty($bankcode) && !empty($bankname));
-        }
-        return $return;
+        $id = $this->_user->getId();
+        return $this->_encryption->isBankdataSetForUser((string)$id);
     }
 
 }

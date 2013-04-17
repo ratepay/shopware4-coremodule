@@ -81,6 +81,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
     {
         $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
         $method = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::getPaymentMethod(Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']);
+        $encryption = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption();
+
 
         $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
         $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
@@ -122,10 +124,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         if ($method === 'ELV') {
             $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
             if ($config->get('RatePayBankData') == true) {
-                $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
-                $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
-                $bankAccount->setBankName($shopUser->getDebit()->getBankName());
-                $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
+                $bankdata = $encryption->loadBankdata(Shopware()->Session()->sUserId);
+                $bankAccount->setBankAccount($bankdata['account']);
+                $bankAccount->setBankCode($bankdata['bankcode']);
+                $bankAccount->setBankName($bankdata['bankname']);
+                $bankAccount->setOwner($bankdata['bankholder']);
             } else {
                 $bankAccount->setBankAccount(Shopware()->Session()->RatePAY['bankdata']['account']);
                 $bankAccount->setBankCode(Shopware()->Session()->RatePAY['bankdata']['bankcode']);
@@ -172,7 +175,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         foreach ($shopItems as $shopItem) {
             $item = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
             $item->setArticleName($shopItem['articlename']);
-            $item->setArticleNumber($shopItem['articleID']);
+            $item->setArticleNumber($shopItem['ordernumber']);
             $item->setQuantity($shopItem['quantity']);
             $item->setTaxRate($shopItem['tax_rate']);
             $item->setUnitPriceGross($shopItem['amountnet']);

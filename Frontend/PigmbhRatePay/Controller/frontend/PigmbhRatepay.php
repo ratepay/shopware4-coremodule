@@ -19,6 +19,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     private $_request;
     private $_modelFactory;
     private $_logging;
+    private $_encryption;
 
     public function init()
     {
@@ -27,6 +28,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         $this->_request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
         $this->_modelFactory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory();
         $this->_logging = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging();
+        $this->_encryption = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption();
     }
 
     /**
@@ -78,7 +80,6 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             Shopware()->Session()->RatePAY['bankdata']['bankname'] = $requestParameter['ratepay_debit_bankname'];
             Shopware()->Session()->RatePAY['bankdata']['bankholder'] = $requestParameter['ratepay_debit_accountholder'];
             if ($config->get('RatePayBankData')) {
-                if (!is_null($debitUser)) {
                     $updateData = array(
                         'account' => $requestParameter['ratepay_debit_accountnumber'] ? : $debitUser->getAccount(),
                         'bankcode' => $requestParameter['ratepay_debit_bankcode'] ? : $debitUser->getBankCode(),
@@ -86,30 +87,13 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                         'bankholder' => $requestParameter['ratepay_debit_accountholder'] ? : $debitUser->getAccountHolder()
                     );
                     try {
-                        Shopware()->Db()->update('s_user_debit', $updateData, "`userID`=" . $requestParameter['userid']);
+                        $this->_encryption->saveBankdata($requestParameter['userid'], $updateData);
                         Shopware()->Log()->Info('Bankdaten aktualisiert.');
                     } catch (Exception $exception) {
                         Shopware()->Log()->Err('Fehler beim Updaten der Bankdaten: ' . $exception->getMessage());
                         Shopware()->Log()->Debug($updateData);
                         $return = 'NOK';
                     }
-                } else {
-                    $insertData = array(
-                        'account' => $requestParameter['ratepay_debit_accountnumber'],
-                        'bankcode' => $requestParameter['ratepay_debit_bankcode'],
-                        'bankname' => $requestParameter['ratepay_debit_bankname'],
-                        'bankholder' => $requestParameter['ratepay_debit_accountholder'],
-                        'userID' => $requestParameter['userid']
-                    );
-                    try {
-                        Shopware()->Db()->insert('s_user_debit', $insertData);
-                        Shopware()->Log()->Info('Bankdaten gespeichert.');
-                    } catch (Exception $exception) {
-                        Shopware()->Log()->Err('Fehler beim Updaten der Bankdaten: ' . $exception->getMessage());
-                        Shopware()->Log()->Debug($insertData);
-                        $return = 'NOK';
-                    }
-                }
             }
         }
         echo $return;
