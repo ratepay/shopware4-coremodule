@@ -290,7 +290,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $customer->setShippingAddresses($shippingAddress);
 
         // nur bei ELV
-        if (!$encryption->isBankdataSetForUser($order['userID'])) {
+        if ($encryption->isBankdataSetForUser($order['userID'])) {
             $bankdata = $encryption->loadBankdata($order['userID']);
             $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
             $bankAccount->setBankAccount($bankdata['account']);
