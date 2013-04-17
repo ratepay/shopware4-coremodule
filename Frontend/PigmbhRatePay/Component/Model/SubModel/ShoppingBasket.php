@@ -38,7 +38,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingB
      * @param string $amount
      */
     public function setAmount($amount) {
-        $this->_amount = $amount;
+        $this->_amount = number_format((float)$amount, 2, '.', '');;
     }
 
     /**
