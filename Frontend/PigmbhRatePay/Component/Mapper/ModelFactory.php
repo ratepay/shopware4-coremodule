@@ -178,7 +178,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             $item->setArticleNumber($shopItem['ordernumber']);
             $item->setQuantity($shopItem['quantity']);
             $item->setTaxRate($shopItem['tax_rate']);
-            $item->setUnitPriceGross($shopItem['amountnet']);
+            $item->setUnitPriceGross($shopItem['amount']);
             $items[] = $item;
         }
         $items[] = $this->getShippingAsItem(Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts']);
