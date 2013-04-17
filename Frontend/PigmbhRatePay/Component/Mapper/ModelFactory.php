@@ -247,6 +247,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
     private function fillPaymentChange(Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange &$paymentChangeModel)
     {
         $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
+        $encryption = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption();
         $head = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Head();
         $head->setOperation('PAYMENT_CHANGE');
         $head->setTransactionId($this->_transactionId);
@@ -286,12 +287,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         $customer->setShippingAddresses($shippingAddress);
 
         // nur bei ELV
-        if (!is_null($shopUser->getDebit())) {
+        if (!$encryption->isBankdataSetForUser($order['userID'])) {
+            $bankdata = $encryption->loadBankdata($order['userID']);
             $bankAccount = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_BankAccount();
-            $bankAccount->setBankAccount($shopUser->getDebit()->getAccount());
-            $bankAccount->setBankCode($shopUser->getDebit()->getBankCode());
-            $bankAccount->setBankName($shopUser->getDebit()->getBankName());
-            $bankAccount->setOwner($shopUser->getDebit()->getAccountHolder());
+            $bankAccount->setBankAccount($bankdata['account']);
+            $bankAccount->setBankCode($bankdata['bankcode']);
+            $bankAccount->setBankName($bankdata['bankname']);
+            $bankAccount->setOwner($bankdata['bankholder']);
             $customer->setBankAccount($bankAccount);
         }
         $customer->setCompanyName($shopBillingAddress->getCompany());
