@@ -8,6 +8,19 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaylog', {
      */
     extend:'Ext.grid.Panel',
     autoScroll:true,
+    listeners: {
+        activate: function(tab){
+            var me = this;
+            var logstore = Ext.create('Shopware.apps.Order.store.RatePayLog');
+            var id = me.record.get('id');
+            var store = logstore.load({
+                params:{
+                    'orderId': id
+                }
+            });
+            me.reconfigure(store);
+        }
+    },
 
     initComponent: function() {
         var me = this;

@@ -4,6 +4,20 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayhistory', {
 
     extend:'Ext.grid.Panel',
     autoScroll:true,
+    listeners: {
+        activate: function(tab){
+            var me = this;
+            var historystore = Ext.create('Shopware.apps.Order.store.ratepayhistory');
+            var id = me.record.get('id');
+            var store = historystore.load({
+                params:{
+                'orderId': id
+            }
+            });
+            me.reconfigure(store);
+        }
+    },
+
     initComponent: function() {
         var me = this;
         var historystore = Ext.create('Shopware.apps.Order.store.ratepayhistory');
