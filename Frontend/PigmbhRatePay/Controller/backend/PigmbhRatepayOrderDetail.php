@@ -322,7 +322,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
             $event = $subOperation === 'credit' ? 'Gutschein wurde hinzugefügt' : 'Artikel wurde hinzugefügt';
             foreach ($insertedIds as $id) {
                 $newItems = Shopware()->Db()->fetchRow("SELECT * FROM `s_order_details` WHERE `id`=?", array($id));
-                if ($newItems->quantity <= 0) {
+                if ($newItems['quantity'] <= 0) {
                     continue;
                 }
                 $this->_history->logHistory($orderId, $event, $newItems['name'], $newItems['articleordernumber'], $newItems['quantity']);
