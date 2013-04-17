@@ -181,7 +181,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             $item->setUnitPriceGross($shopItem['priceNumeric']);
             $items[] = $item;
         }
-        $items[] = $this->getShippingAsItem(Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts']);
+        $items[] = $this->getShippingAsItem(
+                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'],
+                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
+                );
         $basket->setItems($items);
 
         $paymentRequestModel->setHead($head);
@@ -342,13 +345,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         }
     }
 
-    private function getShippingAsItem($amount)
+    private function getShippingAsItem($amount, $tax)
     {
         $item = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
         $item->setArticleName('Shipping');
         $item->setArticleNumber('Shipping');
         $item->setQuantity(1);
-        $item->setTaxRate(0);
+        $item->setTaxRate($tax);
         $item->setUnitPriceGross($amount);
         return $item;
     }

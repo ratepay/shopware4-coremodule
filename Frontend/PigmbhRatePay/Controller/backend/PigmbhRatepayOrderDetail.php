@@ -389,16 +389,18 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 . "(`delivered` - `returned`) AS `quantityReturn`, "
                 . "`delivered`, "
                 . "`cancelled`, "
-                . "`returned` "
+                . "`returned`, "
+                . "`s_core_tax`.`tax` AS `tax_rate` "
                 . "FROM `s_order` "
                 . "INNER JOIN `pigmbh_ratepay_order_shipping` ON `s_order_id`=`s_order`.`id` "
-                . "WHERE `id` = ?";
+                . "INNER JOIN `s_premium_dispatch` ON `s_order`.`dispatchID`=`s_premium_dispatch`.`id` "
+                . "INNER JOIN `s_core_tax` ON `s_premium_dispatch`.`tax_calculation`=`s_core_tax`.`id` "
+                . "WHERE `s_order`.`id` = ?";
         $shippingRow = Shopware()->Db()->fetchRow($sql, array($orderId));
         $shippingRow['quantity'] = 1;
         $shippingRow['articleID'] = 0;
         $shippingRow['name'] = 'shipping';
         $shippingRow['articleordernumber'] = 'shipping';
-        $shippingRow['tax_rate'] = "0";
         return $shippingRow;
     }
 
