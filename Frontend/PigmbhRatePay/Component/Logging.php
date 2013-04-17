@@ -19,6 +19,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging
         preg_match("/<transaction-id>(.*)<\/transaction-id>/", $responseXml, $transactionMatchesResponse);
         $transactionId = $transactionId == 'N/A' && $transactionMatchesResponse[1] ? $transactionMatchesResponse[1] : $transactionId;
 
+        $requestXml = preg_replace("/<owner>(.*)<\/owner>/", "<owner>xxxxxxxx</owner>", $requestXml);
+        $requestXml = preg_replace("/<bank-account-number>(.*)<\/bank-account-number>/", "<bank-account-number>xxxxxxxx</bank-account-number>", $requestXml);
+        $requestXml = preg_replace("/<bank-code>(.*)<\/bank-code>/", "<bank-code>xxxxxxxx</bank-code>", $requestXml);
+        $requestXml = preg_replace("/<bank-name>(.*)<\/bank-name>/", "<bank-name>xxxxxxxx</bank-name>", $requestXml);
+
         $bind = array(
             'version' => $version,
             'operation' => $operation,

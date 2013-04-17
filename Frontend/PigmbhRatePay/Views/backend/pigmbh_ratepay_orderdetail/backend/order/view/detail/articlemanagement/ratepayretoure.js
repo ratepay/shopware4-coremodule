@@ -131,7 +131,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
             item['name'] =row.name;
             item['price'] =row.price;
             item['taxRate'] =row.tax_rate;
-            item['quantity'] = row.quantity - row.quantityReturn;
+            item['quantity'] = row.quantity - (row.quantityReturn + row.delivered + row.cancelled);
             item['delivered'] = row.delivered;
             item['returned'] = row.returned;
             item['cancelled'] = row.cancelled;

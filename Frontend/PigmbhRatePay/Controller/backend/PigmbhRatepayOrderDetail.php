@@ -139,7 +139,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         }
 
         $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
-        $basket->setAmount($order["invoice_amount"]);
+        $basket->setAmount($this->getRecalculatedAmount($basketItems));
         $basket->setCurrency($order["currency"]);
         $basket->setItems($basketItems);
 
@@ -191,7 +191,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         }
 
         $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
-        $basket->setAmount($order["invoice_amount"]);
+        $basket->setAmount($this->getRecalculatedAmount($basketItems));
         $basket->setCurrency($order['currency']);
         $basket->setItems($basketItems);
 
@@ -245,7 +245,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         }
 
         $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
-        $basket->setAmount($order["invoice_amount"]);
+        $basket->setAmount($this->getRecalculatedAmount($basketItems));
         $basket->setCurrency($order['currency']);
         $basket->setItems($basketItems);
 
@@ -305,7 +305,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $basketItems[] = $basketItem;
 
         $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
-        $basket->setAmount($order["invoice_amount"]);
+        $basket->setAmount($this->getRecalculatedAmount($basketItems));
         $basket->setCurrency($order['currency']);
         $basket->setItems($basketItems);
 
@@ -400,6 +400,23 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $shippingRow['articleordernumber'] = 'shipping';
         $shippingRow['tax_rate'] = "0";
         return $shippingRow;
+    }
+
+    private function getRecalculatedAmount($items){
+        $basket = array();
+        foreach($items as $item){
+            $detailModel = new \Shopware\Models\Order\Detail();
+            $detailModel->setQuantity($item->getQuantity());
+            $detailModel->setPrice($item->getUnitPriceGross());
+            $detailModel->setTaxRate($item->getTaxRate());
+            $detailModel->setArticleName($item->getArticleName());
+            $detailModel->setArticleNumber($item->getArticleNumber());
+            $basket[] = $detailModel;
+        }
+        $orderModel = new \Shopware\Models\Order\Order();
+        $orderModel->setDetails($basket);
+        $orderModel->calculateInvoiceAmount();
+        return $orderModel->getInvoiceAmount();
     }
 
 }
