@@ -164,15 +164,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
         return $country->getIso() === "DE";
     }
 
-    /**
-     * Checks if the currency is EUR
-     *
-     * @return boolean
-     */
-    public function isCurrencyValid()
-    {
-        return Shopware()->Shop()->getCurrency()->getCurrency() === "EUR";
-    }
 
     /**
      * Checks if the customer has debit data saved

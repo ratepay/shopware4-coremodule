@@ -571,7 +571,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
 
 
         $validation = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation();
-        if (!$validation->isAgeValid() || !$validation->isCountryValid() || !$validation->isCurrencyValid()) {
+        if (!$validation->isAgeValid() || !$validation->isCountryValid()) {
             $showRate = false;
             $showDebit = false;
             $showInvoice = false;
@@ -647,16 +647,25 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'pigmbhratepayinvoice', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue
                 );
                 $this->setRuleSet(
+                        'pigmbhratepayinvoice', 'CURRENCIESISOISNOT', 'EUR'
+                );
+                $this->setRuleSet(
                         'pigmbhratepaydebit', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-elv-min')->item(0)->nodeValue
                 );
                 $this->setRuleSet(
                         'pigmbhratepaydebit', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue
                 );
                 $this->setRuleSet(
+                        'pigmbhratepaydebit', 'CURRENCIESISOISNOT', 'EUR'
+                );
+                $this->setRuleSet(
                         'pigmbhratepayrate', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue
                 );
                 $this->setRuleSet(
                         'pigmbhratepayrate', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue
+                );
+                $this->setRuleSet(
+                        'pigmbhratepayrate', 'CURRENCIESISOISNOT', 'EUR'
                 );
                 Shopware()->Db()->query($sql, $data);
                 return true;
@@ -688,7 +697,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 . "WHERE `paymentID` IN("
                 . "SELECT `id` FROM `s_core_paymentmeans` "
                 . "WHERE `name` LIKE 'pigmbhratepay%'"
-                . ") AND `rule1` LIKE 'ORDERVALUE%';";
+                . ") AND `rule1` LIKE 'ORDERVALUE%' OR `rule1` = 'CURRENCIESISOISNOT';";
         Shopware()->Db()->query($sql);
     }
 
