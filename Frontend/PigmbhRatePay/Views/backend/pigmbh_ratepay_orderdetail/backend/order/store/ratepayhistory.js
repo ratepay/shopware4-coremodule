@@ -8,7 +8,7 @@
 Ext.define('Shopware.apps.Order.store.ratepayhistory', {
     extend:'Ext.data.Store',
     autoLoad: false,
-    remoteSort : true,
+    remoteSort : false,
     pageSize:25,
     model:'Shopware.apps.Order.model.ratepayhistory'
 });
