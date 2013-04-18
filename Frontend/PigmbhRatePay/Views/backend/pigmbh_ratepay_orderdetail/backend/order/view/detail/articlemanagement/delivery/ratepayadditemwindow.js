@@ -11,7 +11,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
     layout:'fit',
     width:600,
     height:350,
-    title: 'Artikel hinzufügen',
+    title: '{s namespace=RatePAY name=dialogadditemtitle}Artikel hinzuf&uuml;gen{/s}',
     initComponent: function() {
         var me = this;
         me.articleStore = Ext.create('Ext.data.Store', {
@@ -53,7 +53,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
             }],
             buttons:[
             {
-                text: 'Auswahl zur Bestellung hinzufügen',
+                text: '{s namespace=RatePAY name=dialogbuttonadd}Auswahl zur Bestellung hinzufügen{/s}',
                 handler: function(){
                     var store = Ext.getCmp('gridNewItems').getStore();
                     var articleNumber = new Array();
@@ -65,22 +65,22 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                     }
                     if(me.parent.initPositions(articleNumber)){
                        if(me.parent.paymentChange(id,'change-order', insertedIds)){
-                            message = 'Artikel wurden erfolgreich zur Bestellung hinzugefügt.';
+                            message = '{s namespace=RatePAY name=dialogadditemsuccess}Artikel wurden erfolgreich zur Bestellung hinzugefügt.{/s}';
                         }else{
                             for(i=0;i < insertedIds.length;i++){
                                 me.parent.deletePosition(insertedIds[i]);
                             }
-                            message = 'Artikel konnten nicht korrekt an RatePAY übermittelt werden.';
+                            message = '{s namespace=RatePAY name=dialogadditemfailrequest}Artikel konnten nicht korrekt an RatePAY übermittelt werden.{/s}';
                         }
                     }else{
-                        message = 'Artikel konnten nicht der Bestellung hinzugefügt werden.';
+                        message = '{s namespace=RatePAY name=dialogadditemfailposition}Artikel konnten nicht der Bestellung hinzugefügt werden.{/s}';
                     }
-                    Ext.Msg.alert('Artikel hinzufügen', message);
+                    Ext.Msg.alert('{s namespace=RatePAY name=dialogadditemtitle}Artikel hinzuf&uuml;gen{/s}', message);
                     me.parent.reloadGrid();
                     me.close();
                 }
             },{
-                text:'Cancel',
+                text:'{s namespace=RatePAY name=dialogbuttonadd}Abbrechen{/s}',
                 handler: function(){
                     me.close();
                 }
@@ -94,14 +94,14 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
 
         return [{
             dataIndex: 'articleordernumber',
-            header: 'articleNumber',
+            header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
             flex: 1
         },{
             dataIndex: 'name',
-            header: 'name',
+            header: '{s namespace=RatePAY name=articlename}Artikelname{/s}',
             flex: 2
         },{
-            header: 'quantity',
+            header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
             dataIndex: 'quantity',
             editor:{
                 xtype: 'numberfield',
@@ -114,7 +114,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
             flex: 2
         },{
             dataIndex: 'price',
-            header: 'price',
+            header: '{s namespace=RatePAY name=price}Preis{/s}',
             flex: 2,
             editor:{
                 xtype: 'numberfield',
@@ -124,7 +124,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
             }
         }, {
             xtype: 'actioncolumn',
-            header: 'actions',
+            header: '{s namespace=RatePAY name=action}Action{/s}',
             width: 60,
             items: [{
                 iconCls: 'sprite-minus-circle',
