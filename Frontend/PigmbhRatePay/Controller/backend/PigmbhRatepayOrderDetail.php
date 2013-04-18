@@ -77,26 +77,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
     {
         $orderId = $this->Request()->getParam("orderId");
         $zero = $this->Request()->getParam("setToZero");
-
-        $sql = "SELECT "
-                . "`articleID`, "
-                . "`name`, "
-                . "`articleordernumber`, "
-                . "`price`, "
-                . "`quantity`, "
-                . "(`quantity` - `delivered` - `cancelled`) AS `quantityDeliver`, "
-                . "(`delivered` - `returned`) AS `quantityReturn`, "
-                . "`delivered`, "
-                . "`cancelled`, "
-                . "`returned`, "
-                . "`tax_rate` "
-                . "FROM `s_order_details` AS detail "
-                . "INNER JOIN `pigmbh_ratepay_order_positions` AS ratepay ON detail.`id`=ratepay.`s_order_details_id` "
-                . "WHERE detail.`orderId`=? "
-                . "ORDER BY detail.`id`;";
-
-        $data = Shopware()->Db()->fetchAll($sql, array($orderId));
-        $data[] = $this->getShippingFromDBAsItem($orderId);
+        $data = $this->getFullBasket($orderId);
         $positions = array();
         if ($zero) {
             foreach ($data as $row) {
@@ -195,10 +176,15 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $basket->setCurrency($order['currency']);
         $basket->setItems($basketItems);
 
+        $subtype = 'partial-cancellation';
+        if ($this->isFullPaymentChange($orderId, $basketItems, 'cancel')) {
+            $subtype = 'full-cancellation';
+        }
+
         $this->_modelFactory->setTransactionId($order['transactionID']);
         $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange());
         $head = $paymentChange->getHead();
-        $head->setOperationSubstring('partial-cancellation');
+        $head->setOperationSubstring($subtype);
         $paymentChange->setHead($head);
         $paymentChange->setShoppingBasket($basket);
 
@@ -249,10 +235,15 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $basket->setCurrency($order['currency']);
         $basket->setItems($basketItems);
 
+        $subtype = 'partial-return';
+        if ($this->isFullPaymentChange($orderId, $basketItems, 'return')) {
+            $subtype = 'full-return';
+        }
+
         $this->_modelFactory->setTransactionId($order['transactionID']);
         $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentChange());
         $head = $paymentChange->getHead();
-        $head->setOperationSubstring('partial-return');
+        $head->setOperationSubstring($subtype);
         $paymentChange->setHead($head);
         $paymentChange->setShoppingBasket($basket);
 
@@ -423,6 +414,65 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $orderModel->setDetails($basket);
         $orderModel->calculateInvoiceAmount();
         return $orderModel->getInvoiceAmount();
+    }
+
+    private function isFullPaymentChange($orderId, $remainingBasket, $type)
+    {
+        if ($type == 'return') {
+            $column = 'returned';
+        } elseif ($type == 'cancel') {
+            $column = 'cancelled';
+        }
+        $count = $this->countOpenPositions($column, $orderId);
+        //No Items remaining and no partial-requests done before.
+        if (count($remainingBasket) === 0 && $count == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function getFullBasket($orderId)
+    {
+        $sql = "SELECT "
+                . "`articleID`, "
+                . "`name`, "
+                . "`articleordernumber`, "
+                . "`price`, "
+                . "`quantity`, "
+                . "(`quantity` - `delivered` - `cancelled`) AS `quantityDeliver`, "
+                . "(`delivered` - `returned`) AS `quantityReturn`, "
+                . "`delivered`, "
+                . "`cancelled`, "
+                . "`returned`, "
+                . "`tax_rate` "
+                . "FROM `s_order_details` AS detail "
+                . "INNER JOIN `pigmbh_ratepay_order_positions` AS ratepay ON detail.`id`=ratepay.`s_order_details_id` "
+                . "WHERE detail.`orderId`=? "
+                . "ORDER BY detail.`id`;";
+
+        $data = Shopware()->Db()->fetchAll($sql, array($orderId));
+        $data[] = $this->getShippingFromDBAsItem($orderId);
+        return $data;
+    }
+
+    private function countOpenPositions($column, $orderId){
+        $count = null;
+        $sql = "SELECT COUNT(*)"
+                . "FROM `s_order_details` AS `detail` "
+                . "INNER JOIN `pigmbh_ratepay_order_positions` ON `detail`.`id` = `pigmbh_ratepay_order_positions`.`s_order_details_id` "
+                . "WHERE `$column` != 0 AND `detail`.`orderID` = ?";
+        $sqlShipping = "SELECT COUNT(*) "
+                . "FROM `pigmbh_ratepay_order_shipping` AS `shipping` "
+                . "WHERE `$column` != 0 AND `shipping`.`s_order_id` = ?";
+        try {
+            $count = Shopware()->Db()->fetchOne($sql, array($orderId));
+            $temp = Shopware()->Db()->fetchOne($sqlShipping, array($orderId));
+            $count += $temp;
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err($exception->getMessage());
+        }
+        return $count;
     }
 
 }
