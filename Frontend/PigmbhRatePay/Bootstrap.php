@@ -126,17 +126,14 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 'label' => 'Security Code',
                 'value' => ''
             ));
-            $form->setElement('boolean', 'RatePaySandbox', array(
-                'label' => 'Sandbox',
-                'value' => true
+            $form->setElement('checkbox', 'RatePaySandbox', array(
+                'label' => 'Sandbox'
             ));
-            $form->setElement('boolean', 'RatePayLogging', array(
-                'label' => 'Logging',
-                'value' => true
+            $form->setElement('checkbox', 'RatePayLogging', array(
+                'label' => 'Logging'
             ));
-            $form->setElement('boolean', 'RatePayBankData', array(
-                'label' => 'Bankdatenspeicherung aktivieren',
-                'value' => true
+            $form->setElement('checkbox', 'RatePayBankData', array(
+                'label' => 'Bankdatenspeicherung aktivieren'
             ));
         } catch (Exception $exception) {
             $this->uninstall();
