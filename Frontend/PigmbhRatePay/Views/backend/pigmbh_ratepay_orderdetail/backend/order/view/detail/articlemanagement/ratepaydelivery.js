@@ -65,7 +65,8 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         },
         {
             header: '{s namespace=RatePAY name=price}Preis{/s}',
-            dataIndex: 'price'
+            dataIndex: 'price',
+            renderer: Ext.util.Format.numberRenderer('0.00')
         },
         {
             header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',

@@ -80,7 +80,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                     me.close();
                 }
             },{
-                text:'{s namespace=RatePAY name=dialogbuttonadd}Abbrechen{/s}',
+                text:'{s namespace=RatePAY name=dialogbuttoncancel}Abbrechen{/s}',
                 handler: function(){
                     me.close();
                 }
@@ -121,7 +121,8 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                 allowBlank: false,
                 allowDecimals : true,
                 minValue: 0.01
-            }
+            },
+            renderer: Ext.util.Format.numberRenderer('0.00')
         }, {
             xtype: 'actioncolumn',
             header: '{s namespace=RatePAY name=action}Action{/s}',
