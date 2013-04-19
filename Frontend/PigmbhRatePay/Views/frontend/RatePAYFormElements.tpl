@@ -45,7 +45,7 @@
         $('input[id^="ratepay_"]').each(function(){
             userUpdate = true;
             requestParams += '&'+$(this).attr('id') +'='+ $(this).val();
-            if($(this).val() == ''){
+            if($(this).val() == '' || $(this).val() == '0000-00-00'){
                 error = true;
             }
         });
