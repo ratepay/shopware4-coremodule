@@ -63,6 +63,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
      */
     public function uninstall()
     {
+
         return parent::uninstall();
     }
 
@@ -77,7 +78,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'name' => 'pigmbhratepayinvoice',
                         'description' => 'RatePAY Rechnung',
                         'action' => 'pigmbh_ratepay',
-                        'active' => 1,
+                        'active' => 0,
                         'position' => 1,
                         'additionaldescription' => 'Kauf auf Rechnung',
                         'template' => 'RatePAYInvoice.tpl'
@@ -88,7 +89,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'name' => 'pigmbhratepayrate',
                         'description' => 'RatePAY Ratenzahlung',
                         'action' => 'pigmbh_ratepay',
-                        'active' => 1,
+                        'active' => 0,
                         'position' => 2,
                         'additionaldescription' => 'Kauf mit Ratenzahlung',
                         'template' => 'RatePAYRate.tpl'
@@ -99,7 +100,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                         'name' => 'pigmbhratepaydebit',
                         'description' => 'RatePAY Lastschrift',
                         'action' => 'pigmbh_ratepay',
-                        'active' => 1,
+                        'active' => 0,
                         'position' => 3,
                         'additionaldescription' => 'Rechnungskauf mit Lastschrift',
                         'template' => 'RatePAYDebit.tpl'
@@ -302,9 +303,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             );
             $this->subscribeEvent(
                     'Enlight_Controller_Action_PostDispatch_Frontend_Checkout', 'preValidation'
-            );
-            $this->subscribeEvent(
-                    'Enlight_Controller_Action_PreDispatch_Frontend_Checkout', 'onCheckoutConfirm'
             );
             $this->subscribeEvent(
                     'Shopware_Modules_Admin_GetPaymentMeans_DataFilter', 'filterPayments'
@@ -529,23 +527,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
     }
 
     /**
-     * Extends the confirmationpage with an Errorbox, if there is an error.
-     *
-     * @param Enlight_Event_EventArgs $arguments
-     * @return null
-     */
-    public function onCheckoutConfirm(Enlight_Event_EventArgs $arguments)
-    {
-        $params = $arguments->getRequest()->getParams();
-        if ($arguments->getRequest()->getActionName() !== 'confirm' || $params['showError'] !== '1') {
-            return;
-        }
-        $pigmbhErrorMessage = Shopware()->Session()->RatePAY['errorMessage'];
-        $view = $arguments->getSubject()->View();
-        $view->pigmbhErrorMessage = $pigmbhErrorMessage;
-    }
-
-    /**
      * Filters the shown Payments
      * RatePAY-payments will be hidden, if one of the following requirement is not given
      *  - The Customer must be over 18 years old
@@ -578,15 +559,27 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
 
         if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-            $showRate = $paymentStati['b2b-rate'] == 'yes' ? : false;
-            $showDebit = $paymentStati['b2b-debit'] == 'yes' ? : false;
-            $showInvoice = $paymentStati['b2b-invoice'] == 'yes' ? : false;
+            $showRate = $paymentStati['b2b-rate'] == 'yes' && $showRate ? : false;
+            $showDebit = $paymentStati['b2b-debit'] == 'yes' && $showDebit ? : false;
+            $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? : false;
         }
 
         if (!$validation->isAddressValid()) {
-            $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() ? : false;
-            $showDebit = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() ? : false;
-            $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() ? : false;
+            Shopware()->Log()->Debug($paymentStati['address-debit'] == 'yes' );
+            Shopware()->Log()->Debug($validation->isCountryValid() );
+            Shopware()->Log()->Debug($showDebit);
+            Shopware()->Log()->Debug($paymentStati);
+
+
+            $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? : false;
+            $showDebit = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() && $showDebit ? : false;
+            $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? : false;
+        }
+
+        if(Shopware()->Session()->RatePAY['hidePayment'] === true){
+            $showRate = false;
+            $showDebit = false;
+            $showInvoice = false;
         }
 
         $payments = array();

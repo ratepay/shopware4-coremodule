@@ -119,23 +119,22 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
                             ))
                     );
                 } else {
-                    $this->_error('Bestellung konnte nicht validiert werden.');
+                    $this->_error();
                 }
             } else {
-                $this->_error('Bestellung wurde nicht erfolgreich &uuml;bermittelt.');
+                $this->_error();
             }
         } else {
-            $this->_error('Bezahlvorgang konnte nicht initialisiert werden.');
+            $this->_error();
         }
     }
 
-    private function _error($message = 'Ein Fehler ist aufgetreten.')
+    private function _error()
     {
-        Shopware()->Session()->RatePAY['errorMessage'] = $message;
+        Shopware()->Session()->RatePAY['hidePayment'] = true;
         $this->redirect(Shopware()->Front()->Router()->assemble(array(
                     'controller' => 'checkout',
-                    'action' => 'confirm',
-                    'showError' => true
+                    'action' => 'confirm'
                 ))
         );
     }
