@@ -11,11 +11,21 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
 
     private $_transactionId;
 
+    /**
+     * Gets the TransactionId for Requests
+     *
+     * @return string
+     */
     public function getTransactionId()
     {
         return $this->_transactionId;
     }
 
+    /**
+     * Sets the TransactionId for Requests
+     *
+     * @param string $transactionId
+     */
     public function setTransactionId($transactionId)
     {
         $this->_transactionId = $transactionId;
@@ -182,9 +192,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             $items[] = $item;
         }
         $items[] = $this->getShippingAsItem(
-                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'],
-                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
-                );
+                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'], Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
+        );
         $basket->setItems($items);
 
         $paymentRequestModel->setHead($head);
@@ -345,6 +354,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
         }
     }
 
+    /**
+     * Returns the Shippingcosts as Item
+     *
+     * @param string $amount
+     * @param string $tax
+     * @return \Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item
+     */
     private function getShippingAsItem($amount, $tax)
     {
         $item = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();

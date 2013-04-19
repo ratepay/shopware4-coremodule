@@ -21,6 +21,9 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     private $_logging;
     private $_encryption;
 
+    /**
+     * Initiates the Object
+     */
     public function init()
     {
         $this->_config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
@@ -32,7 +35,7 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
     }
 
     /**
-     *
+     *  Checks the Paymentmethod
      */
     public function indexAction()
     {
@@ -46,8 +49,6 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
 
     /**
      * Updates phone, ustid, company and the birthday for the current user.
-     *
-     *
      */
     public function saveUserDataAction()
     {
@@ -80,25 +81,28 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             Shopware()->Session()->RatePAY['bankdata']['bankname'] = $requestParameter['ratepay_debit_bankname'];
             Shopware()->Session()->RatePAY['bankdata']['bankholder'] = $requestParameter['ratepay_debit_accountholder'];
             if ($config->get('RatePayBankData')) {
-                    $updateData = array(
-                        'account' => $requestParameter['ratepay_debit_accountnumber'] ? : $debitUser->getAccount(),
-                        'bankcode' => $requestParameter['ratepay_debit_bankcode'] ? : $debitUser->getBankCode(),
-                        'bankname' => $requestParameter['ratepay_debit_bankname'] ? : $debitUser->getBankName(),
-                        'bankholder' => $requestParameter['ratepay_debit_accountholder'] ? : $debitUser->getAccountHolder()
-                    );
-                    try {
-                        $this->_encryption->saveBankdata($requestParameter['userid'], $updateData);
-                        Shopware()->Log()->Info('Bankdaten aktualisiert.');
-                    } catch (Exception $exception) {
-                        Shopware()->Log()->Err('Fehler beim Updaten der Bankdaten: ' . $exception->getMessage());
-                        Shopware()->Log()->Debug($updateData);
-                        $return = 'NOK';
-                    }
+                $updateData = array(
+                    'account' => $requestParameter['ratepay_debit_accountnumber'] ? : $debitUser->getAccount(),
+                    'bankcode' => $requestParameter['ratepay_debit_bankcode'] ? : $debitUser->getBankCode(),
+                    'bankname' => $requestParameter['ratepay_debit_bankname'] ? : $debitUser->getBankName(),
+                    'bankholder' => $requestParameter['ratepay_debit_accountholder'] ? : $debitUser->getAccountHolder()
+                );
+                try {
+                    $this->_encryption->saveBankdata($requestParameter['userid'], $updateData);
+                    Shopware()->Log()->Info('Bankdaten aktualisiert.');
+                } catch (Exception $exception) {
+                    Shopware()->Log()->Err('Fehler beim Updaten der Bankdaten: ' . $exception->getMessage());
+                    Shopware()->Log()->Debug($updateData);
+                    $return = 'NOK';
+                }
             }
         }
         echo $return;
     }
 
+    /**
+     * Procceds the whole Paymentprocess
+     */
     private function _proceedPayment()
     {
         $paymentInitModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentInit());
@@ -129,16 +133,22 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         }
     }
 
+    /**
+     * Redirects the User in case of an error
+     */
     private function _error()
     {
         Shopware()->Session()->RatePAY['hidePayment'] = true;
         $this->redirect(Shopware()->Front()->Router()->assemble(array(
-                    'controller' => 'checkout',
-                    'action' => 'confirm'
+                    'controller' => 'account',
+                    'action' => 'payment'
                 ))
         );
     }
 
+    /**
+     * calcDesign-function for Ratenrechner
+     */
     public function calcDesignAction()
     {
         Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
@@ -148,6 +158,9 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         require_once $calcPath . '/PiRatepayRateCalcDesign.php';
     }
 
+    /**
+     * calcRequest-function for Ratenrechner
+     */
     public function calcRequestAction()
     {
         Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
@@ -157,6 +170,11 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
         require_once $calcPath . '/PiRatepayRateCalcRequest.php';
     }
 
+    /**
+     * Initiates the Shipping-Position fo the given order
+     *
+     * @param string $orderNumber
+     */
     private function initShipping($orderNumber)
     {
         try {

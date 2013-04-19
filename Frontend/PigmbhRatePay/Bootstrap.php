@@ -67,6 +67,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         return parent::uninstall();
     }
 
+    /**
+     * Deactivates the Plugin and its components
+     *
+     * @return boolean
+     */
     public function disable()
     {
         $sql = "UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'pigmbhratepay%'";
@@ -74,7 +79,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         return true;
     }
 
-        /**
+    /**
      * Creates the Paymentmeans
      */
     private function _createPaymentmeans()
@@ -191,6 +196,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
     }
 
+    /**
+     * Creates the Databasetables
+     *
+     * @throws Exception SQL-Error
+     */
     private function _createDataBaseTables()
     {
         $sqlLogging = "CREATE TABLE IF NOT EXISTS `pigmbh_ratepay_logging` (" .
@@ -335,6 +345,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
     }
 
+    /**
+     * Checks if credentials are set and gets the configuration via profile_request
+     *
+     * @param Enlight_Hook_HookArgs $arguments
+     * @return null
+     */
     public function beforeSavePluginConfig(Enlight_Hook_HookArgs $arguments)
     {
         $request = $arguments->getSubject()->Request();
@@ -362,6 +378,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
     }
 
+    /**
+     * Stops Orderdeletation, when its not permitted
+     *
+     * @param Enlight_Hook_HookArgs $arguments
+     * @return true
+     */
     public function beforeDeleteOrderPosition(Enlight_Hook_HookArgs $arguments)
     {
         $request = $arguments->getSubject()->Request();
@@ -387,10 +409,10 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 . "WHERE `detail`.`orderID`=? AND "
                 . "(`position`.`delivered` > 0 OR `position`.`cancelled` > 0 OR `position`.`returned` > 0)";
         $count = Shopware()->Db()->fetchOne($sql, array($parameter['id']));
-        if($count > 0){
+        if ($count > 0) {
             Shopware()->Log()->Warn('RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden, wenn sie bereits bearbeitet worden sind.');
             $arguments->stop();
-        }else{
+        } else {
             $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();
             $request = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService($config->get('RatePaySandbox'));
 
@@ -406,7 +428,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             $paymentChange->setShoppingBasket($basket);
             $response = $request->xmlRequest($paymentChange->toArray());
             $result = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
-            if(!$result){
+            if (!$result) {
                 Shopware()->Log()->Warn('Bestellung k&ouml;nnte nicht gelöscht werden, da die Stornierung bei RatePAY fehlgeschlagen ist.');
                 $arguments->stop();
             }
@@ -572,8 +594,8 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
 
         if (!$validation->isAddressValid()) {
-            Shopware()->Log()->Debug($paymentStati['address-debit'] == 'yes' );
-            Shopware()->Log()->Debug($validation->isCountryValid() );
+            Shopware()->Log()->Debug($paymentStati['address-debit'] == 'yes');
+            Shopware()->Log()->Debug($validation->isCountryValid());
             Shopware()->Log()->Debug($showDebit);
             Shopware()->Log()->Debug($paymentStati);
 
@@ -583,7 +605,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
             $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? : false;
         }
 
-        if(Shopware()->Session()->RatePAY['hidePayment'] === true){
+        if (Shopware()->Session()->RatePAY['hidePayment'] === true) {
             $showRate = false;
             $showDebit = false;
             $showInvoice = false;
@@ -609,6 +631,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         return $payments;
     }
 
+    /**
+     * Sends a Profile_request and saves the data into the Database
+     *
+     * @param string $profileId
+     * @param string $securityCode
+     * @return boolean
+     */
     private function getRatepayConfig($profileId, $securityCode)
     {
         $factory = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory();
@@ -626,12 +655,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
                 $response->getElementsByTagName('activation-status-invoice')->item(0)->nodeValue,
                 $response->getElementsByTagName('activation-status-elv')->item(0)->nodeValue,
                 $response->getElementsByTagName('activation-status-installment')->item(0)->nodeValue,
-                $response->getElementsByTagName('b2b-invoice')->item(0)->nodeValue ?: 'no',
-                $response->getElementsByTagName('b2b-elv')->item(0)->nodeValue ?: 'no',
-                $response->getElementsByTagName('b2b-installment')->item(0)->nodeValue ?: 'no',
-                $response->getElementsByTagName('delivery-address-invoice')->item(0)->nodeValue ?: 'no',
-                $response->getElementsByTagName('delivery-address-elv')->item(0)->nodeValue ?: 'no',
-                $response->getElementsByTagName('delivery-address-installment')->item(0)->nodeValue ?: 'no'
+                $response->getElementsByTagName('b2b-invoice')->item(0)->nodeValue ? : 'no',
+                $response->getElementsByTagName('b2b-elv')->item(0)->nodeValue ? : 'no',
+                $response->getElementsByTagName('b2b-installment')->item(0)->nodeValue ? : 'no',
+                $response->getElementsByTagName('delivery-address-invoice')->item(0)->nodeValue ? : 'no',
+                $response->getElementsByTagName('delivery-address-elv')->item(0)->nodeValue ? : 'no',
+                $response->getElementsByTagName('delivery-address-installment')->item(0)->nodeValue ? : 'no'
             );
 
             $sql = "REPLACE INTO `pigmbh_ratepay_config`"
@@ -679,6 +708,13 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         }
     }
 
+    /**
+     * Sets the Ruleset for the given Payment
+     *
+     * @param string $paymentName
+     * @param string $firstRule
+     * @param string $firstValue
+     */
     private function setRuleSet($paymentName, $firstRule, $firstValue)
     {
         $payment = $this->Payments()->findOneBy(array('name' => $paymentName));
@@ -691,6 +727,9 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
         Shopware()->Models()->persist($ruleset);
     }
 
+    /**
+     * Clears the Ruleset for all RatePAY-Payments
+     */
     private function clearRuleSet()
     {
         $sql = "DELETE FROM `s_core_rulesets` "

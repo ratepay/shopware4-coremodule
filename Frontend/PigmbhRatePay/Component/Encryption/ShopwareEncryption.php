@@ -4,11 +4,20 @@ require_once 'EncryptionAbstract.php';
 
 class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncryption extends Pi_Util_Encryption_EncryptionAbstract
 {
+
+    /**
+     * Executes the given SQL
+     * @param string $insertSql
+     */
     protected function _insertBankdataToDatabase($insertSql)
     {
         Shopware()->Db()->query($insertSql);
     }
 
+    /**
+     * Executes the given SQL and returns the result
+     * @param string $selectSql
+     */
     protected function _selectBankdataFromDatabase($selectSql)
     {
         $result = Shopware()->Db()->fetchRow($selectSql);
@@ -20,9 +29,14 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Encryption_ShopwareEncry
         );
     }
 
+    /**
+     * Executes the given SQL and returns the UserID
+     * @param string $userSql
+     */
     protected function _selectUserIdFromDatabase($userSql)
     {
         $userID = Shopware()->Db()->fetchOne($userSql);
-        return (string)$userID;
+        return (string) $userID;
     }
+
 }

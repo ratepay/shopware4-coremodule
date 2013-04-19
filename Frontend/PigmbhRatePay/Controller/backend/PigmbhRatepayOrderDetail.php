@@ -4,7 +4,7 @@
  * PigmbhRatepayLogging
  *
  * @category   PayIntelligent
- * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
+ * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
  */
 class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Controllers_Backend_ExtJs
 {
@@ -26,6 +26,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $this->_history = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_History();
     }
 
+    /**
+     * Initiate the PositionDetails for the given Article in the given Order
+     */
     public function initPositionsAction()
     {
         $articleNames = json_decode($this->Request()->getParam("articleNumber"));
@@ -57,6 +60,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * Loads the History for the given Order
+     */
     public function loadHistoryStoreAction()
     {
         $orderId = $this->Request()->getParam("orderId");
@@ -98,6 +104,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * Delivers the given Items and assigns the result to the backend
+     */
     public function deliverItemsAction()
     {
         $orderId = $this->Request()->getParam("orderId");
@@ -151,6 +160,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * Cancel the given Items and returns the result to the backend
+     */
     public function cancelItemsAction()
     {
         $orderId = $this->Request()->getParam("orderId");
@@ -210,6 +222,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * returns the given Items and returns the result to the backend
+     */
     public function returnItemsAction()
     {
         $orderId = $this->Request()->getParam("orderId");
@@ -269,6 +284,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * Add the given Items to the given order
+     */
     public function addAction()
     {
         $orderId = $this->Request()->getParam("orderId");
@@ -327,6 +345,13 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * Updates the given binding for the given article
+     *
+     * @param string $orderID
+     * @param string $articleordernumber
+     * @param array $bind
+     */
     private function updateItem($orderID, $articleordernumber, $bind)
     {
         if ($articleordernumber === 'shipping') {
@@ -337,6 +362,9 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         }
     }
 
+    /**
+     * Returns the article for the given id
+     */
     public function getArticleAction()
     {
         $id = $this->Request()->getParam('id');
@@ -350,6 +378,13 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         );
     }
 
+    /**
+     * Returns the Price for the given id
+     *
+     * @param string $id
+     * @param float $tax
+     * @return float
+     */
     protected function getPrices($id, $tax)
     {
         $prices = Shopware()->Models()->getRepository('Shopware\Models\Article\Article')
@@ -359,6 +394,12 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         return $this->formatPricesFromNetToGross($prices, $tax);
     }
 
+    /**
+     * Converts the given data from netto to gross
+     * @param float $prices
+     * @param float $tax
+     * @return float
+     */
     protected function formatPricesFromNetToGross($prices, $tax)
     {
         foreach ($prices as $key => $price) {
@@ -372,6 +413,12 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         return $prices;
     }
 
+    /**
+     * Returns the Shipping as item for the given order
+     *
+     * @param string $orderId
+     * @return array
+     */
     private function getShippingFromDBAsItem($orderId)
     {
         $sql = "SELECT "
@@ -398,6 +445,12 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         return $shippingRow;
     }
 
+    /**
+     * Recalculates the Amount for the given items
+     *
+     * @param array $items
+     * @return float
+     */
     private function getRecalculatedAmount($items)
     {
         $basket = array();
@@ -416,6 +469,14 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         return $orderModel->getInvoiceAmount();
     }
 
+    /**
+     * Checks if the Transaction is Full or Partial
+     *
+     * @param string $orderId
+     * @param array $remainingBasket
+     * @param string $type
+     * @return boolean
+     */
     private function isFullPaymentChange($orderId, $remainingBasket, $type)
     {
         if ($type == 'return') {
@@ -432,6 +493,12 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         }
     }
 
+    /**
+     * Returns the whole Basket
+     *
+     * @param string $orderId
+     * @return array
+     */
     private function getFullBasket($orderId)
     {
         $sql = "SELECT "
@@ -456,7 +523,15 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         return $data;
     }
 
-    private function countOpenPositions($column, $orderId){
+    /**
+     * Counts the open Positions
+     *
+     * @param string $column
+     * @param string $orderId
+     * @return int
+     */
+    private function countOpenPositions($column, $orderId)
+    {
         $count = null;
         $sql = "SELECT COUNT(*)"
                 . "FROM `s_order_details` AS `detail` "

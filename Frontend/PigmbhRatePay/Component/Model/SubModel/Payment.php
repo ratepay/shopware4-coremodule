@@ -1,123 +1,246 @@
 <?php
 
+class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment
+{
 
-class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment {
     /**
      * @var string
      */
     private $_method;
+
     /**
      * @var string
      */
     private $_currency;
+
     /**
      * @var float
      */
     private $_amount;
+
     /**
      * @var integer
      */
     private $_installmentNumber;
+
     /**
      * @var float
      */
     private $_installmentAmount;
+
     /**
      * @var float
      */
     private $_lastInstallmentAmount;
+
     /**
      * @var float
      */
     private $_interestRate;
+
     /**
      * @var integer
      */
     private $_paymentFirstday;
+
     /**
      * @var string
      */
     private $_directPayType;
 
-    public function getMethod() {
+    /**
+     * This function returns the value of $_method
+     *
+     * @return string
+     */
+    public function getMethod()
+    {
         return $this->_method;
     }
 
-    public function setMethod($method) {
+    /**
+     * This function sets the value for $_method
+     *
+     * @param string $method
+     */
+    public function setMethod($method)
+    {
         $this->_method = $method;
     }
 
-    public function getCurrency() {
+    /**
+     * This function returns the value of $_currency
+     *
+     * @return string
+     */
+    public function getCurrency()
+    {
         return $this->_currency;
     }
 
-    public function setCurrency($currency) {
+    /**
+     * This function sets the value for $_currency
+     *
+     * @param string $currency
+     */
+    public function setCurrency($currency)
+    {
         $this->_currency = $currency;
     }
 
-    public function getAmount() {
+    /**
+     * This function returns the value of $_amount
+     *
+     * @return string
+     */
+    public function getAmount()
+    {
         return $this->_amount;
     }
 
-    public function setAmount($amount) {
-        $this->_amount = $amount;
+    /**
+     * This function sets the value for $_amount
+     *
+     * @param string $amount
+     */
+    public function setAmount($amount)
+    {
+        $this->_amount = number_format((float)$amount, 2, '.', '');
     }
 
-    public function getInstallmentNumber() {
+    /**
+     * This function returns the value of $_installmentNumber
+     *
+     * @return string
+     */
+    public function getInstallmentNumber()
+    {
         return $this->_installmentNumber;
     }
 
-    public function setInstallmentNumber($installmentNumber) {
+    /**
+     * This function sets the value for $_installmentNumber
+     *
+     * @param string $installmentNumber
+     */
+    public function setInstallmentNumber($installmentNumber)
+    {
         $this->_installmentNumber = $installmentNumber;
     }
 
-    public function getInstallmentAmount() {
+    /**
+     * This function returns the value of $_installmentAmount
+     *
+     * @return string
+     */
+    public function getInstallmentAmount()
+    {
         return $this->_installmentAmount;
     }
 
-    public function setInstallmentAmount($installmentAmount) {
+    /**
+     * This function sets the value for $_installmentAmount
+     *
+     * @param string $installmentAmount
+     */
+    public function setInstallmentAmount($installmentAmount)
+    {
         $this->_installmentAmount = $installmentAmount;
     }
 
-    public function getLastInstallmentAmount() {
+    /**
+     * This function returns the value of $_lastInstallmentAmount
+     *
+     * @return string
+     */
+    public function getLastInstallmentAmount()
+    {
         return $this->_lastInstallmentAmount;
     }
 
-    public function setLastInstallmentAmount($lastInstallmentAmount) {
+    /**
+     * This function sets the value for $_lastInstallmentAmount
+     *
+     * @param string $lastInstallmentAmount
+     */
+    public function setLastInstallmentAmount($lastInstallmentAmount)
+    {
         $this->_lastInstallmentAmount = $lastInstallmentAmount;
     }
 
-    public function getInterestRate() {
+    /**
+     * This function returns the value of $_interestRate
+     *
+     * @return string
+     */
+    public function getInterestRate()
+    {
         return $this->_interestRate;
     }
 
-    public function setInterestRate($interestRate) {
+    /**
+     * This function sets the value for $_interestRate
+     *
+     * @param string $interestRate
+     */
+    public function setInterestRate($interestRate)
+    {
         $this->_interestRate = $interestRate;
     }
 
-    public function getPaymentFirstday() {
+    /**
+     * This function returns the value of $_paymentFirstday
+     *
+     * @return string
+     */
+    public function getPaymentFirstday()
+    {
         return $this->_paymentFirstday;
     }
 
-    public function setPaymentFirstday($paymentFirstday) {
+    /**
+     * This function sets the value for $_paymentFirstday
+     *
+     * @param string $paymentFirstday
+     */
+    public function setPaymentFirstday($paymentFirstday)
+    {
         $this->_paymentFirstday = $paymentFirstday;
     }
 
-    public function getDirectPayType() {
+    /**
+     * This function returns the value of $_directPayType
+     *
+     * @return string
+     */
+    public function getDirectPayType()
+    {
         return $this->_directPayType;
     }
 
-    public function setDirectPayType($directPayType) {
+    /**
+     * This function sets the value for $_directPayType
+     *
+     * @param string $directPayType
+     */
+    public function setDirectPayType($directPayType)
+    {
         $this->_directPayType = $directPayType;
     }
 
-    public function toArray(){
+    /**
+     * This function returns all values as Array
+     *
+     * @return array
+     */
+    public function toArray()
+    {
         $return = array(
             '@method' => $this->getMethod(),
             '@currency' => $this->getCurrency(),
             'amount' => $this->getAmount()
         );
-        if($return['@method'] === 'INSTALLMENT'){
+        if ($return['@method'] === 'INSTALLMENT') {
             $return['installment-details'] = array(
                 'installment-number' => $this->getInstallmentNumber(),
                 'installment-amount' => $this->getInstallmentAmount(),
@@ -128,7 +251,6 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_Payment {
             $return['debit-pay-type'] = $this->getDirectPayType();
         }
         return $return;
-
     }
 
 }

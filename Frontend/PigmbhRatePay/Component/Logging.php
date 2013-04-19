@@ -1,8 +1,20 @@
 <?php
 
+/**
+ * Logging
+ *
+ * @category   PayIntelligent
+ * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
+ */
 class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging
 {
 
+    /**
+     * Logs the Request and Response
+     *
+     * @param string $requestXml
+     * @param string $responseXml
+     */
     public function logRequest($requestXml, $responseXml)
     {
         $config = Shopware()->Plugins()->Frontend()->PigmbhRatePay()->Config();

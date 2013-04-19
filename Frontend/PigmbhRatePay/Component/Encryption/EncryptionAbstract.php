@@ -7,22 +7,37 @@ require_once 'PrivateKey.php';
 
 abstract class Pi_Util_Encryption_EncryptionAbstract
 {
+
     /**
      * Service responsible for private key handling.
      * @var Pi_Util_Encryption_PrivateKey
      */
     private $_privateKeyService;
 
+    /**
+     * Contains the privateKey
+     * @var string
+     */
     private $_privateKey;
 
+    /**
+     * Databasename for the bankdatatable
+     * @var string
+     */
     protected $_tableName = 'pigmbh_ratepay_user_bankdata';
 
     public function __construct(Pi_Util_Encryption_PrivateKey $privateKeyService = null)
     {
-        $this->_privateKeyService = isset($privateKeyService)? $privateKeyService : new Pi_Util_Encryption_PrivateKey();
+        $this->_privateKeyService = isset($privateKeyService) ? $privateKeyService : new Pi_Util_Encryption_PrivateKey();
         $this->_privateKey = $this->_privateKeyService->getPrivateKey();
     }
 
+    /**
+     * loads the Bankdata for the given User
+     *
+     * @param string $userId
+     * @return array
+     */
     public function loadBankdata($userId)
     {
         $selectSql = $this->_createBankdataSelectSql($userId);
@@ -30,6 +45,12 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         return $bankdata;
     }
 
+    /**
+     * Saves the Bankdata for the given User
+     *
+     * @param string $userId
+     * @param array $bankdata
+     */
     public function saveBankdata($userId, array $bankdata)
     {
         if ($this->isBankdataSetForUser($userId)) {
@@ -40,6 +61,13 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         $this->_insertBankdataToDatabase($saveSql);
     }
 
+    /**
+     * Creates an SQL for DB-Insert
+     *
+     * @param string $userId
+     * @param array $bankdata
+     * @return string
+     */
     private function _createBankdataInsertSql($userId, array $bankdata)
     {
         $insertSql = 'INSERT INTO ' . $this->_tableName . ' (userID, ';
@@ -47,21 +75,28 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         $arr = array_keys($bankdata);
         $lastArrayKey = array_pop($arr);
 
-        foreach($bankdata as $columnName => $columnValue) {
+        foreach ($bankdata as $columnName => $columnValue) {
             $insertSql .= $columnName;
-            $insertSql .= $lastArrayKey != $columnName? ', ' : ')';
+            $insertSql .= $lastArrayKey != $columnName ? ', ' : ')';
         }
 
         $insertSql .= ' Values (' . "'" . $userId . "', ";
 
-        foreach($bankdata as $columnName => $columnValue) {
+        foreach ($bankdata as $columnName => $columnValue) {
             $insertSql .= "AES_ENCRYPT('" . $this->_convertBinaryToHex($columnValue) . "', '" . $key . "')";
-            $insertSql .= $lastArrayKey != $columnName? ', ' : ')';
+            $insertSql .= $lastArrayKey != $columnName ? ', ' : ')';
         }
 
         return $insertSql;
     }
 
+    /**
+     * Creates an SQL for DB-Update
+     *
+     * @param string $userId
+     * @param array $bankdata
+     * @return string
+     */
     private function _createBankdataUpdateSql($userId, array $bankdata)
     {
         $updateSql = 'UPDATE ' . $this->_tableName . ' SET ';
@@ -69,9 +104,9 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         $arr = array_keys($bankdata);
         $lastArrayKey = array_pop($arr);
 
-        foreach($bankdata as $columnName => $columnValue) {
+        foreach ($bankdata as $columnName => $columnValue) {
             $updateSql .= $columnName . " = AES_ENCRYPT('" . $this->_convertBinaryToHex($columnValue) . "', '" . $key . "')";
-            $updateSql .= $lastArrayKey != $columnName? ', ' : ' ';
+            $updateSql .= $lastArrayKey != $columnName ? ', ' : ' ';
         }
 
         $updateSql .= ' where userID = ' . "'" . $userId . "'";
@@ -79,6 +114,12 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         return $updateSql;
     }
 
+    /**
+     * Checks if Bankdata are stored in the Database for the given User
+     *
+     * @param string $userId
+     * @return boolean
+     */
     public function isBankdataSetForUser($userId)
     {
         $sanitizedString = $userId;
@@ -88,6 +129,12 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         return $userId === $userIdStoredInDb;
     }
 
+    /**
+     * Creates an SQL for DB-Select
+     *
+     * @param string $userId
+     * @return string
+     */
     private function _createBankdataSelectSql($userId)
     {
         $key = $this->_privateKey;
@@ -95,6 +142,12 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         return $selectSql;
     }
 
+    /**
+     * converts the given Value from binary to hex
+     *
+     * @param string $value
+     * @return string
+     */
     protected function _convertBinaryToHex($value)
     {
         $toHex = bin2hex($value);
@@ -102,6 +155,12 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         return $toHex;
     }
 
+    /**
+     * converts the given Value from hex to binary
+     *
+     * @param string $value
+     * @return string
+     */
     protected function _convertHexToBinary($value)
     {
         $toBinary = pack("H*", $value);
@@ -109,9 +168,18 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
         return $toBinary;
     }
 
+    /**
+     * Must be overwritten
+     */
     abstract protected function _insertBankdataToDatabase($insertSql);
 
+    /**
+     * Must be overwritten
+     */
     abstract protected function _selectBankdataFromDatabase($selectSql);
 
+    /**
+     * Must be overwritten
+     */
     abstract protected function _selectUserIdFromDatabase($userSql);
 }

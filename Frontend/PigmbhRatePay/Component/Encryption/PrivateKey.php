@@ -2,6 +2,11 @@
 
 class Pi_Util_Encryption_PrivateKey
 {
+    /**
+     * path to the KeyFile
+     *
+     * @var string
+     */
     private $_keyPath;
 
     /**

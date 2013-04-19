@@ -40,6 +40,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
         'rfc3986_strict' => false
     );
 
+    /**
+     * Initiate the Object
+     *
+     * @param boolean $sandbox
+     */
     public function __construct($sandbox = true)
     {
         $uri = $sandbox ? 'https://webservices-int.eos-payment.com/custom/ratepay/xml/1_0' : 'https://webservices.eos-payment.com/custom/ratepay/xml/1_0';
@@ -47,6 +52,12 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
         $this->_logging = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Logging();
     }
 
+    /**
+     * Sends an XML-Request
+     *
+     * @param mixed $Model
+     * @return \DOMDocument
+     */
     public function xmlRequest($Model)
     {
         $xml = Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::convertToXml($Model, 'request');
@@ -58,11 +69,21 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_RequestService
         return $dom;
     }
 
+    /**
+     * Returns the last Response
+     *
+     * @return Zend_Http_Response
+     */
     public function getLastResponse()
     {
         return $this->_zendHttpClient->getLastResponse();
     }
 
+    /**
+     * Returns the last Request
+     *
+     * @return string
+     */
     public function getLastRequest()
     {
         return $this->_zendHttpClient->getLastRequest();
