@@ -63,11 +63,18 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Bootstrap extends Shopware_Compone
      */
     public function uninstall()
     {
-
+        $this->disable();
         return parent::uninstall();
     }
 
-    /**
+    public function disable()
+    {
+        $sql = "UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'pigmbhratepay%'";
+        Shopware()->Db()->query($sql);
+        return true;
+    }
+
+        /**
      * Creates the Paymentmeans
      */
     private function _createPaymentmeans()

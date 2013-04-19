@@ -55,7 +55,7 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Validation
     {
         $today = new DateTime("now");
         $birthday = $this->_user->getBilling()->getBirthday();
-        return $birthday->diff($today)->y > 18;
+        return $birthday->diff($today)->y >= 18;
     }
 
     /**
