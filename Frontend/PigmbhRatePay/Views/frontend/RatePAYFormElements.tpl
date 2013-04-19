@@ -41,10 +41,23 @@
     $("#basketButton").click(function(){
         var requestParams = 'userid=' + "{$sUserData.billingaddress.userID}";
         var userUpdate = false;
+        var error = false;
         $('input[id^="ratepay_"]').each(function(){
             userUpdate = true;
             requestParams += '&'+$(this).attr('id') +'='+ $(this).val();
+            if($(this).val() == ''){
+                error = true;
+            }
         });
+        if(error){
+            $("#ratepay_error").append('{s namespace=RatePAY name=invaliddata}Bitte vervollst&auml;ndigen Sie die Daten.{/s}');
+            $("#ratepay_error").parent().show();
+            $('html, body').animate({
+                    scrollTop: $("#ratepay_error").offset().top - 100
+            }, 1000);
+            return false;
+        }
+
         if(userUpdate){
             $.ajax({
                 type: "POST",
