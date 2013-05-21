@@ -153,6 +153,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
             }
         }
 
+        $this->setNewOrderState($orderId);
         $this->View()->assign(array(
             "result" => $result,
             "success" => true
@@ -214,7 +215,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 $this->_history->logHistory($orderId, "Artikel wurde storniert.", $item->name, $item->articlenumber, $item->cancelledItems);
             }
         }
-
+        $this->setNewOrderState($orderId);
         $this->View()->assign(array(
             "result" => $result,
             "success" => true
@@ -343,7 +344,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 $this->_history->logHistory($orderId, $event, $newItems['name'], $newItems['articleordernumber'], $newItems['quantity']);
             }
         }
-
+        $this->setNewOrderState($orderId);
         $this->View()->assign(array(
             "result" => $result,
             "success" => true
@@ -441,7 +442,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 . "LEFT JOIN `s_core_tax` ON `s_premium_dispatch`.`tax_calculation`=`s_core_tax`.`id` "
                 . "WHERE `s_order`.`id` = ?";
         $shippingRow = Shopware()->Db()->fetchRow($sql, array($orderId));
-        if (isset($shippingRow['quantityDeliver'])) {
+        if (isset($shippingRow['quantityDeliver']) && $shippingRow['quantityDeliver'] > 0) {
             if ($shippingRow['tax_rate'] == null) {
                 $shippingRow['tax_rate'] = Shopware()->Db()->fetchOne("SELECT MAX(`tax`) FROM `s_core_tax`");
             }
@@ -559,6 +560,28 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
             Shopware()->Log()->Err($exception->getMessage());
         }
         return $count;
+    }
+
+    /**
+     * Sets the new Orderstate
+     *
+     * @param boolean $orderComplete
+     */
+    private function setNewOrderState($orderId)
+    {
+        $sql = "SELECT COUNT((`quantity` - `delivered` - `cancelled`)) AS 'itemsLeft' "
+                . "FROM `s_order_details` "
+                . "JOIN `pigmbh_ratepay_order_positions` ON `s_order_details`.`id` = `pigmbh_ratepay_order_positions`.`s_order_details_id` "
+                . "WHERE `orderID`=? AND (`quantity` - `delivered` - `cancelled`) > 0";
+        try {
+            $orderComplete = Shopware()->Db()->fetchOne($sql, array($orderId));
+            $newState = $orderComplete == 0 ? 7 : 6;
+            Shopware()->Db()->update('s_order', array(
+                'status' => $newState
+                    ), '`id`=' . $orderId);
+        } catch (Exception $exception) {
+            Shopware()->Log()->Err($exception->getMessage());
+        }
     }
 
 }
