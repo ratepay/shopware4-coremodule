@@ -442,7 +442,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 . "LEFT JOIN `s_core_tax` ON `s_premium_dispatch`.`tax_calculation`=`s_core_tax`.`id` "
                 . "WHERE `s_order`.`id` = ?";
         $shippingRow = Shopware()->Db()->fetchRow($sql, array($orderId));
-        if (isset($shippingRow['quantityDeliver']) && $shippingRow['quantityDeliver'] > 0) {
+        if (isset($shippingRow['quantityDeliver'])) {
             if ($shippingRow['tax_rate'] == null) {
                 $shippingRow['tax_rate'] = Shopware()->Db()->fetchOne("SELECT MAX(`tax`) FROM `s_core_tax`");
             }
