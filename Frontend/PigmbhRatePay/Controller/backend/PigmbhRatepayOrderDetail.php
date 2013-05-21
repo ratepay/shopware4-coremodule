@@ -293,26 +293,32 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
         $insertedIds = json_decode($this->Request()->getParam("insertedIds"));
         $subOperation = $this->Request()->getParam("suboperation");
         $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
-        $orderItems = Shopware()->Db()->fetchAll("SELECT * FROM `s_order_details` WHERE `orderID`=?", array($orderId));
+        $orderItems = Shopware()->Db()->fetchAll("SELECT *, (`quantity` - `delivered` - `cancelled`) AS `quantityDeliver` FROM `s_order_details` "
+                . "INNER JOIN `pigmbh_ratepay_order_positions` ON `s_order_details`.`id` = `pigmbh_ratepay_order_positions`.`s_order_details_id` "
+                . "WHERE `orderID`=?", array($orderId));
         $basketItems = array();
         foreach ($orderItems as $row) {
+            if ($row['quantityDeliver'] == 0) {
+                continue;
+            }
             $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
             $basketItem->setArticleName($row['name']);
             $basketItem->setArticleNumber($row['articleordernumber']);
-            $basketItem->setQuantity($row['quantity']);
+            $basketItem->setQuantity($row['quantityDeliver']);
             $basketItem->setTaxRate($row['tax_rate']);
             $basketItem->setUnitPriceGross($row['price']);
             $basketItems[] = $basketItem;
         }
         $shippingRow = $this->getShippingFromDBAsItem($orderId);
-        $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
-        $basketItem->setArticleName($shippingRow['name']);
-        $basketItem->setArticleNumber($shippingRow['articleordernumber']);
-        $basketItem->setQuantity($shippingRow['quantity']);
-        $basketItem->setTaxRate($shippingRow['tax_rate']);
-        $basketItem->setUnitPriceGross($shippingRow['price']);
-        $basketItems[] = $basketItem;
-
+        if (!is_null($shippingRow)) {
+            $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
+            $basketItem->setArticleName($shippingRow['name']);
+            $basketItem->setArticleNumber($shippingRow['articleordernumber']);
+            $basketItem->setQuantity($shippingRow['quantityDeliver']);
+            $basketItem->setTaxRate($shippingRow['tax_rate']);
+            $basketItem->setUnitPriceGross($shippingRow['price']);
+            $basketItems[] = $basketItem;
+        }
         $basket = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_ShoppingBasket();
         $basket->setAmount($this->getRecalculatedAmount($basketItems));
         $basket->setCurrency($order['currency']);
@@ -435,14 +441,16 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 . "LEFT JOIN `s_core_tax` ON `s_premium_dispatch`.`tax_calculation`=`s_core_tax`.`id` "
                 . "WHERE `s_order`.`id` = ?";
         $shippingRow = Shopware()->Db()->fetchRow($sql, array($orderId));
-        if ($shippingRow['tax_rate'] == null) {
-            $shippingRow['tax_rate'] = Shopware()->Db()->fetchOne("SELECT MAX(`tax`) FROM `s_core_tax`");
+        if (isset($shippingRow['quantityDeliver'])) {
+            if ($shippingRow['tax_rate'] == null) {
+                $shippingRow['tax_rate'] = Shopware()->Db()->fetchOne("SELECT MAX(`tax`) FROM `s_core_tax`");
+            }
+            $shippingRow['quantity'] = 1;
+            $shippingRow['articleID'] = 0;
+            $shippingRow['name'] = 'shipping';
+            $shippingRow['articleordernumber'] = 'shipping';
+            return $shippingRow;
         }
-        $shippingRow['quantity'] = 1;
-        $shippingRow['articleID'] = 0;
-        $shippingRow['name'] = 'shipping';
-        $shippingRow['articleordernumber'] = 'shipping';
-        return $shippingRow;
     }
 
     /**
@@ -519,7 +527,10 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
                 . "ORDER BY detail.`id`;";
 
         $data = Shopware()->Db()->fetchAll($sql, array($orderId));
-        $data[] = $this->getShippingFromDBAsItem($orderId);
+        $shipping = $this->getShippingFromDBAsItem($orderId);
+        if (!is_null($shipping)) {
+            $data[] = $shipping;
+        }
         return $data;
     }
 
