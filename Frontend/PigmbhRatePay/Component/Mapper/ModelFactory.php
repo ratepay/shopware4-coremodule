@@ -191,9 +191,11 @@ class Shopware_Plugins_Frontend_PigmbhRatePay_Component_Mapper_ModelFactory
             $item->setUnitPriceGross($shopItem['priceNumeric']);
             $items[] = $item;
         }
-        $items[] = $this->getShippingAsItem(
-                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'], Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
-        );
+        if (Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'] > 0) {
+            $items[] = $this->getShippingAsItem(
+                    Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'], Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
+            );
+        }
         $basket->setItems($items);
 
         $paymentRequestModel->setHead($head);

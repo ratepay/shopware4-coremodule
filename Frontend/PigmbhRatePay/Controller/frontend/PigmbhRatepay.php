@@ -114,9 +114,23 @@ class Shopware_Controllers_Frontend_PigmbhRatepay extends Shopware_Controllers_F
             if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
                 $orderNumber = $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $this->createPaymentUniqueId(), 17);
                 $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_PaymentConfirm());
+                $matches = array();
+                preg_match("/<descriptor.*>(.*)<\/descriptor>/", $this->_request->getLastResponse(), $matches);
+                $dgNumber = $matches[1];
                 $result = $this->_request->xmlRequest($paymentConfirmModel->toArray());
                 if (Shopware_Plugins_Frontend_PigmbhRatePay_Component_Service_Util::validateResponse('PAYMENT_CONFIRM', $result)) {
-                    $this->initShipping($orderNumber);
+                    if (Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'] > 0) {
+                        $this->initShipping($orderNumber);
+                    }
+                    try {
+                        $orderId = Shopware()->Db()->fetchOne('SELECT `id` FROM `s_order` WHERE `ordernumber`=?', array($orderNumber));
+                        Shopware()->Db()->update('s_order_attributes', array(
+                            'attribute5' => $dgNumber,
+                            'attribute6' => Shopware()->Session()->RatePAY['transactionId']
+                                ), 'orderID=' . $orderId);
+                    } catch (Exception $exception) {
+                        Shopware()->Log()->Err($exception->getMessage());
+                    }
                     $this->redirect(Shopware()->Front()->Router()->assemble(array(
                                 'controller' => 'checkout',
                                 'action' => 'finish'
