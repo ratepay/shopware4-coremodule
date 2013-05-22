@@ -59,21 +59,25 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
                     var articleNumber = new Array();
                     var insertedIds = new Array();
                     var message;
+                    var del = true;
                     for(i=0;i < store.data.items.length;i++){
                         insertedIds.push(me.savePosition(store.data.items[i].data));
                         articleNumber.push(store.data.items[i].data.articleordernumber);
                     }
                     if(me.parent.initPositions(articleNumber)){
-                       if(me.parent.paymentChange(id,'change-order', insertedIds)){
+                        if(me.parent.paymentChange(id,'change-order', insertedIds)){
+                            del = false;
                             message = '{s namespace=RatePAY name=dialogadditemsuccess}Artikel wurden erfolgreich zur Bestellung hinzugefügt.{/s}';
                         }else{
-                            for(i=0;i < insertedIds.length;i++){
-                                me.parent.deletePosition(insertedIds[i]);
-                            }
                             message = '{s namespace=RatePAY name=dialogadditemfailrequest}Artikel konnten nicht korrekt an RatePAY übermittelt werden.{/s}';
                         }
                     }else{
                         message = '{s namespace=RatePAY name=dialogadditemfailposition}Artikel konnten nicht der Bestellung hinzugefügt werden.{/s}';
+                    }
+                    if(del){
+                        for(i=0;i < insertedIds.length;i++){
+                            me.parent.deletePosition(insertedIds[i]);
+                        }
                     }
                     Ext.Msg.alert('{s namespace=RatePAY name=dialogadditemtitle}Artikel hinzuf&uuml;gen{/s}', message);
                     me.parent.reloadGrid();

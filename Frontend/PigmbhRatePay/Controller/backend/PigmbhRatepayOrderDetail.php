@@ -31,28 +31,55 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
      */
     public function initPositionsAction()
     {
-        $articleNames = json_decode($this->Request()->getParam("articleNumber"));
+        $articleNumbers = json_decode($this->Request()->getParam("articleNumber"));
         $orderID = $this->Request()->getParam("orderID");
-        $success = false;
-        $sqlSelectIDs = "SELECT `id` FROM `s_order_details` WHERE `orderID`=? AND `articleordernumber` IN (?)";
-        foreach ($articleNames as $articleName) {
-            $names .= $articleName . ",";
-        }
-        $names = substr($names, 0, -1);
-        try {
-            $detailIDs = Shopware()->Db()->fetchAll($sqlSelectIDs, array($orderID, $names));
-            foreach ($detailIDs as $row) {
-                $values .= "(" . $row['id'] . "),";
+        $success = true;
+        $bindings = array($orderID);
+        foreach (array_unique($articleNumbers) as $articleNumber) {
+            $sqlCountEntrys = "SELECT `id`, COUNT(*) AS 'count', SUM(`quantity`) AS 'quantity' FROM `s_order_details` "
+                    . "WHERE `orderID`=? "
+                    . "AND `articleordernumber` = ? "
+                    . "ORDER BY `id` ASC";
+            try {
+                $row = Shopware()->Db()->fetchRow($sqlCountEntrys, array($orderID, $articleNumber));
+                if ($row['count'] > 1) { // article already in order, update its quantity
+                    $sqlUpdate = "UPDATE `s_order_details` SET `quantity`=? WHERE `id`=?";
+                    $sqlDelete = "DELETE FROM `s_order_details` WHERE `orderID`=? AND `articleordernumber` = ? AND `id`!=?";
+                    Shopware()->Db()->query($sqlUpdate, array($row['quantity'], $row['id']));
+                    Shopware()->Db()->query($sqlDelete, array($orderID, $articleNumber, $row['id']));
+                } else {
+                    $bindings[] = $articleNumber;
+                    $bind .= '?,';
+                }
+            } catch (Exception $exception) {
+                $success = false;
+                Shopware()->Log()->Err("Exception:" . $exception->getMessage());
             }
-            $values = substr($values, 0, -1);
-            $sqlInsert = "INSERT INTO `pigmbh_ratepay_order_positions` "
-                    . "(`s_order_details_id`) "
-                    . "VALUES " . $values;
-            Shopware()->Db()->query($sqlInsert);
-            $success = true;
-        } catch (Exception $exception) {
-            Shopware()->Log()->Err("Exception:" . $exception->getMessage());
         }
+
+        if (!is_null($bind)) { // add new items to order
+            $bind = substr($bind, 0, -1);
+            $sqlSelectIDs = "SELECT `id` FROM `s_order_details` "
+                    . "WHERE `orderID`=? AND `articleordernumber` IN ($bind) ";
+            try {
+                $detailIDs = Shopware()->Db()->fetchAll($sqlSelectIDs, $bindings);
+                foreach ($detailIDs as $row) {
+                    $values .= "(" . $row['id'] . "),";
+                }
+                $values = substr($values, 0, -1);
+                $sqlInsert = "INSERT INTO `pigmbh_ratepay_order_positions` "
+                        . "(`s_order_details_id`) "
+                        . "VALUES " . $values;
+                Shopware()->Db()->query($sqlInsert);
+            } catch (Exception $exception) {
+                $success = false;
+                Shopware()->Log()->Err("Exception:" . $exception->getMessage(), " SQL:" . $sqlInsert);
+            }
+        }
+
+
+
+
         $this->View()->assign(
                 array(
                     "success" => $success
@@ -311,7 +338,7 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
             $basketItems[] = $basketItem;
         }
         $shippingRow = $this->getShippingFromDBAsItem($orderId);
-        if (!is_null($shippingRow)) {
+        if (!is_null($shippingRow) && $shippingRow['quantityDeliver'] != 0) {
             $basketItem = new Shopware_Plugins_Frontend_PigmbhRatePay_Component_Model_SubModel_item();
             $basketItem->setArticleName($shippingRow['name']);
             $basketItem->setArticleNumber($shippingRow['articleordernumber']);
