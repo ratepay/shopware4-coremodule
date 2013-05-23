@@ -516,11 +516,12 @@ class Shopware_Controllers_Backend_PigmbhRatepayOrderDetail extends Shopware_Con
     private function isFullPaymentChange($orderId, $remainingBasket, $type)
     {
         if ($type == 'return') {
-            $column = 'returned';
+            $count = $this->countOpenPositions('returned', $orderId);
         } elseif ($type == 'cancel') {
-            $column = 'cancelled';
+            $count = $this->countOpenPositions('cancelled', $orderId);
+            $count += $this->countOpenPositions('delivered', $orderId);
         }
-        $count = $this->countOpenPositions($column, $orderId);
+
         //No Items remaining and no partial-requests done before.
         if (count($remainingBasket) === 0 && $count == 0) {
             return true;
