@@ -33,7 +33,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
             'autor' => 'PayIntelligent GmbH',
             'source' => $this->getSource(),
             'support' => 'http://www.ratepay.com/support',
-            'link' => 'http://www.ratepay.com',
+            'link' => 'http://www.payintelligent.de/',
             'copyright' => 'Copyright (c) 2013, RatePAY GmbH',
             'label' => 'RatePAY',
             'description' => ''
