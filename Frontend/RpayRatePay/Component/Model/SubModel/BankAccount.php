@@ -16,7 +16,7 @@
  *
  * @category   RatePAY
  * @package    Expression package is undefined on line 6, column 18 in Templates/Scripting/PHPClass.php.
- * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
+ ** @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_BankAccount
 {

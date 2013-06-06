@@ -15,7 +15,7 @@
  * RpayRatepayLogging
  *
  * @category   RatePAY
- * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
+ ** @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 class Shopware_Controllers_Backend_RpayRatepayLogging extends Shopware_Controllers_Backend_ExtJs
 {

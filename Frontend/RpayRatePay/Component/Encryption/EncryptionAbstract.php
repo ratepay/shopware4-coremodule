@@ -15,7 +15,7 @@ require_once 'PrivateKey.php';
  * if not, see <http://www.gnu.org/licenses/>.
  *
  * @category   RatePAY
- * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
+ ** @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 abstract class Pi_Util_Encryption_EncryptionAbstract
 {

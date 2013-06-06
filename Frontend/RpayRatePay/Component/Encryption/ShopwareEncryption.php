@@ -15,7 +15,7 @@ require_once 'EncryptionAbstract.php';
  * if not, see <http://www.gnu.org/licenses/>.
  * 
  * @category   RatePAY
- * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
+ ** @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 class Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption extends Pi_Util_Encryption_EncryptionAbstract
 {
