@@ -406,7 +406,11 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
         }
         return true;
     }
-
+    /**
+     * Stops Orderdeletation, when any article has been send
+     *
+     * @param Enlight_Hook_HookArgs $arguments
+     */
     public function beforeDeleteOrder(Enlight_Hook_HookArgs $arguments)
     {
         $request = $arguments->getSubject()->Request();

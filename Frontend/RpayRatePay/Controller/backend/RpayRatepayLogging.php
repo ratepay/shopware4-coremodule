@@ -81,7 +81,7 @@ class Shopware_Controllers_Backend_RpayRatepayLogging extends Shopware_Controlle
     }
 
     /**
-     * Formats Xml
+     * Formats Xml into a better humanreadable form
      *
      * @return string
      */

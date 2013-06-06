@@ -1,4 +1,7 @@
 <?php
+
+require_once 'EncryptionAbstract.php';
+
 /**
  * This program is free software; you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation; either
@@ -10,10 +13,10 @@
  *
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @category   RatePAY
+ * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
  */
-
-require_once 'EncryptionAbstract.php';
-
 class Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption extends Pi_Util_Encryption_EncryptionAbstract
 {
 

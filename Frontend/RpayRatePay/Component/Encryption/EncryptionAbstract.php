@@ -1,5 +1,7 @@
 <?php
 
+require_once 'PrivateKey.php';
+
 /*
  * This program is free software; you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation; either
@@ -12,10 +14,9 @@
  * You should have received a copy of the GNU General Public License along with this program;
  * if not, see <http://www.gnu.org/licenses/>.
  *
- * creates private key
+ * @category   RatePAY
+ * @copyright  Copyright (c) 2011 PayIntelligent GmbH (http://payintelligent.de)
  */
-require_once 'PrivateKey.php';
-
 abstract class Pi_Util_Encryption_EncryptionAbstract
 {
 
@@ -37,6 +38,10 @@ abstract class Pi_Util_Encryption_EncryptionAbstract
      */
     protected $_tableName = 'rpay_ratepay_user_bankdata';
 
+    /**
+     * Creates an instance of this class
+     * @param Pi_Util_Encryption_PrivateKey $privateKeyService
+     */
     public function __construct(Pi_Util_Encryption_PrivateKey $privateKeyService = null)
     {
         $this->_privateKeyService = isset($privateKeyService) ? $privateKeyService : new Pi_Util_Encryption_PrivateKey();

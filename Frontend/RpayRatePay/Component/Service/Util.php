@@ -15,6 +15,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util
 {
 
     /**
+     * Converts an array into a xml.
      *
      * @param array $model
      * @return \Application\Util\SimpleXmlExtended
@@ -29,6 +30,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util
     }
 
     /**
+     * Converts an array into a xml.
      *
      * @TODO: Needs better testing.
      * @param array $model
@@ -64,6 +66,12 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util
         }
     }
 
+    /**
+     * Checks if the value is empty. solves problem with value 0
+     * 
+     * @param mixed $value
+     * @return boolean
+     */
     private static function betterEmpty($value){
         return empty($value) && !is_numeric($value);
     }

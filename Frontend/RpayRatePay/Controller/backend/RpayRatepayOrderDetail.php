@@ -22,7 +22,7 @@ class Shopware_Controllers_Backend_RpayRatepayOrderDetail extends Shopware_Contr
 
     private $_config;
     private $_modelFactory;
-    private $_request;
+    private $_service;
     private $_history;
 
     /**
@@ -33,7 +33,7 @@ class Shopware_Controllers_Backend_RpayRatepayOrderDetail extends Shopware_Contr
     {
         $this->_config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
         $this->_modelFactory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory();
-        $this->_request = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
+        $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
         $this->_history = new Shopware_Plugins_Frontend_RpayRatePay_Component_History();
     }
 
@@ -176,7 +176,7 @@ class Shopware_Controllers_Backend_RpayRatepayOrderDetail extends Shopware_Contr
         $head = $confirmationDeliveryModel->getHead();
         $head->setTransactionId($order['transactionID']);
         $confirmationDeliveryModel->setHead($head);
-        $response = $this->_request->xmlRequest($confirmationDeliveryModel->toArray());
+        $response = $this->_service->xmlRequest($confirmationDeliveryModel->toArray());
         $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('CONFIRMATION_DELIVER', $response);
         if ($result === true) {
             foreach ($items as $item) {
@@ -239,7 +239,7 @@ class Shopware_Controllers_Backend_RpayRatepayOrderDetail extends Shopware_Contr
         $paymentChange->setHead($head);
         $paymentChange->setShoppingBasket($basket);
 
-        $response = $this->_request->xmlRequest($paymentChange->toArray());
+        $response = $this->_service->xmlRequest($paymentChange->toArray());
         $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
         if ($result === true) {
             foreach ($items as $item) {
@@ -301,7 +301,7 @@ class Shopware_Controllers_Backend_RpayRatepayOrderDetail extends Shopware_Contr
         $paymentChange->setHead($head);
         $paymentChange->setShoppingBasket($basket);
 
-        $response = $this->_request->xmlRequest($paymentChange->toArray());
+        $response = $this->_service->xmlRequest($paymentChange->toArray());
         $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
         if ($result === true) {
             foreach ($items as $item) {
@@ -370,7 +370,7 @@ class Shopware_Controllers_Backend_RpayRatepayOrderDetail extends Shopware_Contr
         $paymentChange->setHead($head);
         $paymentChange->setShoppingBasket($basket);
 
-        $response = $this->_request->xmlRequest($paymentChange->toArray());
+        $response = $this->_service->xmlRequest($paymentChange->toArray());
         $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
         if ($result) {
             $event = $subOperation === 'credit' ? 'Gutschein wurde hinzugefügt' : 'Artikel wurde hinzugefügt';

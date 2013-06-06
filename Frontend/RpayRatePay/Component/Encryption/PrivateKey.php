@@ -21,7 +21,7 @@ class Pi_Util_Encryption_PrivateKey
     private $_keyPath;
 
     /**
-     *
+     * Creates an instance of this class
      * @param string $pathModifier
      */
     public function __construct($pathModifier = '/')
