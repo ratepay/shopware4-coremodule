@@ -15,7 +15,7 @@
  * RpayRatepay
  *
  * @category   RatePAY
- * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
+ * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 class Shopware_Controllers_Frontend_RpayRatepay extends Shopware_Controllers_Frontend_Payment
 {

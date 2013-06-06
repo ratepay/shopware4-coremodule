@@ -14,7 +14,7 @@
  *
  * @category   RatePAY
  * @package    RpayRatepay
- * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
+ * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 Ext.define('Shopware.apps.Order.store.ratepayhistory', {
     extend:'Ext.data.Store',

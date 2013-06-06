@@ -16,7 +16,7 @@
  *
  * @category   RatePAY
  * @package    RpayRatePAY
- * @copyright  Copyright (c) 2013 PayIntelligent GmbH (http://payintelligent.de)
+ * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Components_Plugin_Bootstrap
 {
