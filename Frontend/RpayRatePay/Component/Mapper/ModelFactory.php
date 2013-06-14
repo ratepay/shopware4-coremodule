@@ -89,7 +89,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setOperation('PAYMENT_INIT');
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
-        $head->setSystemId(Shopware()->Shop()->getHost());
+        $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
         $paymentInitModel->setHead($head);
     }
 
@@ -110,7 +110,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setOperation('PAYMENT_REQUEST');
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
-        $head->setSystemId(Shopware()->Shop()->getHost());
+        $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
 
         $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
         $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
@@ -227,7 +227,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setOperation('PAYMENT_CONFIRM');
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
-        $head->setSystemId(Shopware()->Shop()->getHost());
+        $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
         $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
         $paymentConfirmModel->setHead($head);
     }
@@ -244,7 +244,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setOperation('PROFILE_REQUEST');
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
-        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
+        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
         $profileRequestModel->setHead($head);
     }
 
@@ -260,7 +260,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setOperation('CONFIRMATION_DELIVER');
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
-        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
+        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
         $confirmationDeliveryModel->setHead($head);
     }
 
@@ -278,7 +278,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setTransactionId($this->_transactionId);
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
-        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1"));
+        $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
 
         $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `transactionID`=?", array($this->_transactionId));
 

@@ -47,7 +47,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
      */
     public function getVersion()
     {
-        return "3.0.2";
+        return "3.0.3";
     }
 
     /**
@@ -697,28 +697,28 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
             try {
                 $this->clearRuleSet();
                 $this->setRuleSet(
-                        'rpayratepayinvoice', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-invoice-min')->item(0)->nodeValue
+                        'rpayratepayinvoice', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-invoice-min')->item(0)->nodeValue - 0.01
                 );
                 $this->setRuleSet(
-                        'rpayratepayinvoice', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue
+                        'rpayratepayinvoice', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue + 0.01
                 );
                 $this->setRuleSet(
                         'rpayratepayinvoice', 'CURRENCIESISOISNOT', 'EUR'
                 );
                 $this->setRuleSet(
-                        'rpayratepaydebit', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-elv-min')->item(0)->nodeValue
+                        'rpayratepaydebit', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-elv-min')->item(0)->nodeValue - 0.01
                 );
                 $this->setRuleSet(
-                        'rpayratepaydebit', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue
+                        'rpayratepaydebit', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue + 0.01
                 );
                 $this->setRuleSet(
                         'rpayratepaydebit', 'CURRENCIESISOISNOT', 'EUR'
                 );
                 $this->setRuleSet(
-                        'rpayratepayrate', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue
+                        'rpayratepayrate', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue - 0.01
                 );
                 $this->setRuleSet(
-                        'rpayratepayrate', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue
+                        'rpayratepayrate', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue + 0.01
                 );
                 $this->setRuleSet(
                         'rpayratepayrate', 'CURRENCIESISOISNOT', 'EUR'
