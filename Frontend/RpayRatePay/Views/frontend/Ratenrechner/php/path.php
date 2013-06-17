@@ -9,4 +9,4 @@
  */
 
 $ShopPort= "//";
-$pi_ratepay_rate_calc_path = $ShopPort . Shopware()->Config()->get('basepath') . '/engine/Shopware/Plugins/Default/Frontend/RpayRatePay/Views/frontend/Ratenrechner/';
+$pi_ratepay_rate_calc_path = $ShopPort . Shopware()->Config()->get('basepath') . '/engine/Shopware/Plugins/' . Shopware()->Plugins()->Frontend()->RpayRatePay()->getSource() . '/Frontend/RpayRatePay/Views/frontend/Ratenrechner/';
