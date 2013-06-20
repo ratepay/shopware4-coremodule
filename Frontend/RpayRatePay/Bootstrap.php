@@ -47,7 +47,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
      */
     public function getVersion()
     {
-        return "3.0.3";
+        return "3.0.4";
     }
 
     /**
@@ -248,6 +248,12 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
                 "`address-invoice` varchar(3) NOT NULL, " .
                 "`address-debit` varchar(3) NOT NULL, " .
                 "`address-rate` varchar(3) NOT NULL, " .
+                "`limit-invoice-min` int(5) NOT NULL, " .
+                "`limit-debit-min` int(5) NOT NULL, " .
+                "`limit-rate-min` int(5) NOT NULL, " .
+                "`limit-invoice-max` int(5) NOT NULL, " .
+                "`limit-debit-max` int(5) NOT NULL, " .
+                "`limit-rate-max` int(5) NOT NULL, " .
                 "PRIMARY KEY (`profileId`)" .
                 ")";
 
@@ -406,6 +412,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
         }
         return true;
     }
+
     /**
      * Stops Orderdeletation, when any article has been send
      *
@@ -626,6 +633,24 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
             $showInvoice = false;
         }
 
+
+        if (Shopware()->Modules()->Basket()) {
+            $basket = Shopware()->Modules()->Basket()->sGetAmount();
+            $basket = $basket['totalAmount'];
+            Shopware()->Log()->Debug("BasketAmount: ");
+            Shopware()->Log()->Debug($basket);
+            if ($basket < $paymentStati['limit-invoice-min'] || $basket > $paymentStati['limit-invoice-max']) {
+                $showInvoice = false;
+            }
+            if ($basket < $paymentStati['limit-debit-min'] || $basket > $paymentStati['limit-debit-max']) {
+                $showDebit = false;
+            }
+            if ($basket < $paymentStati['limit-rate-min'] || $basket > $paymentStati['limit-rate-max']) {
+                $showRate = false;
+            }
+        }
+
+
         $payments = array();
         foreach ($return as $payment) {
             if ($payment['name'] === 'rpayratepayinvoice' && !$showInvoice) {
@@ -675,7 +700,13 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
                 $response->getElementsByTagName('b2b-installment')->item(0)->nodeValue ? : 'no',
                 $response->getElementsByTagName('delivery-address-invoice')->item(0)->nodeValue ? : 'no',
                 $response->getElementsByTagName('delivery-address-elv')->item(0)->nodeValue ? : 'no',
-                $response->getElementsByTagName('delivery-address-installment')->item(0)->nodeValue ? : 'no'
+                $response->getElementsByTagName('delivery-address-installment')->item(0)->nodeValue ? : 'no',
+                $response->getElementsByTagName('tx-limit-invoice-min')->item(0)->nodeValue,
+                $response->getElementsByTagName('tx-limit-elv-min')->item(0)->nodeValue,
+                $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue,
+                $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue,
+                $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue,
+                $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue
             );
 
             $activePayments = '';
@@ -691,34 +722,20 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
 
             $updatesql = "UPDATE `s_core_paymentmeans` SET `active` = 1 WHERE `name` in($activePayments)";
             $sql = "REPLACE INTO `rpay_ratepay_config`"
-                    . "(`profileId`, `invoiceStatus`,`debitStatus`,`rateStatus`, `b2b-invoice`,`b2b-debit`,`b2b-rate`, `address-invoice`,`address-debit`,`address-rate`) "
-                    . "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    . "(`profileId`, `invoiceStatus`,`debitStatus`,`rateStatus`, "
+                    . "`b2b-invoice`, `b2b-debit`, `b2b-rate`, "
+                    . "`address-invoice`, `address-debit`, `address-rate`, "
+                    . "`limit-invoice-min`, `limit-debit-min`, `limit-rate-min`, "
+                    . "`limit-invoice-max`, `limit-debit-max`, `limit-rate-max`) "
+                    . "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
             try {
                 $this->clearRuleSet();
                 $this->setRuleSet(
-                        'rpayratepayinvoice', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-invoice-min')->item(0)->nodeValue - 0.01
-                );
-                $this->setRuleSet(
-                        'rpayratepayinvoice', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue + 0.01
-                );
-                $this->setRuleSet(
                         'rpayratepayinvoice', 'CURRENCIESISOISNOT', 'EUR'
                 );
                 $this->setRuleSet(
-                        'rpayratepaydebit', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-elv-min')->item(0)->nodeValue - 0.01
-                );
-                $this->setRuleSet(
-                        'rpayratepaydebit', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue + 0.01
-                );
-                $this->setRuleSet(
                         'rpayratepaydebit', 'CURRENCIESISOISNOT', 'EUR'
-                );
-                $this->setRuleSet(
-                        'rpayratepayrate', 'ORDERVALUELESS', $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue - 0.01
-                );
-                $this->setRuleSet(
-                        'rpayratepayrate', 'ORDERVALUEMORE', $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue + 0.01
                 );
                 $this->setRuleSet(
                         'rpayratepayrate', 'CURRENCIESISOISNOT', 'EUR'
