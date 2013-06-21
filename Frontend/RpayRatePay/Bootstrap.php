@@ -638,8 +638,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
         if (Shopware()->Modules()->Basket()) {
             $basket = Shopware()->Modules()->Basket()->sGetAmount();
             $basket = $basket['totalAmount'];
-            Shopware()->Log()->Debug("BasketAmount: ");
-            Shopware()->Log()->Debug($basket);
+            Shopware()->Log()->Debug("BasketAmount: $basket");
             if ($basket < $paymentStati['limit-invoice-min'] || $basket > $paymentStati['limit-invoice-max']) {
                 $showInvoice = false;
             }
@@ -651,24 +650,37 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
             }
         }
 
-
+        $user = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
+        $paymentModel = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $user->getPaymentId());
+        $setToDefaultPayment = false;
         $payments = array();
         foreach ($return as $payment) {
             if ($payment['name'] === 'rpayratepayinvoice' && !$showInvoice) {
                 Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Invoice");
+                $setToDefaultPayment = $paymentModel->getName() === "rpayratepayinvoice" ? : $setToDefaultPayment;
                 continue;
             }
             if ($payment['name'] === 'rpayratepaydebit' && !$showDebit) {
                 Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Debit");
+                $setToDefaultPayment = $paymentModel->getName() === "rpayratepaydebit" ? : $setToDefaultPayment;
                 continue;
             }
             if ($payment['name'] === 'rpayratepayrate' && !$showRate) {
                 Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Rate");
+                $setToDefaultPayment = $paymentModel->getName() === "rpayratepayrate" ? : $setToDefaultPayment;
                 continue;
             }
             $payments[] = $payment;
         }
 
+        if ($setToDefaultPayment) {
+            Shopware()->Log()->Debug($user->getPaymentId());
+            $user->setPaymentId(Shopware()->Config()->get('paymentdefault'));
+            Shopware()->Models()->persist($user);
+            Shopware()->Models()->flush();
+            Shopware()->Models()->refresh($user);
+            Shopware()->Log()->Debug($user->getPaymentId());
+        }
         return $payments;
     }
 
