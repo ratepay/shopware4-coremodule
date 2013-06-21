@@ -68,6 +68,33 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
     }
 
     /**
+     * Updates the Plugin and its components
+     *
+     * @param string $oldversion
+     */
+    public function update($oldversion)
+    {
+        $result = false;
+        switch ($oldversion){
+            case '3.0.0':
+            case '3.0.1':
+            case '3.0.2':
+            case '3.0.3':
+                Shopware()->Db()->exec("DROP TABLE `rpay_ratepay_config`");
+                $this->_createDataBaseTables();
+                $profileId = $this->Config()->get('RatePayProfileID', null);
+                $securityCode = $this->Config()->get('RatePaySecurityCode', null);
+                if(!empty($profileId) && !empty($securityCode)){
+                    $this->getRatepayConfig($profileId, $securityCode);
+                }
+                $result = true;
+        }
+        return $result;
+    }
+
+
+
+    /**
      * Uninstalls the Plugin and its components
      *
      * @return boolean
