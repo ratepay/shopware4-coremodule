@@ -574,6 +574,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
             Shopware()->Log()->Debug("RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
             $view->ratepayValidateisDebitSet = $validation->isDebitSet() ? 'true' : 'false';
             Shopware()->Log()->Debug("RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
+            $view->ratepayErrorRatenrechner = Shopware()->Session()->ratepayErrorRatenrechner ? 'true' : 'false';
         }
     }
 

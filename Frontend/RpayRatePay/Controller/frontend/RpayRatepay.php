@@ -50,11 +50,26 @@ class Shopware_Controllers_Frontend_RpayRatepay extends Shopware_Controllers_Fro
      */
     public function indexAction()
     {
-        unset(Shopware()->Session()->RatePAY['errorMessage']);
-        if (preg_match("/^rpayratepay(invoice|rate|debit|prepayment)$/", $this->getPaymentShortName())) {
-            $this->_proceedPayment();
+        Shopware()->Session()->ratepayErrorRatenrechner = false;
+        if (preg_match("/^rpayratepay(invoice|rate|debit)$/", $this->getPaymentShortName())) {
+            if ($this->getPaymentShortName() === 'rpayratepayrate' && !isset(Shopware()->Session()->RatePAY['ratenrechner'])) {
+                Shopware()->Session()->ratepayErrorRatenrechner = true;
+                $this->redirect(
+                        Shopware()->Front()->Router()->assemble(array(
+                            'controller' => 'checkout',
+                            'action' => 'confirm'
+                        ))
+                );
+            } else {
+                $this->_proceedPayment();
+            }
         } else {
-            $this->_error('Die Zahlart ' . $this->getPaymentShortName() . ' wird nicht unterst&uuml;tzt!');
+            $this->redirect(
+                    Shopware()->Front()->Router()->assemble(array(
+                        'controller' => 'checkout',
+                        'action' => 'confirm'
+                    ))
+            );
         }
     }
 
