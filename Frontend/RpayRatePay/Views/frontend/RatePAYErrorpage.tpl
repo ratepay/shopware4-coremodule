@@ -9,7 +9,7 @@
             Datenverarbeitung getroffen worden. Einzelheiten hierzu finden Sie in der
             {/s}
             </font>
-            <a href='http://customers.ratepay.com/dse.html' >RatePAY-Datenschutzerklärung</a>.
+            <a href='http://customers.ratepay.com/dse.html' target='_blank'>RatePAY-Datenschutzerklärung</a>.
         </p>
     </div>
     <div class="actions">
