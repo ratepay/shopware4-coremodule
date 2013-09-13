@@ -47,7 +47,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
      */
     public function getVersion()
     {
-        return "3.0.4";
+        return "3.0.6";
     }
 
     /**
