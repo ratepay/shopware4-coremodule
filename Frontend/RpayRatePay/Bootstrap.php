@@ -726,7 +726,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
         $head->setProfileId($profileId);
         $head->setSecurityCode($securityCode);
         $profileRequestModel->setHead($head);
-        $requestService = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService();
+        $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
+        $requestService = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($config->get('RatePaySandbox'));
         $response = $requestService->xmlRequest($profileRequestModel->toArray());
 
         if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PROFILE_REQUEST', $response)) {
