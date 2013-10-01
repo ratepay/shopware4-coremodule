@@ -6,7 +6,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @package pi_ratepay_rate_calculator
- * Code by PayIntelligent GmbH  <http://www.payintelligent.de/>
+ * Code by Ratepay GmbH  <http://www.ratepay.com/>
  */
 $pi_lang_insert_wishrate = 'Wunschrate eingeben';
 $pi_lang_insert_runtime = 'Laufzeit w&auml;hlen';

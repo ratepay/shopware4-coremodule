@@ -30,15 +30,39 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
     {
         return array(
             'version' => $this->getVersion(),
-            'autor' => 'PayIntelligent GmbH',
+            'autor' => 'RatePay GmbH',
             'source' => $this->getSource(),
             'support' => 'http://www.ratepay.com/support',
-            'link' => 'http://www.payintelligent.de/',
+            'link' => 'http://www.ratepay.com/',
             'copyright' => 'Copyright (c) 2013, RatePAY GmbH',
-            'label' => 'RatePAY',
-            'description' => ''
+            'description' => 'RatePay Payment Module.'
         );
     }
+
+    /**
+     * Returns all allowed actions
+     *
+     * @return array
+     */
+    public function getCapabilities()
+    {
+        return array(
+            'install' => true,
+            'update' => true,
+            'enable' => true
+        );
+    }
+
+    /**
+     * Returns the Label of the Plugin
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return 'RatePay Payment';
+    }
+
 
     /**
      * Returns the Pluginversion
@@ -80,6 +104,9 @@ class Shopware_Plugins_Frontend_RpayRatePay_Bootstrap extends Shopware_Component
             case '3.0.1':
             case '3.0.2':
             case '3.0.3':
+            case '3.0.4':
+            case '3.0.5':
+            case '3.0.6':
                 Shopware()->Db()->exec("DROP TABLE `rpay_ratepay_config`");
                 $this->_createDataBaseTables();
                 $profileId = $this->Config()->get('RatePayProfileID', null);

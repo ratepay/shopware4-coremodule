@@ -6,7 +6,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @package pi_ratepay_rate_calculator
- * Code by PayIntelligent GmbH  <http://www.payintelligent.de/>
+ * Code by Ratepay GmbH  <http://www.ratepay.com/>
  */
 require_once 'PiRatepayRateCalcBase.php';
 require_once 'pi_ratepay_xml_service.php';

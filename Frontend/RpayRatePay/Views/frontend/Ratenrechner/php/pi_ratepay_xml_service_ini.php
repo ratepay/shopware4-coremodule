@@ -6,7 +6,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @package pi_ratepay_rate_calculator
- * Code by PayIntelligent GmbH  <http://www.payintelligent.de/>
+ * Code by Ratepay GmbH  <http://www.ratepay.com/>
  */
 $pi_ratepay_live_url = 'https://webservices.eos-payment.com/custom/ratepay/xml/1_0';
 $pi_ratepay_sandbox_url = 'https://webservices-int.eos-payment.com/custom/ratepay/xml/1_0';
