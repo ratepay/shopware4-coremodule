@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is free software; you can redistribute it and/or modify it under the terms of
  * the GNU General Public License as published by the Free Software Foundation; either
@@ -29,16 +30,29 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Service_SimpleXmlExtended 
      * @param bool $utfMode
      * @return SimpleXMLElement
      */
-     public function addCDataChild($sName, $sValue)
+    public function addCDataChild($sName, $sValue)
     {
         $oNodeOld = dom_import_simplexml($this);
         $oNodeNew = new DOMNode();
         $oDom = new DOMDocument();
         $oDataNode = $oDom->appendChild($oDom->createElement($sName));
-        $oDataNode->appendChild($oDom->createCDATASection($sValue));
+        $oDataNode->appendChild($oDom->createCDATASection($this->removeSpecialChars($sValue)));
         $oNodeTarget = $oNodeOld->ownerDocument->importNode($oDataNode, true);
         $oNodeOld->appendChild($oNodeTarget);
         return simplexml_import_dom($oNodeTarget);
+    }
+
+    /**
+     * This method replaced all zoot signs
+     *
+     * @param string $str
+     * @return string
+     */
+    private function removeSpecialChars($str)
+    {
+        $search = array("–", "´", "‹", "›", "‘", "’", "‚", "“", "”", "„", "‟", "•", "‒", "―", "—", "™", "¼", "½", "¾");
+        $replace = array("-", "'", "<", ">", "'", "'", ",", '"', '"', '"', '"', "-", "-", "-", "-", "TM", "1/4", "1/2", "3/4");
+        return str_replace($search, $replace, $str);
     }
 
 }
