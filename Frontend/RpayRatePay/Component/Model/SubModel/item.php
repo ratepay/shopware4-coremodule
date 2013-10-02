@@ -62,7 +62,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item
      */
     public function setArticleName($articleName)
     {
-        $this->_articleName = $articleName;
+        $this->_articleName = '<![CDATA['.$articleName.']]>';
     }
 
     /**
@@ -158,7 +158,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item
                 '@quantity' => $this->getQuantity(),
                 '@tax-rate' => $this->getTaxRate(),
                 '@unit-price-gross' => $this->getUnitPriceGross(),
-                $this->getArticleName()
+                '%'.$this->getArticleName()
             )
         );
     }

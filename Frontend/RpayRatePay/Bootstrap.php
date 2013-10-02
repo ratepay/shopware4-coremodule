@@ -72,7 +72,7 @@
          */
         public function getVersion()
         {
-            return "3.1.0";
+            return "3.1.1";
         }
 
         /**
@@ -108,6 +108,7 @@
                 case '3.0.4':
                 case '3.0.5':
                 case '3.0.6':
+                case '3.1.0':
                     Shopware()->Db()->exec("DROP TABLE `rpay_ratepay_config`");
                     $this->_createDataBaseTables();
                     $profileId = $this->Config()->get('RatePayProfileID', null);
