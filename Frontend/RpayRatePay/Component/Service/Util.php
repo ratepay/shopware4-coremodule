@@ -43,7 +43,12 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util
             ) {
                 if (is_array($value)) {
                     if (!is_numeric($key)) {
-                        $subnode = $xml->addChild("$key");
+                        if (substr($key, 0, 1) === '%') {
+                            $attributeKey = substr($key, 1);
+                            $subnode = $xml->addCDataChild("$attributeKey", $value['#']);
+                        } else {
+                            $subnode = $xml->addChild("$key");
+                        }
                         self::_arrayToXml($value, $subnode);
                     } else {
                         self::_arrayToXml($value, $xml);
@@ -56,9 +61,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util
                     $xml->addCDataChild("$attributeKey", "$value");
                 } else {
                     if (is_numeric($key)) {
-//                        $name = $xml->getName();
                         $xml->{0} = $value;
-                    } else {
+                    } elseif($key !== '#') {
                         $xml->addChild("$key", "$value");
                     }
                 }

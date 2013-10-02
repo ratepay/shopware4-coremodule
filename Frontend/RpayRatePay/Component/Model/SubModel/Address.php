@@ -283,7 +283,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Address
             '%street' => $this->getStreet(),
             'street-number' => $this->getStreetNumber(),
             'zip-code' => $this->getZipCode(),
-            'city' => $this->getCity(),
+            '%city' => $this->getCity(),
             'country-code' => $this->getCountryCode()
         );
 

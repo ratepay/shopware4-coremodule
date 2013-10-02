@@ -153,12 +153,12 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item
     public function toArray()
     {
         return array(
-            'item' => array(
+            '%item' => array(
                 '@article-number' => $this->getArticleNumber(),
                 '@quantity' => $this->getQuantity(),
                 '@tax-rate' => $this->getTaxRate(),
                 '@unit-price-gross' => $this->getUnitPriceGross(),
-                '%'.$this->getArticleName()
+                '#' => $this->getArticleName()
             )
         );
     }
