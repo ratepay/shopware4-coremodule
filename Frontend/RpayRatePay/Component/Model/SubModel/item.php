@@ -62,7 +62,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item
      */
     public function setArticleName($articleName)
     {
-        $this->_articleName = '<![CDATA['.$articleName.']]>';
+        $this->_articleName = $articleName;
     }
 
     /**
