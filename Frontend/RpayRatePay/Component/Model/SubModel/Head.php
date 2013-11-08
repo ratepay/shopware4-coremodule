@@ -51,6 +51,16 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head
     private $_operationSubstring = null;
 
     /**
+     * @var string
+     */
+    private $_systemVersion;
+
+    /**
+     * @var string
+     */
+    private $_orderId;
+
+    /**
      * This function returns the value of $_systemId
      *
      * @return string
@@ -171,6 +181,46 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head
     }
 
     /**
+     * This function returns the value of $_systemVersion
+     *
+     * @return string
+     */
+    public function getSystemVersion()
+    {
+        return $this->_systemVersion;
+    }
+
+    /**
+     * This function sets the value for $_systemVersion
+     *
+     * @param string $systemVersion
+     */
+    public function setSystemVersion($systemVersion)
+    {
+        $this->_systemVersion = $systemVersion;
+    }
+
+    /**
+     * This function returns the value of $_orderId
+     *
+     * @return string
+     */
+    public function getOrderId()
+    {
+        return $this->_orderId;
+    }
+
+    /**
+     * This function sets the value for $_orderId
+     *
+     * @param string $orderId
+     */
+    public function setOrderId($orderId)
+    {
+        $this->_orderId = $orderId;
+    }
+
+    /**
      * This function returns all values as Array
      *
      * @return array
@@ -183,8 +233,19 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head
             'credential' => array(
                 'profile-id' => $this->getProfileId(),
                 'securitycode' => $this->getSecurityCode()
+            ),
+            'meta' => array(
+                'systems' => array(
+                    'system' => array(
+                        '@name' => 'Shopware',
+                        '@version' => $this->getSystemVersion()
+                    )
+                )
             )
         );
+        if ($this->_orderId != null) {
+            $return['external']['order-id'] = $this->getOrderId();
+        }
         if ($this->_transactionId != null) {
             $return['transaction-id'] = $this->getTransactionId();
         }

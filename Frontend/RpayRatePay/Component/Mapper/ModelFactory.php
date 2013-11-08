@@ -90,6 +90,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
+        $head->setSystemVersion($this->_getVersion());
+        $head->setOrderId($this->_getOrderIdFromTransactionId());
         $paymentInitModel->setHead($head);
     }
 
@@ -111,6 +113,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
+        $head->setSystemVersion($this->_getVersion());
+        $head->setOrderId($this->_getOrderIdFromTransactionId());
 
         $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
         $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
@@ -204,7 +208,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         }
         if (Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'] > 0) {
             $items[] = $this->getShippingAsItem(
-                    Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'], Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
+                Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'], Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
             );
         }
         $basket->setItems($items);
@@ -228,7 +232,9 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
-        $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
+        $head->setTransactionId($this->getTransactionId());
+        $head->setSystemVersion($this->_getVersion());
+        $head->setOrderId($this->_getOrderIdFromTransactionId());
         $paymentConfirmModel->setHead($head);
     }
 
@@ -245,6 +251,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
+        $head->setSystemVersion($this->_getVersion());
+        $head->setOrderId($this->_getOrderIdFromTransactionId());
         $profileRequestModel->setHead($head);
     }
 
@@ -261,6 +269,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
+        $head->setSystemVersion($this->_getVersion());
+        $head->setOrderId($this->_getOrderIdFromTransactionId());
         $confirmationDeliveryModel->setHead($head);
     }
 
@@ -279,6 +289,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $head->setProfileId($config->get('RatePayProfileID'));
         $head->setSecurityCode($config->get('RatePaySecurityCode'));
         $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
+        $head->setSystemVersion($this->_getVersion());
+        $head->setOrderId($this->_getOrderIdFromTransactionId());
 
         $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `transactionID`=?", array($this->_transactionId));
 
@@ -339,8 +351,8 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $customer->setNationality($shopCountry->getIso());
 
         $order = Shopware()->Db()->fetchRow("SELECT `name`,`currency` FROM `s_order` "
-                . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
-                . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+            . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
+            . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
 
         $payment = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Payment();
         $payment->setMethod(Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod($order['name']));
@@ -383,6 +395,32 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $item->setTaxRate($tax);
         $item->setUnitPriceGross($amount);
         return $item;
+    }
+
+    /**
+     * Returns the OrderID for the TransactionId set to this Factory
+     *
+     * @return string $returnValue
+     */
+    private function _getOrderIdFromTransactionId()
+    {
+        $returnValue = null;
+        if (!empty($this->_transactionId)) {
+            $returnValue = Shopware()->Db()->fetchOne("SELECT `ordernumber` FROM `s_order` "
+                . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
+                . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+        }
+        return $returnValue;
+    }
+
+    /**
+     * Returns the Version for this Payment-Plugin
+     *
+     * @return string
+     */
+    private function _getVersion(){
+        $boostrap = new Shopware_Plugins_Frontend_RpayRatePay_Bootstrap();
+        return Shopware()->Config()->get('version') . '_' . $boostrap->getVersion();
     }
 
 }

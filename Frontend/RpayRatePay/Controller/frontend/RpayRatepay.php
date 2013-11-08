@@ -135,6 +135,7 @@ class Shopware_Controllers_Frontend_RpayRatepay extends Shopware_Controllers_Fro
         $result = $this->_service->xmlRequest($paymentInitModel->toArray());
         if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_INIT', $result)) {
             Shopware()->Session()->RatePAY['transactionId'] = $result->getElementsByTagName('transaction-id')->item(0)->nodeValue;
+            $this->_modelFactory->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
             $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest());
             $result = $this->_service->xmlRequest($paymentRequestModel->toArray());
             if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
