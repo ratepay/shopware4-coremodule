@@ -116,6 +116,7 @@
                     if(!empty($profileId) && !empty($securityCode)){
                         $this->getRatepayConfig($profileId, $securityCode);
                     }
+                case '3.1.1':
                     $result = true;
             }
             return $result;
