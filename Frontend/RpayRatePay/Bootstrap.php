@@ -72,7 +72,7 @@
          */
         public function getVersion()
         {
-            return "3.1.2";
+            return "3.1.3";
         }
 
         /**
@@ -99,27 +99,7 @@
          */
         public function update($oldversion)
         {
-            $result = false;
-            switch ($oldversion){
-                case '3.0.0':
-                case '3.0.1':
-                case '3.0.2':
-                case '3.0.3':
-                case '3.0.4':
-                case '3.0.5':
-                case '3.0.6':
-                case '3.1.0':
-                    Shopware()->Db()->exec("DROP TABLE `rpay_ratepay_config`");
-                    $this->_createDataBaseTables();
-                    $profileId = $this->Config()->get('RatePayProfileID', null);
-                    $securityCode = $this->Config()->get('RatePaySecurityCode', null);
-                    if(!empty($profileId) && !empty($securityCode)){
-                        $this->getRatepayConfig($profileId, $securityCode);
-                    }
-                case '3.1.1':
-                    $result = true;
-            }
-            return $result;
+            return true;
         }
 
 

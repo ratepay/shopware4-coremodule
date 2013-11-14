@@ -178,6 +178,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $customer->setSalutaion($shopBillingAddress->getSalutation());
         $customer->setPhone($shopBillingAddress->getPhone());
         $customer->setNationality($shopCountry->getIso());
+        $customer->setIpAddress($this->_getCustomerIP());
 
         $payment = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Payment();
         $payment->setAmount($this->getAmount());
@@ -349,6 +350,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
         $customer->setSalutaion($shopBillingAddress->getSalutation());
         $customer->setPhone($shopBillingAddress->getPhone());
         $customer->setNationality($shopCountry->getIso());
+        $customer->setIpAddress($this->_getCustomerIP());
 
         $order = Shopware()->Db()->fetchRow("SELECT `name`,`currency` FROM `s_order` "
             . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
@@ -418,9 +420,21 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
      *
      * @return string
      */
-    private function _getVersion(){
+    private function _getVersion()
+    {
         $boostrap = new Shopware_Plugins_Frontend_RpayRatePay_Bootstrap();
         return Shopware()->Config()->get('version') . '_' . $boostrap->getVersion();
+    }
+
+    private function _getCustomerIP()
+    {
+        $customerIp = null;
+        if (!is_null(Shopware()->Front())) {
+            $customerIp = Shopware()->Front()->Request()->getClientIp();
+        }else{
+            $customerIp = Shopware()->Db()->fetchOne("SELECT `remote_addr` FROM `s_order` WHERE `transactionID`=".$this->_transactionId);
+        }
+        return $customerIp;
     }
 
 }

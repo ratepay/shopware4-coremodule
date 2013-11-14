@@ -87,6 +87,11 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer
     private $_nationality;
 
     /**
+     * @var string
+     */
+    private $_ipAddress;
+
+    /**
      * This function returns the value of $_firstName
      *
      * @return string
@@ -347,6 +352,27 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer
     }
 
     /**
+     * This function returns the value of $_ipAddress
+     *
+     * @return string
+     */
+    public function getIpAddress()
+    {
+        return $this->_ipAddress;
+    }
+
+    /**
+     * This function sets the value for $_ipAddress
+     *
+     * @param string $ipAddress
+     */
+    public function setIpAddress($ipAddress)
+    {
+        $this->_ipAddress = $ipAddress;
+    }
+
+
+    /**
      * This function returns all values as Array
      *
      * @return array
@@ -382,6 +408,9 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer
         }
         if ($this->_bankAccount != null) {
             $return['bank-account'] = $this->getBankAccount()->toArray();
+        }
+        if ($this->_ipAddress != null) {
+            $return['ip-address'] = $this->getIpAddress();
         }
         return $return;
     }
