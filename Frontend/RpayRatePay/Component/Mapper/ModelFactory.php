@@ -391,8 +391,8 @@
         private function getShippingAsItem($amount, $tax)
         {
             $item = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item();
-            $item->setArticleName('Shipping');
-            $item->setArticleNumber('Shipping');
+            $item->setArticleName('shipping');
+            $item->setArticleNumber('shipping');
             $item->setQuantity(1);
             $item->setTaxRate($tax);
             $item->setUnitPriceGross($amount);
