@@ -72,7 +72,7 @@
          */
         public function getVersion()
         {
-            return "3.1.4";
+            return "3.1.5";
         }
 
         /**
@@ -158,11 +158,11 @@
                 $this->createPayment(
                     array(
                         'name' => 'rpayratepaydebit',
-                        'description' => 'RatePAY Lastschrift',
+                        'description' => 'RatePAY SEPA-Lastschrift',
                         'action' => 'rpay_ratepay',
                         'active' => 0,
                         'position' => 3,
-                        'additionaldescription' => 'Rechnungskauf mit Lastschrift',
+                        'additionaldescription' => 'Kauf mit SEPA Lastschrift',
                         'template' => 'RatePAYDebit.tpl'
                     )
                 );
@@ -193,9 +193,9 @@
                 $form->setElement('checkbox', 'RatePayLogging', array(
                     'label' => 'Logging'
                 ));
-                $form->setElement('checkbox', 'RatePayBankData', array(
+                /*$form->setElement('checkbox', 'RatePayBankData', array(
                     'label' => 'Bankdatenspeicherung aktivieren'
-                ));
+                ));*/
             } catch (Exception $exception) {
                 $this->uninstall();
                 throw new Exception("Can not create configelements." . $exception->getMessage());
@@ -215,7 +215,7 @@
                         'RatePaySecurityCode' => 'Security Code',
                         'RatePaySandbox' => 'Sandboxmodus',
                         'RatePayLogging' => 'Logging aktivieren',
-                        'RatePayBankData' => 'Bankdatenspeicherung aktivieren'
+                        //'RatePayBankData' => 'Bankdatenspeicherung aktivieren'
                     )
                 );
 
@@ -271,6 +271,8 @@
                 "`bankcode` varchar(200) NOT NULL," .
                 "`bankholder` varchar(200) NOT NULL," .
                 "`account` varchar(200) NOT NULL," .
+                "`iban` varchar(200) NOT NULL," .
+                "`bic` varchar(200) NOT NULL," .
                 "PRIMARY KEY (`userID`)" .
                 ")";
 

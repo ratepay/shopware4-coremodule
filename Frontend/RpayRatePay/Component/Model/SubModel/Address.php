@@ -290,7 +290,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Address
         if ($this->getType() === 'DELIVERY') {
             $return['first-name'] = $this->getFirstName();
             $return['last-name'] = $this->getLastName();
-            $return['salutaion'] = $this->getSalutation();
+            $return['salutation'] = $this->getSalutation();
             if (isset($this->_company)) {
                 $return['company'] = $this->getCompany();
             }

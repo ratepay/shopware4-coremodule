@@ -123,11 +123,23 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_BankAccount
 
     /**
      * This function returns all values as Array
+     * This contains a quickfix for sepa transactions
+     *
+     * @toDo: real implementation for sepa elv
      *
      * @return array
      */
     public function toArray()
     {
+
+        if(false !== strpos(strtolower($this->getBankAccount()), 'de')) {
+            return array(
+                'owner' => $this->getOwner(),
+                'bank-name' => $this->getBankName(),
+                'iban' => $this->getBankAccount()
+            );
+        }
+
         return array(
             'owner' => $this->getOwner(),
             'bank-account-number' => $this->getBankAccount(),

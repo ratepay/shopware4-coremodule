@@ -48,6 +48,13 @@
             if($(this).val() == '' || $(this).val() == '0000-00-00'){
                 error = true;
             }
+
+            /* validate sepa direct debit - no error if no blz is net @toDo: fix for international direct debits */
+
+            if($(this).attr('id') == 'ratepay_debit_bankcode' && !$(":input#ratepay_debit_accountnumber").val().match(/^\d+$/)) {
+                error = false;
+            }
+
         });
         if(error){
             $("#ratepay_error").append('{s namespace=RatePAY name=invaliddata}Bitte vervollst&auml;ndigen Sie die Daten.{/s}');

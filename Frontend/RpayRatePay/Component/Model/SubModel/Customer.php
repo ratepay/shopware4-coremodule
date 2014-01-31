@@ -33,7 +33,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer
     /**
      * @var string
      */
-    private $_salutaion;
+    private $_salutation;
 
     /**
      * @var string
@@ -132,23 +132,23 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer
     }
 
     /**
-     * This function returns the value of $_salutaion
+     * This function returns the value of $_salutation
      *
      * @return string
      */
-    public function getSalutaion()
+    public function getSalutation()
     {
-        return $this->_salutaion;
+        return $this->_salutation;
     }
 
     /**
-     * This function sets the value for $_salutaion
+     * This function sets the value for $_salutation
      *
-     * @param string $salutaion
+     * @param string $salutation
      */
-    public function setSalutaion($salutaion)
+    public function setSalutation($salutation)
     {
-        $this->_salutaion = $salutaion;
+        $this->_salutation = $salutation;
     }
 
     /**
@@ -382,7 +382,7 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer
         $return = array(
             'first-name' => $this->getFirstName(),
             'last-name' => $this->getLastName(),
-            'salutation' => $this->getSalutaion(),
+            'salutation' => $this->getSalutation(),
             'gender' => $this->getGender(),
             'date-of-birth' => $this->getDateOfBirth(),
             'contacts' => array(

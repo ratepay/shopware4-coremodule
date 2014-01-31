@@ -145,7 +145,7 @@
             $shippingAddress->setZipCode($shopShippingAddress->getZipCode());
             $customer->setShippingAddresses($shippingAddress);
 
-            // nur bei ELV
+            // only for elv and sepa elv
             if ($method === 'ELV') {
                 $bankAccount = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_BankAccount();
                 if ($config->get('RatePayBankData') == true) {
