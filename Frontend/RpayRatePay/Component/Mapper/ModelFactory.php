@@ -175,7 +175,7 @@
                 $gender = 'F';
             }
             $customer->setGender($gender);
-            $customer->setSalutaion($shopBillingAddress->getSalutation());
+            $customer->setSalutation($shopBillingAddress->getSalutation());
             $customer->setPhone($shopBillingAddress->getPhone());
             $customer->setNationality($shopCountry->getIso());
             $customer->setIpAddress($this->_getCustomerIP());
@@ -347,7 +347,7 @@
                 $gender = 'F';
             }
             $customer->setGender($gender);
-            $customer->setSalutaion($shopBillingAddress->getSalutation());
+            $customer->setSalutation($shopBillingAddress->getSalutation());
             $customer->setPhone($shopBillingAddress->getPhone());
             $customer->setNationality($shopCountry->getIso());
             $customer->setIpAddress($this->_getCustomerIP());
