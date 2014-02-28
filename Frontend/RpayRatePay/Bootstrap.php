@@ -72,7 +72,11 @@
          */
         public function getVersion()
         {
+            <<<<<<< HEAD
             return "3.1.6";
+=======
+            return "3.1.5";
+>>>>>>> ef71deae1656d0799cc23cc55cb897a5e4c70dac
         }
 
         /**
@@ -99,8 +103,12 @@
          */
         public function update($oldversion)
         {
+<<<<<<< HEAD
             $this->_subscribeEvents();
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
+=======
+            return true;
+>>>>>>> ef71deae1656d0799cc23cc55cb897a5e4c70dac
         }
 
 
@@ -366,10 +374,13 @@
         private function _subscribeEvents()
         {
             try {
+<<<<<<< HEAD
                 //Hook into backend order controller
                 $this->subscribeEvent(
                     'Shopware_Controllers_Backend_Order::saveAction::before', 'beforeSaveOrderInBackend'
                 );
+=======
+>>>>>>> ef71deae1656d0799cc23cc55cb897a5e4c70dac
                 $this->subscribeEvent(
                     'Enlight_Controller_Dispatcher_ControllerPath_Frontend_RpayRatepay', 'frontendPaymentController'
                 );
@@ -407,6 +418,7 @@
         }
 
         /**
+<<<<<<< HEAD
          * Checks if the payment method is a ratepay method. If it is a ratepay method, throw an exception
          * and forbit to change the payment method
          */
@@ -431,6 +443,8 @@
 
 
         /**
+=======
+>>>>>>> ef71deae1656d0799cc23cc55cb897a5e4c70dac
          * Checks if credentials are set and gets the configuration via profile_request
          *
          * @param Enlight_Hook_HookArgs $arguments
