@@ -413,18 +413,17 @@
         public function beforeSaveOrderInBackend(Enlight_Hook_HookArgs $arguments)
         {
             $request = $arguments->getSubject()->Request();
-            $parameter = $request->getParams();
-            $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $parameter['attribute'][0]['orderId']);
-
-            Shopware()->Log()->Warn($order->getPayment()->getName() . "   " .$parameter['payment'][0]['name']);
+            $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $request->getParam('id'));
+            $newPaymentMethod = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $request->getParam('paymentId'));
 
             if(in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit'))
-                && $order->getPayment()->getName() !== $parameter['payment'][0]['name'] )
+                && $order->getPayment()->getName() !== $newPaymentMethod->getName() )
             {
-                Shopware()->Log()->Warn('Bei einer RatePay Bestellung kann die Zahlart nicht nachtr&auml;glich geändert werden.');
+                Shopware()->Log()->Warn('Bei einer RatePay Bestellung kann die Zahlart nicht nachtr&auml;glich ge&auml;ndert werden.');
                 $arguments->stop();
-                return true;
+                throw new \Symfony\Component\Config\Definition\Exception\Exception('Bei einer RatePay Bestellung kann die Zahlart nicht nachtr&auml;glich ge&auml;ndert werden.');
             }
+
             return false;
 
         }
