@@ -416,8 +416,8 @@
             $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $request->getParam('id'));
             $newPaymentMethod = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $request->getParam('paymentId'));
 
-            if(in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit'))
-                && $order->getPayment()->getName() !== $newPaymentMethod->getName() )
+            if(!in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit'))
+                && in_array($newPaymentMethod->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) )
             {
                 Shopware()->Log()->Warn('Bei einer RatePay Bestellung kann die Zahlart nicht nachtr&auml;glich ge&auml;ndert werden.');
                 $arguments->stop();

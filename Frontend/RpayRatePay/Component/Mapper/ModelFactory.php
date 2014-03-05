@@ -20,6 +20,8 @@
     class Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory
     {
 
+
+
         private $_transactionId;
 
         /**
@@ -106,7 +108,6 @@
             $method = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod(Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']);
             $encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
 
-
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
             $head->setOperation('PAYMENT_REQUEST');
@@ -148,6 +149,7 @@
             // only for elv and sepa elv
             if ($method === 'ELV') {
                 $bankAccount = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_BankAccount();
+
                 if ($config->get('RatePayBankData') == true) {
                     $bankdata = $encryption->loadBankdata(Shopware()->Session()->sUserId);
                     $bankAccount->setBankAccount($bankdata['account']);
@@ -160,6 +162,7 @@
                     $bankAccount->setBankName(Shopware()->Session()->RatePAY['bankdata']['bankname']);
                     $bankAccount->setOwner(Shopware()->Session()->RatePAY['bankdata']['bankholder']);
                 }
+
                 $customer->setBankAccount($bankAccount);
             }
             $customer->setCompanyName($shopBillingAddress->getCompany());

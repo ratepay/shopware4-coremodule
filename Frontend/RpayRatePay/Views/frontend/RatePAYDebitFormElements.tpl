@@ -5,11 +5,11 @@
         <input id='ratepay_debit_accountholder' value="{$smarty.session.Shopware.RatePAY.bankdata.bankholder}" type='text' class='text'>
     </p>
     <p class='none'>
-        <label for='ratepay_debit_accountnumber'>{s namespace=RatePAY name=accountNumber}Kontonummer/IBAN{/s}:</label>
+        <label for='ratepay_debit_accountnumber'>{s namespace=RatePAY name=accountNumber}Kontonummer / IBAN{/s}:</label>
         <input id='ratepay_debit_accountnumber' value="{$smarty.session.Shopware.RatePAY.bankdata.account}" type='text' class='text'>
     </p>
     <p class='none'>
-        <label for='ratepay_debit_bankcode'>{s namespace=RatePAY name=bankCode}Bankleitzahl{/s}:</label>
+        <label for='ratepay_debit_bankcode'>{s namespace=RatePAY name=bankCode}Bankleitzahl / BIC / SWIFT{/s}:</label>
         <input id='ratepay_debit_bankcode' value="{$smarty.session.Shopware.RatePAY.bankdata.bankcode}" type='text' class='text'>
     </p>
     <p class='none'>
