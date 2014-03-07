@@ -416,12 +416,12 @@
             $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $request->getParam('id'));
             $newPaymentMethod = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $request->getParam('paymentId'));
 
-            if(!in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit'))
-                && in_array($newPaymentMethod->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) )
+            if((!in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) && in_array($newPaymentMethod->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')))
+                || (in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) &&  $newPaymentMethod->getName() != $order->getPayment()->getName()) )
             {
-                Shopware()->Log()->Warn('Bei einer RatePay Bestellung kann die Zahlart nicht nachtr&auml;glich ge&auml;ndert werden.');
+                Shopware()->Log()->Warn('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
                 $arguments->stop();
-                throw new \Symfony\Component\Config\Definition\Exception\Exception('Bei einer RatePay Bestellung kann die Zahlart nicht nachtr&auml;glich ge&auml;ndert werden.');
+                throw new \Symfony\Component\Config\Definition\Exception\Exception('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
             }
 
             return false;
