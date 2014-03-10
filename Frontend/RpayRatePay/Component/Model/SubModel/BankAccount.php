@@ -142,9 +142,9 @@ class Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_BankAccount
 
         return array(
             'owner' => $this->getOwner(),
+            'bank-name' => $this->getBankName(),
             'bank-account-number' => $this->getBankAccount(),
-            'bank-code' => $this->getBankCode(),
-            'bank-name' => $this->getBankName()
+            'bank-code' => $this->getBankCode()
         );
     }
 
