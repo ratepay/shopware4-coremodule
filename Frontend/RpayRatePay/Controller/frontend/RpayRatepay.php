@@ -141,7 +141,8 @@
                 $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest());
                 $result = $this->_service->xmlRequest($paymentRequestModel->toArray());
                 if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
-                    $orderNumber = $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $this->createPaymentUniqueId(), 17);
+                    $uniqueId = $this->createPaymentUniqueId();
+                    $orderNumber = $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $uniqueId, 17);
                     $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm());
                     $matches = array();
                     preg_match("/<descriptor.*>(.*)<\/descriptor>/", $this->_service->getLastResponse(), $matches);
@@ -160,6 +161,14 @@
                         } catch (Exception $exception) {
                             Shopware()->Log()->Err($exception->getMessage());
                         }
+
+                        //set payments status to payed
+                        $this->savePaymentStatus(
+                            Shopware()->Session()->RatePAY['transactionId'],
+                            $uniqueId,
+                            12
+                        );
+
                         $this->redirect(Shopware()->Front()->Router()->assemble(array(
                                 'controller' => 'checkout',
                                 'action'     => 'finish'
