@@ -24,14 +24,14 @@
         private $_logging;
         protected $config = array(
             'strictredirects' => false,
-            'adapter' => 'Zend_Http_Client_Adapter_Curl',
-            'curloptions' => array(
+            'adapter'         => 'Zend_Http_Client_Adapter_Curl',
+            'curloptions'     => array(
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_POST => 1,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_HTTPHEADER => array(
+                CURLOPT_POST           => 1,
+                CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                CURLOPT_HTTPHEADER     => array(
                     "Content-Type: text/xml; charset=UTF-8",
                     "Accept: */*",
                     "Cache-Control: no-cache",
@@ -39,16 +39,16 @@
                     "Connection: keep-alive"
                 )
             ),
-            'maxredirects' => 5,
-            'useragent' => 'Zend_Http_Client',
-            'timeout' => 10,
-            'httpversion' => Zend_Http_Client::HTTP_1,
-            'keepalive' => false,
-            'storeresponse' => true,
-            'strict' => true,
-            'output_stream' => false,
-            'encodecookies' => true,
-            'rfc3986_strict' => false
+            'maxredirects'    => 5,
+            'useragent'       => 'Zend_Http_Client',
+            'timeout'         => 10,
+            'httpversion'     => Zend_Http_Client::HTTP_1,
+            'keepalive'       => false,
+            'storeresponse'   => true,
+            'strict'          => true,
+            'output_stream'   => false,
+            'encodecookies'   => true,
+            'rfc3986_strict'  => false
         );
 
         /**
@@ -68,6 +68,7 @@
          * Sends an XML-Request
          *
          * @param mixed $Model
+         *
          * @return \DOMDocument
          */
         public function xmlRequest($Model)
@@ -78,6 +79,7 @@
             $dom = new DOMDocument();
             $dom->loadXML($result->getBody());
             $this->_logging->logRequest($this->getLastRequest(), $this->getLastResponse());
+
             return $dom;
         }
 

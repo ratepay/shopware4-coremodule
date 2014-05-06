@@ -18,34 +18,36 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
      * Define that the additional information is an Ext.panel.Panel extension
      * @string
      */
-    extend:'Ext.grid.Panel',
-    autoScroll:true,
-    layout:'fit',
+    extend: 'Ext.grid.Panel',
+    autoScroll: true,
+    layout: 'fit',
     plugins: Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
     }),
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
         var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
         var id = me.record.get('id');
 
         me.store = positionStore.load({
-            params:{
+            params: {
                 'orderId': id
             }
         });
 
-        me.columns =  {
+        me.columns = {
             items: me.getColumns(),
             defaults: {
                 flex: 1
             }
         }
-        me.dockedItems = [{
-            xtype: 'toolbar',
-            dock: 'top',
-            items: me.getToolbar()
-        }];
+        me.dockedItems = [
+            {
+                xtype: 'toolbar',
+                dock: 'top',
+                items: me.getToolbar()
+            }
+        ];
 
         me.callParent(arguments);
     },
@@ -55,96 +57,96 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
      *
      * @return [array] grid columns
      */
-    getColumns:function () {
+    getColumns: function () {
         return [
-        {
-            header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
-            dataIndex: 'quantityReturn',
-            editor: {
-                xtype: 'numberfield',
-                hideTrigger : false,
-                allowBlank: false,
-                allowDecimals : false,
-                minValue: 0
-            }
-        },
-        {
-            header: '{s namespace=RatePAY name=articlename}ArticleName{/s}',
-            dataIndex: 'name'
-        },
-        {
-            header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
-            dataIndex: 'articleordernumber'
-        },
-        {
-            header: '{s namespace=RatePAY name=price}Preis{/s}',
-            dataIndex: 'price',
-            renderer: Ext.util.Format.numberRenderer('0.00')
-        },
-        {
-            header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',
-            dataIndex: 'quantity'
-        },
-        {
-            header: '{s namespace=RatePAY name=delivered}Versand{/s}',
-            dataIndex: 'delivered'
-        },
-        {
-            header: '{s namespace=RatePAY name=cancelled}Storniert{/s}',
-            dataIndex: 'cancelled'
-        },
-        {
-            header: '{s namespace=RatePAY name=returned}Retourniert{/s}',
-            dataIndex: 'returned'
-        },
+            {
+                header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
+                dataIndex: 'quantityReturn',
+                editor: {
+                    xtype: 'numberfield',
+                    hideTrigger: false,
+                    allowBlank: false,
+                    allowDecimals: false,
+                    minValue: 0
+                }
+            },
+            {
+                header: '{s namespace=RatePAY name=articlename}ArticleName{/s}',
+                dataIndex: 'name'
+            },
+            {
+                header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
+                dataIndex: 'articleordernumber'
+            },
+            {
+                header: '{s namespace=RatePAY name=price}Preis{/s}',
+                dataIndex: 'price',
+                renderer: Ext.util.Format.numberRenderer('0.00')
+            },
+            {
+                header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',
+                dataIndex: 'quantity'
+            },
+            {
+                header: '{s namespace=RatePAY name=delivered}Versand{/s}',
+                dataIndex: 'delivered'
+            },
+            {
+                header: '{s namespace=RatePAY name=cancelled}Storniert{/s}',
+                dataIndex: 'cancelled'
+            },
+            {
+                header: '{s namespace=RatePAY name=returned}Retourniert{/s}',
+                dataIndex: 'returned'
+            },
         ];
     },
 
-    getToolbar:function(){
+    getToolbar: function () {
         var me = this;
         var id = me.record.get('id');
         return [
-        {
-            text: '{s namespace=RatePAY name=setzero}Anzahl auf 0 setzen{/s}',
-            handler: function(){
-                var id = me.record.get('id');
-                var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
-                me.store = positionStore.load({
-                    params:{
-                        'orderId': id,
-                        'setToZero':true
-                    }
-                });
+            {
+                text: '{s namespace=RatePAY name=setzero}Anzahl auf 0 setzen{/s}',
+                handler: function () {
+                    var id = me.record.get('id');
+                    var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+                    me.store = positionStore.load({
+                        params: {
+                            'orderId': id,
+                            'setToZero': true
+                        }
+                    });
 
-                me.reconfigure(me.store);
+                    me.reconfigure(me.store);
+                }
+            },
+            {
+                iconCls: 'sprite-minus-circle-frame',
+                text: '{s namespace=RatePAY name=return}Auswahl retournieren{/s}',
+                handler: function () {
+                    me.toolbarReturn();
+                }
             }
-        },
-        {
-            iconCls:'sprite-minus-circle-frame',
-            text: '{s namespace=RatePAY name=return}Auswahl retournieren{/s}',
-            handler: function(){
-                me.toolbarReturn();
-            }
-        }
         ];
     },
-    toolbarReturn:function(){
+    toolbarReturn: function () {
         var me = this;
         var items = new Array();
         var id = me.record.get('id');
         var error = false;
-        for(i=0;i< me.store.data.items.length;i++){
+        for (i = 0; i < me.store.data.items.length; i++) {
             var row = me.store.data.items[i].data;
             var item = new Object();
-            if(row.quantityReturn > (row.quantity - row.returned)){
+            if (row.quantityReturn > (row.quantity - row.returned)) {
                 error = true;
             }
             item['id'] = row.articleID;
             item['articlenumber'] = row.articleordernumber;
-            item['name'] =row.name;
-            item['price'] =row.price;
-            item['taxRate'] =row.tax_rate;
-            item['quantity'] =  row.delivered - row.returned - row.quantityReturn;
+            item['name'] = row.name;
+            item['price'] = row.price;
+            item['taxRate'] = row.tax_rate;
+            item['quantity'] = row.delivered - row.returned - row.quantityReturn;
             item['delivered'] = row.delivered;
             item['returned'] = row.returned;
             item['cancelled'] = row.cancelled;
@@ -152,23 +154,23 @@ Ext.define('Shopware.apps.Order.view.detail.ratepayretoure', {
             items.push(item);
         }
 
-        if(error == true){
+        if (error == true) {
             Ext.Msg.alert('{s namespace=RatePAY name=messagereturntitle}Retoure fehlgeschlagen{/s}',
-            '{s namespace=RatePAY name=messagereturntext}Es k&ouml;nnen nicht mehr Artikel retourniert werden als versand wurden!{/s}');
+                '{s namespace=RatePAY name=messagereturntext}Es k&ouml;nnen nicht mehr Artikel retourniert werden als versand wurden!{/s}');
             return false;
-        }else{
+        } else {
             Ext.Ajax.request({
                 url: '{url controller=RpayRatepayOrderDetail action=returnItems}',
-                method:'POST',
-                async:false,
+                method: 'POST',
+                async: false,
                 params: {
-                    orderId:id,
-                    items:Ext.encode(items)
+                    orderId: id,
+                    items: Ext.encode(items)
                 },
-                success: function(){
+                success: function () {
                     var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
                     me.store = positionStore.load({
-                        params:{
+                        params: {
                             'orderId': id
                         }
                     });

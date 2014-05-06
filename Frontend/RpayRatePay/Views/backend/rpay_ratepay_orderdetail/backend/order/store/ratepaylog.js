@@ -17,9 +17,9 @@
  * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 Ext.define('Shopware.apps.Order.store.RatePayLog', {
-    extend:'Ext.data.Store',
+    extend: 'Ext.data.Store',
     autoLoad: false,
-    remoteSort : false,
-    pageSize:25,
-    model:'Shopware.apps.Order.model.ratepaylog'
+    remoteSort: false,
+    pageSize: 25,
+    model: 'Shopware.apps.Order.model.ratepaylog'
 });

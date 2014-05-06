@@ -8,8 +8,8 @@
  */
 
 function piMouseOver(mouseoverString) {
-   document.getElementById(mouseoverString).style.display = 'block';
+    document.getElementById(mouseoverString).style.display = 'block';
 }
 function piMouseOut(mouseoverString) {
-   document.getElementById(mouseoverString).style.display = 'none';
+    document.getElementById(mouseoverString).style.display = 'none';
 }

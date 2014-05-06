@@ -17,8 +17,8 @@
  * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 Ext.define('Shopware.apps.Order.store.ratepaypositions', {
-    extend:'Ext.data.Store',
+    extend: 'Ext.data.Store',
     autoLoad: false,
-    remoteSort : false,
-    model:'Shopware.apps.Order.model.ratepaypositions'
+    remoteSort: false,
+    model: 'Shopware.apps.Order.model.ratepaypositions'
 });

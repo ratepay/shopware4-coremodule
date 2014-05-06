@@ -29,14 +29,14 @@
         public function getInfo()
         {
             return array(
-                'version' => $this->getVersion(),
-                'autor' => 'RatePay GmbH',
-                'source' => $this->getSource(),
-                'support' => 'http://www.ratepay.com/support',
-                'link' => 'http://www.ratepay.com/',
-                'copyright' => 'Copyright (c) 2013, RatePAY GmbH',
+                'version'     => $this->getVersion(),
+                'autor'       => 'RatePay GmbH',
+                'source'      => $this->getSource(),
+                'support'     => 'http://www.ratepay.com/support',
+                'link'        => 'http://www.ratepay.com/',
+                'copyright'   => 'Copyright (c) 2013, RatePAY GmbH',
                 'description' => 'RatePay Payment Module.',
-                'label' => 'RatePay Payment'
+                'label'       => 'RatePay Payment'
             );
         }
 
@@ -49,8 +49,8 @@
         {
             return array(
                 'install' => true,
-                'update' => true,
-                'enable' => true
+                'update'  => true,
+                'enable'  => true
             );
         }
 
@@ -89,6 +89,7 @@
             $this->_createMenu();
             $this->_createDataBaseTables();
             $this->Plugin()->setActive(true);
+
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
         }
 
@@ -100,9 +101,9 @@
         public function update($oldversion)
         {
             $this->_subscribeEvents();
+
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
         }
-
 
 
         /**
@@ -113,6 +114,7 @@
         public function uninstall()
         {
             $this->disable();
+
             return parent::uninstall();
         }
 
@@ -125,6 +127,7 @@
         {
             $sql = "UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'rpayratepay%'";
             Shopware()->Db()->query($sql);
+
             return true;
         }
 
@@ -136,35 +139,35 @@
             try {
                 $this->createPayment(
                     array(
-                        'name' => 'rpayratepayinvoice',
-                        'description' => 'RatePAY Rechnung',
-                        'action' => 'rpay_ratepay',
-                        'active' => 0,
-                        'position' => 1,
+                        'name'                  => 'rpayratepayinvoice',
+                        'description'           => 'RatePAY Rechnung',
+                        'action'                => 'rpay_ratepay',
+                        'active'                => 0,
+                        'position'              => 1,
                         'additionaldescription' => 'Kauf auf Rechnung',
-                        'template' => 'RatePAYInvoice.tpl'
+                        'template'              => 'RatePAYInvoice.tpl'
                     )
                 );
                 $this->createPayment(
                     array(
-                        'name' => 'rpayratepayrate',
-                        'description' => 'RatePAY Ratenzahlung',
-                        'action' => 'rpay_ratepay',
-                        'active' => 0,
-                        'position' => 2,
+                        'name'                  => 'rpayratepayrate',
+                        'description'           => 'RatePAY Ratenzahlung',
+                        'action'                => 'rpay_ratepay',
+                        'active'                => 0,
+                        'position'              => 2,
                         'additionaldescription' => 'Kauf mit Ratenzahlung',
-                        'template' => 'RatePAYRate.tpl'
+                        'template'              => 'RatePAYRate.tpl'
                     )
                 );
                 $this->createPayment(
                     array(
-                        'name' => 'rpayratepaydebit',
-                        'description' => 'RatePAY SEPA-Lastschrift',
-                        'action' => 'rpay_ratepay',
-                        'active' => 0,
-                        'position' => 3,
+                        'name'                  => 'rpayratepaydebit',
+                        'description'           => 'RatePAY SEPA-Lastschrift',
+                        'action'                => 'rpay_ratepay',
+                        'active'                => 0,
+                        'position'              => 3,
                         'additionaldescription' => 'Kauf mit SEPA Lastschrift',
-                        'template' => 'RatePAYDebit.tpl'
+                        'template'              => 'RatePAYDebit.tpl'
                     )
                 );
             } catch (Exception $exception) {
@@ -212,10 +215,10 @@
                 $form = $this->Form();
                 $translations = array(
                     'de_DE' => array(
-                        'RatePayProfileID' => 'Profile-ID',
+                        'RatePayProfileID'    => 'Profile-ID',
                         'RatePaySecurityCode' => 'Security Code',
-                        'RatePaySandbox' => 'Sandboxmodus',
-                        'RatePayLogging' => 'Logging aktivieren',
+                        'RatePaySandbox'      => 'Sandboxmodus',
+                        'RatePayLogging'      => 'Logging aktivieren',
                         //'RatePayBankData' => 'Bankdatenspeicherung aktivieren'
                     )
                 );
@@ -344,12 +347,12 @@
             try {
                 $parent = $this->Menu()->findOneBy('label', 'logfile');
                 $this->createMenuItem(array(
-                        'label' => 'RatePAY',
-                        'class' => 'sprite-cards-stack',
-                        'active' => 1,
+                        'label'      => 'RatePAY',
+                        'class'      => 'sprite-cards-stack',
+                        'active'     => 1,
                         'controller' => 'RpayRatepayLogging',
-                        'action' => 'index',
-                        'parent' => $parent
+                        'action'     => 'index',
+                        'parent'     => $parent
                     )
                 );
             } catch (Exception $exception) {
@@ -416,9 +419,9 @@
             $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $request->getParam('id'));
             $newPaymentMethod = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $request->getParam('paymentId'));
 
-            if((!in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) && in_array($newPaymentMethod->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')))
-                || (in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) &&  $newPaymentMethod->getName() != $order->getPayment()->getName()) )
-            {
+            if ((!in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) && in_array($newPaymentMethod->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')))
+                || (in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) && $newPaymentMethod->getName() != $order->getPayment()->getName())
+            ) {
                 Shopware()->Log()->Warn('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
                 $arguments->stop();
                 throw new \Symfony\Component\Config\Definition\Exception\Exception('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
@@ -433,6 +436,7 @@
          * Checks if credentials are set and gets the configuration via profile_request
          *
          * @param Enlight_Hook_HookArgs $arguments
+         *
          * @return null
          */
         public function beforeSavePluginConfig(Enlight_Hook_HookArgs $arguments)
@@ -447,6 +451,7 @@
             foreach ($parameter['elements'] as $element) {
                 if (in_array($element['name'], array('RatePayProfileID', 'RatePaySecurityCode')) && empty($element['values'][0]['value'])) {
                     Shopware()->Log()->Warn('RatePAY: Credentials are missing!');
+
                     return;
                 }
                 if ($element['name'] === 'RatePayProfileID') {
@@ -469,6 +474,7 @@
          * Stops Orderdeletation, when its not permitted
          *
          * @param Enlight_Hook_HookArgs $arguments
+         *
          * @return true
          */
         public function beforeDeleteOrderPosition(Enlight_Hook_HookArgs $arguments)
@@ -480,6 +486,7 @@
                 Shopware()->Log()->Warn('Positionen einer RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden. Bitte Stornieren Sie die Artikel in der Artikelverwaltung.');
                 $arguments->stop();
             }
+
             return true;
         }
 
@@ -504,7 +511,8 @@
             if ($count > 0) {
                 Shopware()->Log()->Warn('RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden, wenn sie bereits bearbeitet worden sind.');
                 $arguments->stop();
-            } else {
+            }
+            else {
                 $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
                 $request = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($config->get('RatePaySandbox'));
 
@@ -531,11 +539,13 @@
          * Eventlistener for frontendcontroller
          *
          * @param Enlight_Event_EventArgs $arguments
+         *
          * @return string
          */
         public function frontendPaymentController(Enlight_Event_EventArgs $arguments)
         {
             Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
+
             return $this->Path() . '/Controller/frontend/RpayRatepay.php';
         }
 
@@ -547,6 +557,7 @@
         public function onLoggingBackendController()
         {
             Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
+
             return $this->Path() . "/Controller/backend/RpayRatepayLogging.php";
         }
 
@@ -556,6 +567,7 @@
         public function onOrderDetailBackendController()
         {
             Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
+
             return $this->Path() . "/Controller/backend/RpayRatepayOrderDetail.php";
         }
 
@@ -596,6 +608,7 @@
                     Shopware()->Log()->Err($exception->getMessage());
                 }
             }
+
             return $ordernumber;
         }
 
@@ -621,6 +634,7 @@
 
             if (empty(Shopware()->Session()->sUserId)) {
                 Shopware()->Log()->Debug("RatePAY: sUserId is empty");
+
                 return;
             }
             Shopware()->Template()->addTemplateDir(dirname(__FILE__) . '/Views/');
@@ -656,6 +670,7 @@
          *  - The Currency must be EUR
          *
          * @param Enlight_Event_EventArgs $arguments
+         *
          * @return array
          */
         public function filterPayments(Enlight_Event_EventArgs $arguments)
@@ -751,6 +766,7 @@
                 Shopware()->Models()->refresh($user);
                 Shopware()->Log()->Debug($user->getPaymentId());
             }
+
             return $payments;
         }
 
@@ -759,6 +775,7 @@
          *
          * @param string $profileId
          * @param string $securityCode
+         *
          * @return boolean
          */
         private function getRatepayConfig($profileId, $securityCode, $sandbox)
@@ -825,15 +842,19 @@
                     );
                     Shopware()->Db()->query($sql, $data);
                     Shopware()->Db()->query($updatesql);
+
                     return true;
                 } catch (Exception $exception) {
                     Shopware()->Log()->Err($exception->getMessage());
                     Shopware()->Db()->query("UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'rpayratepay%'");
+
                     return false;
                 }
-            } else {
+            }
+            else {
                 Shopware()->Log()->Err('RatePAY: Profile_Request failed!');
                 Shopware()->Db()->query("UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'rpayratepay%'");
+
                 return false;
             }
         }

@@ -17,15 +17,15 @@
  * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 Ext.define('Shopware.apps.RpayRatepayLogging', {
-    extend:'Enlight.app.SubApplication',
-    name:'Shopware.apps.RpayRatepayLogging',
+    extend: 'Enlight.app.SubApplication',
+    name: 'Shopware.apps.RpayRatepayLogging',
     bulkLoad: true,
     loadPath: '{url action=load}',
     controllers: ['Main'],
     models: ['Main'],
     views: ['main.Window'],
-    store:['List'],
-    launch: function() {
+    store: ['List'],
+    launch: function () {
         var me = this;
         mainController = me.getController('Main');
         return mainController.mainWindow;

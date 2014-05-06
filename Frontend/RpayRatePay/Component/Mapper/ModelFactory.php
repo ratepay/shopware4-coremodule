@@ -21,7 +21,6 @@
     {
 
 
-
         private $_transactionId;
 
         /**
@@ -48,6 +47,7 @@
          * Expects an instance of a paymentmodel and fill it with shopdata
          *
          * @param ObjectToBeFilled $modelName
+         *
          * @return filledObjectGivenToTheFunction
          * @throws Exception The submitted Class is not supported!
          */
@@ -156,7 +156,8 @@
                     $bankAccount->setBankCode($bankdata['bankcode']);
                     $bankAccount->setBankName($bankdata['bankname']);
                     $bankAccount->setOwner($bankdata['bankholder']);
-                } else {
+                }
+                else {
                     $bankAccount->setBankAccount(Shopware()->Session()->RatePAY['bankdata']['account']);
                     $bankAccount->setBankCode(Shopware()->Session()->RatePAY['bankdata']['bankcode']);
                     $bankAccount->setBankName(Shopware()->Session()->RatePAY['bankdata']['bankname']);
@@ -174,7 +175,8 @@
             $gender = 'U';
             if ($shopBillingAddress->getSalutation() === 'mr') {
                 $gender = 'M';
-            } else if ($shopBillingAddress->getSalutation() === 'ms.') {
+            }
+            else if ($shopBillingAddress->getSalutation() === 'ms.') {
                 $gender = 'F';
             }
             $customer->setGender($gender);
@@ -254,7 +256,7 @@
             $head->setOperation('PROFILE_REQUEST');
             $head->setProfileId($config->get('RatePayProfileID'));
             $head->setSecurityCode($config->get('RatePaySecurityCode'));
-            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
+            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1") ? : $_SERVER['SERVER_ADDR']);
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
             $profileRequestModel->setHead($head);
@@ -272,7 +274,7 @@
             $head->setOperation('CONFIRMATION_DELIVER');
             $head->setProfileId($config->get('RatePayProfileID'));
             $head->setSecurityCode($config->get('RatePaySecurityCode'));
-            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
+            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1") ? : $_SERVER['SERVER_ADDR']);
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
             $confirmationDeliveryModel->setHead($head);
@@ -292,7 +294,7 @@
             $head->setTransactionId($this->_transactionId);
             $head->setProfileId($config->get('RatePayProfileID'));
             $head->setSecurityCode($config->get('RatePaySecurityCode'));
-            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1")? : $_SERVER['SERVER_ADDR']);
+            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1") ? : $_SERVER['SERVER_ADDR']);
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
 
@@ -346,7 +348,8 @@
             $gender = 'U';
             if ($shopBillingAddress->getSalutation() === 'mr') {
                 $gender = 'M';
-            } else if ($shopBillingAddress->getSalutation() === 'ms.') {
+            }
+            else if ($shopBillingAddress->getSalutation() === 'ms.') {
                 $gender = 'F';
             }
             $customer->setGender($gender);
@@ -356,8 +359,8 @@
             $customer->setIpAddress($this->_getCustomerIP());
 
             $order = Shopware()->Db()->fetchRow("SELECT `name`,`currency` FROM `s_order` "
-            . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
-            . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+                . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
+                . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
 
             $payment = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Payment();
             $payment->setMethod(Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod($order['name']));
@@ -379,7 +382,8 @@
             $basket = Shopware()->Session()->sOrderVariables['sBasket'];
             if (!empty($user['additional']['charge_vat'])) {
                 return empty($basket['AmountWithTaxNumeric']) ? $basket['AmountNumeric'] : $basket['AmountWithTaxNumeric'];
-            } else {
+            }
+            else {
                 return $basket['AmountNetNumeric'];
             }
         }
@@ -389,6 +393,7 @@
          *
          * @param string $amount
          * @param string $tax
+         *
          * @return \Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item
          */
         private function getShippingAsItem($amount, $tax)
@@ -399,6 +404,7 @@
             $item->setQuantity(1);
             $item->setTaxRate($tax);
             $item->setUnitPriceGross($amount);
+
             return $item;
         }
 
@@ -412,9 +418,10 @@
             $returnValue = null;
             if (!empty($this->_transactionId)) {
                 $returnValue = Shopware()->Db()->fetchOne("SELECT `ordernumber` FROM `s_order` "
-                . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
-                . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+                    . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
+                    . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
             }
+
             return $returnValue;
         }
 
@@ -426,6 +433,7 @@
         private function _getVersion()
         {
             $boostrap = new Shopware_Plugins_Frontend_RpayRatePay_Bootstrap();
+
             return Shopware()->Config()->get('version') . '_' . $boostrap->getVersion();
         }
 
@@ -439,9 +447,11 @@
             $customerIp = null;
             if (!is_null(Shopware()->Front())) {
                 $customerIp = Shopware()->Front()->Request()->getClientIp();
-            }else{
-                $customerIp = Shopware()->Db()->fetchOne("SELECT `remote_addr` FROM `s_order` WHERE `transactionID`=".$this->_transactionId);
             }
+            else {
+                $customerIp = Shopware()->Db()->fetchOne("SELECT `remote_addr` FROM `s_order` WHERE `transactionID`=" . $this->_transactionId);
+            }
+
             return $customerIp;
         }
 

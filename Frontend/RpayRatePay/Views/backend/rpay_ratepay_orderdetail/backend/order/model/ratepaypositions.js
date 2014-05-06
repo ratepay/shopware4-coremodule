@@ -17,16 +17,16 @@
  * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 Ext.define('Shopware.apps.Order.model.ratepaypositions', {
-    extend : 'Ext.data.Model',
-    fields: [ 'name','articleID', 'articleordernumber', 'price', 'quantity', 'quantityDeliver','quantityReturn', 'delivered', 'cancelled', 'returned', 'tax_rate' ],
-    proxy : {
-        type : 'ajax',
-        api:{
-            read:   '{url controller=RpayRatepayOrderDetail action=loadPositionStore}'
+    extend: 'Ext.data.Model',
+    fields: [ 'name', 'articleID', 'articleordernumber', 'price', 'quantity', 'quantityDeliver', 'quantityReturn', 'delivered', 'cancelled', 'returned', 'tax_rate' ],
+    proxy: {
+        type: 'ajax',
+        api: {
+            read: '{url controller=RpayRatepayOrderDetail action=loadPositionStore}'
         },
-        reader : {
-            type : 'json',
-            root : 'data',
+        reader: {
+            type: 'json',
+            root: 'data',
             totalProperty: 'total'
         }
     }

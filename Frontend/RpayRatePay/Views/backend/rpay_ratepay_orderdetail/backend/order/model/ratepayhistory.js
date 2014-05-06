@@ -17,16 +17,16 @@
  * @copyright  Copyright (c) 2013 RatePAY GmbH (http://www.ratepay.com)
  */
 Ext.define('Shopware.apps.Order.model.ratepayhistory', {
-    extend : 'Ext.data.Model',
+    extend: 'Ext.data.Model',
     fields: [ 'date', 'event', 'articlename', 'articlenumber', 'quantity'],
-    proxy : {
-        type : 'ajax',
-        api:{
-            read:   '{url controller=RpayRatepayOrderDetail action=loadHistoryStore}'
+    proxy: {
+        type: 'ajax',
+        api: {
+            read: '{url controller=RpayRatepayOrderDetail action=loadHistoryStore}'
         },
-        reader : {
-            type : 'json',
-            root : 'data'
+        reader: {
+            type: 'json',
+            root: 'data'
         }
     }
 });

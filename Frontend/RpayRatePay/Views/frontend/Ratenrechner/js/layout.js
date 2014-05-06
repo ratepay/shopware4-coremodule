@@ -11,15 +11,15 @@ function switchRateOrRuntime(mode) {
     if (mode == 'rate') {
         document.getElementById('piRpSwitchToTerm').className = 'piRpActive';
         document.getElementById('piRpSwitchToRuntime').className = '';
-        document.getElementById('piRpChooseInputRate').style.backgroundImage = "url("+pi_ratepay_rate_calc_path+"images/arrow_dark.png)";  
-        document.getElementById('piRpChooseInputRuntime').style.backgroundImage = "url("+pi_ratepay_rate_calc_path+"images/arrow.png)";  
+        document.getElementById('piRpChooseInputRate').style.backgroundImage = "url(" + pi_ratepay_rate_calc_path + "images/arrow_dark.png)";
+        document.getElementById('piRpChooseInputRuntime').style.backgroundImage = "url(" + pi_ratepay_rate_calc_path + "images/arrow.png)";
         document.getElementById('piRpContentTerm').style.display = 'block';
         document.getElementById('piRpContentRuntime').style.display = 'none';
     } else if (mode == 'runtime') {
         document.getElementById('piRpSwitchToRuntime').className = 'piRpActive';
         document.getElementById('piRpSwitchToTerm').className = '';
-        document.getElementById('piRpChooseInputRate').style.backgroundImage = "url("+pi_ratepay_rate_calc_path+"images/arrow.png)";  
-        document.getElementById('piRpChooseInputRuntime').style.backgroundImage = "url("+pi_ratepay_rate_calc_path+"images/arrow_dark.png)";  
+        document.getElementById('piRpChooseInputRate').style.backgroundImage = "url(" + pi_ratepay_rate_calc_path + "images/arrow.png)";
+        document.getElementById('piRpChooseInputRuntime').style.backgroundImage = "url(" + pi_ratepay_rate_calc_path + "images/arrow_dark.png)";
         document.getElementById('piRpContentRuntime').style.display = 'block';
         document.getElementById('piRpContentTerm').style.display = 'none';
     }

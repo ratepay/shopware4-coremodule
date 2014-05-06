@@ -18,33 +18,35 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
      * Define that the additional information is an Ext.panel.Panel extension
      * @string
      */
-    extend:'Ext.grid.Panel',
-    autoScroll:true,
-    layout:'fit',
+    extend: 'Ext.grid.Panel',
+    autoScroll: true,
+    layout: 'fit',
     plugins: Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
     }),
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
         var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
         var id = this.record.get('id');
 
         me.store = positionStore.load({
-            params:{
+            params: {
                 'orderId': id
             }
         });
-        me.columns =  {
+        me.columns = {
             items: me.getColumns(),
             defaults: {
                 flex: 1
             }
         };
-        me.dockedItems = [{
-            xtype: 'toolbar',
-            dock: 'top',
-            items: me.getToolbar()
-        }];
+        me.dockedItems = [
+            {
+                xtype: 'toolbar',
+                dock: 'top',
+                items: me.getToolbar()
+            }
+        ];
 
         me.callParent(arguments);
     },
@@ -54,192 +56,195 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
      *
      * @return [array] grid columns
      */
-    getColumns:function () {
+    getColumns: function () {
         return [
-        {
-            header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
-            dataIndex: 'quantityDeliver',
-            editor: {
-                xtype: 'numberfield',
-                hideTrigger : false,
-                allowBlank: false,
-                allowDecimals : false,
-                minValue: 0
-            }
-        },
-        {
-            header: '{s namespace=RatePAY name=articlename}Artikelname{/s}',
-            dataIndex: 'name'
-        },
-        {
-            header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
-            dataIndex: 'articleordernumber'
-        },
-        {
-            header: '{s namespace=RatePAY name=price}Preis{/s}',
-            dataIndex: 'price',
-            renderer: Ext.util.Format.numberRenderer('0.00')
-        },
-        {
-            header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',
-            dataIndex: 'quantity'
-        },
-        {
-            header: '{s namespace=RatePAY name=delivered}Versand{/s}',
-            dataIndex: 'delivered'
-        },
-        {
-            header: '{s namespace=RatePAY name=cancelled}Storniert{/s}',
-            dataIndex: 'cancelled'
-        },
-        {
-            header: '{s namespace=RatePAY name=returned}Retourniert{/s}',
-            dataIndex: 'returned'
-        },
+            {
+                header: '{s namespace=RatePAY name=quantity}Anzahl{/s}',
+                dataIndex: 'quantityDeliver',
+                editor: {
+                    xtype: 'numberfield',
+                    hideTrigger: false,
+                    allowBlank: false,
+                    allowDecimals: false,
+                    minValue: 0
+                }
+            },
+            {
+                header: '{s namespace=RatePAY name=articlename}Artikelname{/s}',
+                dataIndex: 'name'
+            },
+            {
+                header: '{s namespace=RatePAY name=articlenumber}Artikelnummer{/s}',
+                dataIndex: 'articleordernumber'
+            },
+            {
+                header: '{s namespace=RatePAY name=price}Preis{/s}',
+                dataIndex: 'price',
+                renderer: Ext.util.Format.numberRenderer('0.00')
+            },
+            {
+                header: '{s namespace=RatePAY name=ordered}Bestellt{/s}',
+                dataIndex: 'quantity'
+            },
+            {
+                header: '{s namespace=RatePAY name=delivered}Versand{/s}',
+                dataIndex: 'delivered'
+            },
+            {
+                header: '{s namespace=RatePAY name=cancelled}Storniert{/s}',
+                dataIndex: 'cancelled'
+            },
+            {
+                header: '{s namespace=RatePAY name=returned}Retourniert{/s}',
+                dataIndex: 'returned'
+            },
         ];
     },
 
-    getToolbar:function(){
+    getToolbar: function () {
         var me = this;
         var id = me.record.get('id');
         return [
-        {
-            text: '{s namespace=RatePAY name=setzero}Anzahl auf 0 setzen{/s}',
-            handler: function(){
-                var id = me.record.get('id');
-                var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
-                me.store = positionStore.load({
-                    params:{
-                        'orderId': id,
-                        'setToZero':true
-                    }
-                });
+            {
+                text: '{s namespace=RatePAY name=setzero}Anzahl auf 0 setzen{/s}',
+                handler: function () {
+                    var id = me.record.get('id');
+                    var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
+                    me.store = positionStore.load({
+                        params: {
+                            'orderId': id,
+                            'setToZero': true
+                        }
+                    });
 
-                me.reconfigure(me.store);
-            }
-        },
-        {
-            iconCls:'sprite-inbox--plus',
-            text: '{s namespace=RatePAY name=addarticle}Artikel hinzuf&uuml;gen{/s}',
-            handler: function(){
-                Ext.create('Shopware.apps.Order.view.detail.ratepayadditemwindow',{
-                    parent: me,
-                    record: me.record
-                }).show();
-            }
-        },
-        {
-            iconCls:'sprite-plus-circle-frame',
-            text: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
-            handler: function(){
-                Ext.create('Ext.window.Window', {
-                    title: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
-                    width: 200,
-                    height: 100,
-                    id:'creditWindow',
-                    resizable: false,
-                    layout:'fit',
-                    items:[
-                    {
-                        xtype: 'numberfield',
-                        id:'creditAmount',
-                        allowBlank: false,
-                        allowDecimals : true,
-                        minValue: 0.01,
-                        value:1.00
-                    }
-                    ],
-                    buttons: [{
-                        text:'{s namespace=RatePAY name=ok}Ok{/s}',
-                        handler: function(){
-                            var randomnumber=Math.floor(Math.random()* 10001);
-                            var creditname = 'Credit' + id + '-' + randomnumber;
-                            Ext.Ajax.request({
-                                url: '{url controller=Order action=savePosition}',
-                                method:'POST',
-                                async:false,
-                                params: {
-                                    orderId:id,
-                                    articleId:0,
-                                    articleName:creditname,
-                                    articleNumber:creditname,
-                                    id:0,
-                                    inStock:0,
-                                    mode:0,
-                                    price: Ext.getCmp('creditAmount').getValue() * -1,
-                                    quantity:1,
-                                    statusDescription:"",
-                                    statusId:0,
-                                    taxDescription:"",
-                                    taxId:1,
-                                    taxRate:0,
-                                    total:0
-                                },
-                                success: function(response){
-                                    var response = Ext.JSON.decode(response.responseText);
-                                    var articleNumber = new Array();
-                                    var insertedIds = new Array();
-                                    var message;
-                                    articleNumber.push(response.data.articleNumber);
-                                    insertedIds.push(response.data.id);
-                                    if(me.initPositions(articleNumber)){
-                                        if(me.paymentChange(id,'credit', insertedIds)){
-                                            message = '{s namespace=RatePAY name=messagecreditsuccess}Gutschein wurde erfolgreich zur Bestellung hinzugef&uuml;gt.{/s}';
-                                        }else{
-                                            me.deletePosition(insertedIds);
-                                            message = '{s namespace=RatePAY name=messagecreditfailrequest}Gutschein konnte nicht korrekt an RatePAY &uuml;bermittelt werden.{/s}';
+                    me.reconfigure(me.store);
+                }
+            },
+            {
+                iconCls: 'sprite-inbox--plus',
+                text: '{s namespace=RatePAY name=addarticle}Artikel hinzuf&uuml;gen{/s}',
+                handler: function () {
+                    Ext.create('Shopware.apps.Order.view.detail.ratepayadditemwindow', {
+                        parent: me,
+                        record: me.record
+                    }).show();
+                }
+            },
+            {
+                iconCls: 'sprite-plus-circle-frame',
+                text: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
+                handler: function () {
+                    Ext.create('Ext.window.Window', {
+                        title: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
+                        width: 200,
+                        height: 100,
+                        id: 'creditWindow',
+                        resizable: false,
+                        layout: 'fit',
+                        items: [
+                            {
+                                xtype: 'numberfield',
+                                id: 'creditAmount',
+                                allowBlank: false,
+                                allowDecimals: true,
+                                minValue: 0.01,
+                                value: 1.00
+                            }
+                        ],
+                        buttons: [
+                            {
+                                text: '{s namespace=RatePAY name=ok}Ok{/s}',
+                                handler: function () {
+                                    var randomnumber = Math.floor(Math.random() * 10001);
+                                    var creditname = 'Credit' + id + '-' + randomnumber;
+                                    Ext.Ajax.request({
+                                        url: '{url controller=Order action=savePosition}',
+                                        method: 'POST',
+                                        async: false,
+                                        params: {
+                                            orderId: id,
+                                            articleId: 0,
+                                            articleName: creditname,
+                                            articleNumber: creditname,
+                                            id: 0,
+                                            inStock: 0,
+                                            mode: 0,
+                                            price: Ext.getCmp('creditAmount').getValue() * -1,
+                                            quantity: 1,
+                                            statusDescription: "",
+                                            statusId: 0,
+                                            taxDescription: "",
+                                            taxId: 1,
+                                            taxRate: 0,
+                                            total: 0
+                                        },
+                                        success: function (response) {
+                                            var response = Ext.JSON.decode(response.responseText);
+                                            var articleNumber = new Array();
+                                            var insertedIds = new Array();
+                                            var message;
+                                            articleNumber.push(response.data.articleNumber);
+                                            insertedIds.push(response.data.id);
+                                            if (me.initPositions(articleNumber)) {
+                                                if (me.paymentChange(id, 'credit', insertedIds)) {
+                                                    message = '{s namespace=RatePAY name=messagecreditsuccess}Gutschein wurde erfolgreich zur Bestellung hinzugef&uuml;gt.{/s}';
+                                                } else {
+                                                    me.deletePosition(insertedIds);
+                                                    message = '{s namespace=RatePAY name=messagecreditfailrequest}Gutschein konnte nicht korrekt an RatePAY &uuml;bermittelt werden.{/s}';
+                                                }
+                                            } else {
+                                                message = '{s namespace=RatePAY name=messagecreditfailposition}Gutschein konnte nicht der Bestellung hinzugef&uuml;gt werden.{/s}';
+                                            }
+                                            Ext.getCmp('creditWindow').close();
+                                            Ext.Msg.alert('{s namespace=RatePAY name=messagecredittitle}Gutschein hinzuf&uuml;gen{/s}', message);
+                                            me.reloadGrid();
                                         }
-                                    }else{
-                                        message = '{s namespace=RatePAY name=messagecreditfailposition}Gutschein konnte nicht der Bestellung hinzugef&uuml;gt werden.{/s}';
-                                    }
-                                    Ext.getCmp('creditWindow').close();
-                                    Ext.Msg.alert('{s namespace=RatePAY name=messagecredittitle}Gutschein hinzuf&uuml;gen{/s}', message);
-                                    me.reloadGrid();
+                                    });
                                 }
-                            });
-                        }
-                    },{
-                        text:'{s namespace=RatePAY name=abort}Cancel{/s}',
-                        handler: function(){
-                            Ext.getCmp('creditWindow').close();
-                        }
-                    }]
-                }).show();
+                            },
+                            {
+                                text: '{s namespace=RatePAY name=abort}Cancel{/s}',
+                                handler: function () {
+                                    Ext.getCmp('creditWindow').close();
+                                }
+                            }
+                        ]
+                    }).show();
+                }
+            },
+            {
+                iconCls: 'sprite-truck',
+                text: '{s namespace=RatePAY name=deliver}Auswahl versenden{/s}',
+                handler: function () {
+                    me.toolbarDeliver();
+                }
+            },
+            {
+                iconCls: 'sprite-minus-circle-frame',
+                text: '{s namespace=RatePAY name=cancel}Auswahl stornieren{/s}',
+                handler: function () {
+                    me.toolbarCancel();
+                }
             }
-        },
-        {
-            iconCls:'sprite-truck',
-            text: '{s namespace=RatePAY name=deliver}Auswahl versenden{/s}',
-            handler: function(){
-                me.toolbarDeliver();
-            }
-        },
-        {
-            iconCls:'sprite-minus-circle-frame',
-            text: '{s namespace=RatePAY name=cancel}Auswahl stornieren{/s}',
-            handler: function(){
-                me.toolbarCancel();
-            }
-        }
         ];
     },
 
-    toolbarDeliver:function(){
+    toolbarDeliver: function () {
         var me = this;
         var items = new Array();
         var id = me.record.get('id');
         var error = false;
-        for(i=0;i< me.store.data.items.length;i++){
+        for (i = 0; i < me.store.data.items.length; i++) {
             var row = me.store.data.items[i].data;
             var item = new Object();
-            if(row.quantityDeliver >(row.quantity - row.delivered)){
+            if (row.quantityDeliver > (row.quantity - row.delivered)) {
                 error = true;
             }
             item['id'] = row.articleID;
             item['articlenumber'] = row.articleordernumber;
-            item['name'] =row.name;
-            item['price'] =row.price;
-            item['taxRate'] =row.tax_rate;
+            item['name'] = row.name;
+            item['price'] = row.price;
+            item['taxRate'] = row.tax_rate;
             item['quantity'] = row.quantityDeliver;
             item['delivered'] = row.delivered;
             item['returned'] = row.returned;
@@ -248,42 +253,42 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             items.push(item);
         }
 
-        if(error == true){
+        if (error == true) {
             Ext.Msg.alert('{s namespace=RatePAY name=messagedeliverytitle}Versand fehlgeschlagen{/s}',
-            '{s namespace=RatePAY name=messagedeliverytext}Es k&ouml;nnen nicht mehr Artikel versendet werden als bestellt wurden!{/s}');
+                '{s namespace=RatePAY name=messagedeliverytext}Es k&ouml;nnen nicht mehr Artikel versendet werden als bestellt wurden!{/s}');
             return false;
-        }else{
+        } else {
             Ext.Ajax.request({
                 url: '{url controller=RpayRatepayOrderDetail action=deliverItems}',
-                method:'POST',
-                async:false,
+                method: 'POST',
+                async: false,
                 params: {
-                    orderId:id,
-                    items:Ext.encode(items)
+                    orderId: id,
+                    items: Ext.encode(items)
                 },
-                success: function(){
+                success: function () {
                     me.reloadGrid();
                 }
             });
         }
 
     },
-    toolbarCancel: function(){
+    toolbarCancel: function () {
         var me = this;
         var items = new Array();
         var id = me.record.get('id');
         var error = false;
-        for(i=0;i< me.store.data.items.length;i++){
+        for (i = 0; i < me.store.data.items.length; i++) {
             var row = me.store.data.items[i].data;
             var item = new Object();
-            if(row.quantityDeliver > (row.quantity - row.cancelled)){
+            if (row.quantityDeliver > (row.quantity - row.cancelled)) {
                 error = true;
             }
             item['id'] = row.articleID;
             item['articlenumber'] = row.articleordernumber;
-            item['name'] =row.name;
-            item['price'] =row.price;
-            item['taxRate'] =row.tax_rate;
+            item['name'] = row.name;
+            item['price'] = row.price;
+            item['taxRate'] = row.tax_rate;
             item['quantity'] = row.quantity - row.quantityDeliver - row.cancelled - row.delivered;
             item['delivered'] = row.delivered;
             item['returned'] = row.returned;
@@ -292,32 +297,32 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             items.push(item);
         }
 
-        if(error == true){
+        if (error == true) {
             Ext.Msg.alert('{s namespace=RatePAY name=messagecanceltitle}Stornierung fehlgeschlagen{/s}',
-            '{s namespace=RatePAY name=messagecanceltext}Es k&ouml;nnen nicht mehr Artikel storniert werden als bestellt wurden!{/s}');
+                '{s namespace=RatePAY name=messagecanceltext}Es k&ouml;nnen nicht mehr Artikel storniert werden als bestellt wurden!{/s}');
             return false;
-        }else{
+        } else {
             Ext.Ajax.request({
                 url: '{url controller=RpayRatepayOrderDetail action=cancelItems}',
-                method:'POST',
-                async:false,
+                method: 'POST',
+                async: false,
                 params: {
-                    orderId:id,
-                    items:Ext.encode(items)
+                    orderId: id,
+                    items: Ext.encode(items)
                 },
-                success: function(){
+                success: function () {
                     me.reloadGrid();
                 }
             });
         }
     },
 
-    reloadGrid: function(){
+    reloadGrid: function () {
         var me = this;
         var id = me.record.get('id');
         var positionStore = Ext.create('Shopware.apps.Order.store.ratepaypositions');
         me.store = positionStore.load({
-            params:{
+            params: {
                 'orderId': id
             }
         });
@@ -325,19 +330,19 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         me.reconfigure(me.store);
     },
 
-    initPositions: function(articleNumber){
+    initPositions: function (articleNumber) {
         var returnValue = false;
         var me = this;
         var id = me.record.get('id');
         Ext.Ajax.request({
             url: '{url controller=RpayRatepayOrderDetail action=initPositions}',
-            method:'POST',
-            async:false,
+            method: 'POST',
+            async: false,
             params: {
-                orderID:id,
-                articleNumber:Ext.JSON.encode(articleNumber)
+                orderID: id,
+                articleNumber: Ext.JSON.encode(articleNumber)
             },
-            success: function(response){
+            success: function (response) {
                 var response = Ext.JSON.decode(response.responseText);
                 returnValue = response.success;
             }
@@ -345,38 +350,38 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
         return returnValue;
     },
 
-    paymentChange: function(id, suboperation, insertedIds){
+    paymentChange: function (id, suboperation, insertedIds) {
         var returnValue = false;
         Ext.Ajax.request({
             url: '{url controller=RpayRatepayOrderDetail action=add}',
-            method:'POST',
-            async:false,
+            method: 'POST',
+            async: false,
             params: {
-                orderId:id,
+                orderId: id,
                 suboperation: suboperation,
-                insertedIds:Ext.JSON.encode(insertedIds)
+                insertedIds: Ext.JSON.encode(insertedIds)
             },
-            success: function(response){
+            success: function (response) {
                 var response = Ext.JSON.decode(response.responseText);
                 returnValue = response.result;
             }
         });
         return returnValue;
     },
-    deletePosition: function(id){
+    deletePosition: function (id) {
         var me = this;
         var orderid = me.record.get('id');
         var result = false;
         Ext.Ajax.request({
             url: '{url controller=Order action=deletePosition targetField=positions}',
-            method:'POST',
-            async:false,
+            method: 'POST',
+            async: false,
             params: {
-                orderID:orderid,
+                orderID: orderid,
                 id: id,
                 valid: true
             },
-            success: function(response){
+            success: function (response) {
                 var response = Ext.JSON.decode(response.responseText);
                 result = response.success;
             }

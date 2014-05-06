@@ -8,7 +8,7 @@
 <script type="text/javascript" src="{link file='frontend/Ratenrechner/js/ajax.js' fullPath}"></script>
 <div id="pirpmain-cont" name="pirpratenrechnerContent"></div>
 <script type="text/javascript">
-    if(document.getElementById('pirpmain-cont')) {
-    piLoadrateCalculator();
-}
+    if (document.getElementById('pirpmain-cont')) {
+        piLoadrateCalculator();
+    }
 </script>

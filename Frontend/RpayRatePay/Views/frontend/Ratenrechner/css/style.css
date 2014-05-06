@@ -1,11 +1,12 @@
 @charset "utf-8";
 
-#piprmain-cont h1,#piprmain-cont h2,#piprmain-cont td,#piprmain-cont th{
+#piprmain-cont h1, #piprmain-cont h2, #piprmain-cont td, #piprmain-cont th {
     color: black;
 }
+
 /* reset */
 #pirpmain-cont, #pirpmain-cont div, #pirpmain-cont span, #pirpmain-cont p, #pirpmain-cont input, #pirpmain-cont select, #pirpmain-cont h2, #pirpmain-cont table, #pirpmain-cont td {
-    font: 13px  Tahoma;
+    font: 13px Tahoma;
     line-height: 17px;
     text-align: left;
 }
@@ -23,47 +24,51 @@
 }
 
 #pirpmain-cont input.piRpInput-button {
-    width:173px;
-    color:#000;
-    background:#f2c551;
-    border:2px solid #f2c551;
+    width: 173px;
+    color: #000;
+    background: #f2c551;
+    border: 2px solid #f2c551;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
-    font-weight:bold;
-    cursor:pointer;
-    position:relative;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
     text-align: center;
     float: right;
     top: 8px;
-    right:5px;
+    right: 5px;
     margin-left: 15px;
 }
+
 #pirpmain-cont input.piRpInput-button2 {
-    width:173px;
-    color:#000;
-    background:#f2c551;
-    border:2px solid #f2c551;
+    width: 173px;
+    color: #000;
+    background: #f2c551;
+    border: 2px solid #f2c551;
     border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
-    font-weight:bold;
-    cursor:pointer;
-    position:relative;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
     text-align: center;
     float: right;
     top: 4px;
-    right:5px;
+    right: 5px;
 }
+
 #pirpmain-cont input.piRpInput-button:hover {
-    background-color:#f2B551;
-    border:2px solid #f2C551;
+    background-color: #f2B551;
+    border: 2px solid #f2C551;
 }
+
 #pirpmain-cont input.piRpInput-button2:hover {
-    background-color:#f2B551;
-    border:2px solid #f2C551;
+    background-color: #f2B551;
+    border: 2px solid #f2C551;
 }
-#runtime{
+
+#runtime {
     margin: 0 0 0 15px;
 }
 
@@ -102,18 +107,19 @@ div#piRpContentSwitch {
     display: none;
 }
 
-#pirpmain-cont #piRpDueDate{
+#pirpmain-cont #piRpDueDate {
 }
 
-#pirpmain-cont #debitSelect{
+#pirpmain-cont #debitSelect {
     float: right;
     font-size: 100%;
     margin: 0 3px 0 0;
     text-align: left;
     width: 167px;
-    height:60px;
+    height: 60px;
 }
-#pirpmain-cont .piRpDueText{
+
+#pirpmain-cont .piRpDueText {
     float: left;
     margin-top: 10px;
     width: auto;
@@ -147,11 +153,11 @@ div#piRpContentSwitch {
 }
 
 #piRpContentTerm {
-    display:none;
+    display: none;
 }
 
 #piRpContentRuntime {
-    display:none;
+    display: none;
 }
 
 #pirpmain-cont .piRpContent select, #pirpmain-cont .piRpContent input.piRpInput-amount {
@@ -183,6 +189,7 @@ div#piRpContentSwitch {
     color: black;
     margin-top: 10px;
 }
+
 /* RatePAY Calculator Result */
 #pirpmain-cont #piRpResult2 {
     background: none repeat scroll 0 0 #fefefe;
@@ -219,18 +226,21 @@ div#piRpContentSwitch {
     padding-left: 5px;
 }
 
-#piRpResult table{
+#piRpResult table {
     border: none;
 }
-#piRpResult2 table{
+
+#piRpResult2 table {
     border: none;
 }
-#piInstallmentTerms table,#piInstallmentTerms td,#piInstallmentTerms th {
+
+#piInstallmentTerms table, #piInstallmentTerms td, #piInstallmentTerms th {
     border: none;
     padding: 0px;
 }
+
 #piInstallmentTerms th {
-    padding-left:10px;
+    padding-left: 10px;
     text-align: left;
     width: 240px;
     border: none;
@@ -289,7 +299,7 @@ table#piInstallmentTerms {
     width: 415px !important;
 }
 
-#pirpmain-cont .piRpH2{
+#pirpmain-cont .piRpH2 {
     color: black;
     float: left;
     font-size: 18px;
@@ -297,49 +307,51 @@ table#piInstallmentTerms {
     margin: 20px 0 0 10px;
 }
 
-#pirpmain-cont .piRpLogoText{
+#pirpmain-cont .piRpLogoText {
     float: right;
     font-size: 10px;
     padding-right: 5px;
     margin-top: -3px;
 }
-.piRpFullWidth{
+
+.piRpFullWidth {
     width: 100%;
     height: 20px;
 }
 
-#pirpmain-cont .piRpChooseRuntime{
+#pirpmain-cont .piRpChooseRuntime {
     border: 1px solid;
     font-size: 95%;
     padding: 10px;
 }
-.piRpFloatLeft{
+
+.piRpFloatLeft {
     float: left;
 }
 
-.piRpNintyPercentWidth{
+.piRpNintyPercentWidth {
     padding-top: 13px;
     width: 90%;
 }
 
-#pirpmain-cont .piRpChooseInput{
+#pirpmain-cont .piRpChooseInput {
     background: url("../images/arrow.png") no-repeat scroll 0 0 transparent;
     float: left;
     height: 40px;
     padding-left: 13px;
 }
 
-
-#pirpmain-cont .piRpChooseInput Input{
+#pirpmain-cont .piRpChooseInput Input {
     margin-top: 13px;
 }
 
-#debitSelect{
+#debitSelect {
     padding: 2px;
-    width:123px;
+    width: 123px;
     margin: 0px;
 }
-.piRpMouseoverInfo{
+
+.piRpMouseoverInfo {
     background-color: #263552;
     color: white;
     border: 1px solid black;
@@ -353,54 +365,58 @@ table#piInstallmentTerms {
     max-width: 350px;
     padding: 5px;
 }
-.piRpInfoImg{
+
+.piRpInfoImg {
     width: 12px;
     height: 12px;
 }
-.piRpInfoImgDiv{
+
+.piRpInfoImgDiv {
     float: left;
     height: 16px;
     padding: 2px 3px;
     width: 16px;
 }
 
-#pirpmain-cont .piRpCalculationText{
+#pirpmain-cont .piRpCalculationText {
     font-size: 85%;
     padding-top: 15px;
 }
-.piRpRelativePosition{
+
+.piRpRelativePosition {
     position: relative;
 }
 
-
-.piRpyellow{
+.piRpyellow {
     background-color: #F2C551;
 }
 
-#piInstallmentTerms td.piRpPercentWidth{
+#piInstallmentTerms td.piRpPercentWidth {
     width: 250px;
 }
-.piRpMarginTop{
+
+.piRpMarginTop {
     margin-top: 10px;
 
 }
 
-#piInstallmentTerms .piRpPaddingBottom{
+#piInstallmentTerms .piRpPaddingBottom {
     padding-bottom: 10px;
 }
-#piInstallmentTerms .piRpPaddingRight{
+
+#piInstallmentTerms .piRpPaddingRight {
     padding-right: 10px;
 }
 
-#piInstallmentTerms .piRpPaddingLeft{
+#piInstallmentTerms .piRpPaddingLeft {
     padding-left: 10px;
 }
 
-#piInstallmentTerms .piRpPaddingTop{
+#piInstallmentTerms .piRpPaddingTop {
     padding-top: 10px;
 }
 
-#piRpContentRuntime option{
+#piRpContentRuntime option {
     border-right: 1px solid #ccc;
     padding-left: 8px;
     padding-top: 2px;
@@ -408,33 +424,36 @@ table#piInstallmentTerms {
     text-align: left;
 }
 
-#pirpmain-cont .piRpVertAlignMiddle{
+#pirpmain-cont .piRpVertAlignMiddle {
     vertical-align: middle;
 }
 
-#piInstallmentTerms .piRpPercentWith{
+#piInstallmentTerms .piRpPercentWith {
     float: left;
     text-align: right;
     width: 50px;
 }
-#piInstallmentTerms .piRpTextAlignLeft{
+
+#piInstallmentTerms .piRpTextAlignLeft {
     text-align: left;
 }
-#piInstallmentTerms #piInstallmentThirdTd{
+
+#piInstallmentTerms #piInstallmentThirdTd {
     width: 10px;
 }
 
-#pirpmain-cont .piRpContent .piRpDueDateSelect{
+#pirpmain-cont .piRpContent .piRpDueDateSelect {
     float: right;
     width: 167px;
-    height:60px;
+    height: 60px;
 }
-#pirpmain-cont .piRpContent .piRpDueDateSelect option{
+
+#pirpmain-cont .piRpContent .piRpDueDateSelect option {
     border-right: 0px solid;
 }
 
-#pirpmain-cont input.ajaxloader{
-    background: url("../images/ajaxloader.gif")no-repeat 140px 1px #f2B551;
+#pirpmain-cont input.ajaxloader {
+    background: url("../images/ajaxloader.gif") no-repeat 140px 1px #f2B551;
 }
 
 #debitSelectRuntime option {

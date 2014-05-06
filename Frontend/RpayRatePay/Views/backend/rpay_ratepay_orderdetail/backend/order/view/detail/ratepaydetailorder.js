@@ -21,23 +21,23 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydetailorder', {
         var me = this;
         var tabPanel = me.callParent(arguments);
 
-        if(me.isRatePAYOrder()){
+        if (me.isRatePAYOrder()) {
             tabPanel = me.createRatePAYTabPanel();
         }
         return tabPanel;
     },
-    isRatePAYOrder: function(){
+    isRatePAYOrder: function () {
         var me = this;
         var paymentName = '';
-        for(i=0;i< me.paymentsStore.data.items.length;i++){
-            if(me.paymentsStore.data.items[i].data.id == this.record.get('paymentId')){
+        for (i = 0; i < me.paymentsStore.data.items.length; i++) {
+            if (me.paymentsStore.data.items[i].data.id == this.record.get('paymentId')) {
                 paymentName = me.paymentsStore.data.items[i].data.name;
             }
         }
 
-        if(paymentName.search(/^rpayratepay(invoice|rate|debit)$/) != -1){
+        if (paymentName.search(/^rpayratepay(invoice|rate|debit)$/) != -1) {
             return true;
-        }else{
+        } else {
             return false;
         }
     },
@@ -46,50 +46,50 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydetailorder', {
      * Creates the tab panel for the detail page.
      * @return Ext.tab.Panel
      */
-    createRatePAYTabPanel: function() {
+    createRatePAYTabPanel: function () {
         var me = this;
 
         return Ext.create('Ext.tab.Panel', {
             name: 'main-tab',
             items: [
-            Ext.create('Shopware.apps.Order.view.detail.Overview', {
-                title: me.snippets.overview,
-                record: me.record,
-                orderStatusStore: me.orderStatusStore,
-                paymentStatusStore:  me.paymentStatusStore
-            }), Ext.create('Shopware.apps.Order.view.detail.Detail',{
-                title: me.snippets.details,
-                record: me.record,
-                paymentsStore: me.paymentsStore,
-                shopsStore: me.shopsStore,
-                countriesStore: me.countriesStore
-            }), Ext.create('Shopware.apps.Order.view.detail.Communication',{
-                title: me.snippets.communication,
-                record: me.record
-            }), Ext.create('Shopware.apps.Order.view.detail.Document',{
-                record: me.record,
-                documentTypesStore: me.documentTypesStore
-            }), Ext.create('Shopware.apps.Order.view.detail.OrderHistory', {
-                title: me.snippets.history,
-                historyStore: me.historyStore,
-                record: me.record,
-                orderStatusStore: me.orderStatusStore,
-                paymentStatusStore:  me.paymentStatusStore
-            }), Ext.create('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
-                title: '{s namespace=RatePAY name=tabarticlemanagement}Artikelverwaltung{/s}',
-                record: me.record,
-                orderStatusStore: me.orderStatusStore,
-                paymentStatusStore:  me.paymentStatusStore
-            }), Ext.create('Shopware.apps.Order.view.detail.ratepaylog', {
-                title: '{s namespace=RatePAY name=tablog}RatePAY Log{/s}',
-                record: me.record
-            }),Ext.create('Shopware.apps.Order.view.detail.ratepayhistory', {
-                title: '{s namespace=RatePAY name=tabhistory}RatePAY History{/s}',
-                historyStore: me.historyStore,
-                record: me.record,
-                orderStatusStore: me.orderStatusStore,
-                paymentStatusStore:  me.paymentStatusStore
-            })
+                Ext.create('Shopware.apps.Order.view.detail.Overview', {
+                    title: me.snippets.overview,
+                    record: me.record,
+                    orderStatusStore: me.orderStatusStore,
+                    paymentStatusStore: me.paymentStatusStore
+                }), Ext.create('Shopware.apps.Order.view.detail.Detail', {
+                    title: me.snippets.details,
+                    record: me.record,
+                    paymentsStore: me.paymentsStore,
+                    shopsStore: me.shopsStore,
+                    countriesStore: me.countriesStore
+                }), Ext.create('Shopware.apps.Order.view.detail.Communication', {
+                    title: me.snippets.communication,
+                    record: me.record
+                }), Ext.create('Shopware.apps.Order.view.detail.Document', {
+                    record: me.record,
+                    documentTypesStore: me.documentTypesStore
+                }), Ext.create('Shopware.apps.Order.view.detail.OrderHistory', {
+                    title: me.snippets.history,
+                    historyStore: me.historyStore,
+                    record: me.record,
+                    orderStatusStore: me.orderStatusStore,
+                    paymentStatusStore: me.paymentStatusStore
+                }), Ext.create('Shopware.apps.Order.view.detail.ratepayarticlemanagement', {
+                    title: '{s namespace=RatePAY name=tabarticlemanagement}Artikelverwaltung{/s}',
+                    record: me.record,
+                    orderStatusStore: me.orderStatusStore,
+                    paymentStatusStore: me.paymentStatusStore
+                }), Ext.create('Shopware.apps.Order.view.detail.ratepaylog', {
+                    title: '{s namespace=RatePAY name=tablog}RatePAY Log{/s}',
+                    record: me.record
+                }), Ext.create('Shopware.apps.Order.view.detail.ratepayhistory', {
+                    title: '{s namespace=RatePAY name=tabhistory}RatePAY History{/s}',
+                    historyStore: me.historyStore,
+                    record: me.record,
+                    orderStatusStore: me.orderStatusStore,
+                    paymentStatusStore: me.paymentStatusStore
+                })
             ]
         });
     }
