@@ -121,6 +121,12 @@
             $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
             $customer = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer();
 
+            // set merchant customer id if available
+            if($shopUser->getBilling()->getNumber() !== null)
+            {
+                $head->setMerchantConsumerId($shopUser->getBilling()->getNumber());
+            }
+
             $shopBillingAddress = $shopUser->getBilling();
             $billingAddress = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Address();
             $billingAddress->setFirstName($shopBillingAddress->getFirstName());
@@ -223,6 +229,7 @@
             $paymentRequestModel->setCustomer($customer);
             $paymentRequestModel->setPayment($payment);
             $paymentRequestModel->setShoppingBasket($basket);
+
         }
 
         /**

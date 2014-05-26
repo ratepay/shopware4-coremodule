@@ -58,7 +58,12 @@
         /**
          * @var string
          */
-        private $_orderId;
+        private $_orderId = null;
+
+        /**
+         * @var $merchantConsumerId
+         */
+        private $_merchantConsumerId = null;
 
         /**
          * This function returns the value of $_systemId
@@ -221,12 +226,29 @@
         }
 
         /**
+         * This function returns the value of $_merchantConsumerId
+         *
+         * @return string
+         */
+        public function getMerchantConsumerId()
+        {
+            return $this->_merchantConsumerId;
+        }
+
+        public function setMerchantConsumerId($merchantConsumerId)
+        {
+
+            $this->_merchantConsumerId = $merchantConsumerId;
+        }
+
+        /**
          * This function returns all values as Array
          *
          * @return array
          */
         public function toArray()
         {
+
             $return = array(
                 'system-id'  => $this->getSystemId(),
                 'operation'  => $this->getOperation(),
@@ -245,6 +267,9 @@
             );
             if ($this->_orderId != null) {
                 $return['external']['order-id'] = $this->getOrderId();
+            }
+            if ($this->_merchantConsumerId ==! null) {
+                $return['external']['merchant-consumer-id'] = $this->getMerchantConsumerId();
             }
             if ($this->_transactionId != null) {
                 $return['transaction-id'] = $this->getTransactionId();
