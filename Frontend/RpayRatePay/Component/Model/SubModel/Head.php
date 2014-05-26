@@ -61,7 +61,7 @@
         private $_orderId = null;
 
         /**
-         * @var $merchantConsumerId
+         * @var string
          */
         private $_merchantConsumerId = null;
 
@@ -235,6 +235,11 @@
             return $this->_merchantConsumerId;
         }
 
+        /**
+         * This function sets the value for $_merchantConsumerId
+         *
+         * @param string $merchantConsumerId
+         */
         public function setMerchantConsumerId($merchantConsumerId)
         {
 
