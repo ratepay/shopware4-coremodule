@@ -72,7 +72,7 @@
          */
         public function getVersion()
         {
-            return "3.1.6";
+            return "3.2.0";
         }
 
         /**
@@ -259,29 +259,29 @@
                 "`id` int(11) NOT NULL AUTO_INCREMENT," .
                 "`date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," .
                 "`version` varchar(10) DEFAULT 'N/A'," .
-                "`operation` varchar(50) DEFAULT 'N/A'," .
-                "`suboperation` varchar(50) DEFAULT 'N/A'," .
-                "`transactionId` varchar(50) DEFAULT 'N/A'," .
-                "`firstname` varchar(100) DEFAULT 'N/A'," .
-                "`lastname` varchar(100) DEFAULT 'N/A'," .
+                "`operation` varchar(255) DEFAULT 'N/A'," .
+                "`suboperation` varchar(255) DEFAULT 'N/A'," .
+                "`transactionId` varchar(255) DEFAULT 'N/A'," .
+                "`firstname` varchar(255) DEFAULT 'N/A'," .
+                "`lastname` varchar(255) DEFAULT 'N/A'," .
                 "`request` text," .
                 "`response` text," .
                 "PRIMARY KEY (`id`)" .
-                ")";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlBankdata = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_user_bankdata` (" .
                 "`userID` int(11) NOT NULL AUTO_INCREMENT," .
-                "`bankname` varchar(200) NOT NULL," .
-                "`bankcode` varchar(200) NOT NULL," .
-                "`bankholder` varchar(200) NOT NULL," .
-                "`account` varchar(200) NOT NULL," .
-                "`iban` varchar(200) NOT NULL," .
-                "`bic` varchar(200) NOT NULL," .
+                "`bankname` varchar(255) NOT NULL," .
+                "`bankcode` varchar(255) NOT NULL," .
+                "`bankholder` varchar(255) NOT NULL," .
+                "`account` varchar(255) NOT NULL," .
+                "`iban` varchar(255) NOT NULL," .
+                "`bic` varchar(255) NOT NULL," .
                 "PRIMARY KEY (`userID`)" .
-                ")";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlConfig = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_config` (" .
-                "`profileId` varchar(500) NOT NULL," .
+                "`profileId` varchar(255) NOT NULL," .
                 "`invoiceStatus` int(1) NOT NULL, " .
                 "`debitStatus` int(1) NOT NULL, " .
                 "`rateStatus` int(1) NOT NULL, " .
@@ -298,23 +298,23 @@
                 "`limit-debit-max` int(5) NOT NULL, " .
                 "`limit-rate-max` int(5) NOT NULL, " .
                 "PRIMARY KEY (`profileId`)" .
-                ")";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlOrderPositions = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_order_positions` (" .
-                "`s_order_details_id` int NOT NULL," .
+                "`s_order_details_id` int(11) NOT NULL," .
                 "`delivered` int NOT NULL DEFAULT 0, " .
                 "`cancelled` int NOT NULL DEFAULT 0, " .
                 "`returned` int NOT NULL DEFAULT 0, " .
                 "PRIMARY KEY (`s_order_details_id`)" .
-                ")";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlOrderShipping = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_order_shipping` (" .
-                "`s_order_id` int NOT NULL," .
+                "`s_order_id` int(11) NOT NULL," .
                 "`delivered` int NOT NULL DEFAULT 0, " .
                 "`cancelled` int NOT NULL DEFAULT 0, " .
                 "`returned` int NOT NULL DEFAULT 0, " .
                 "PRIMARY KEY (`s_order_id`)" .
-                ")";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlOrderHistory = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_order_history` (" .
                 "`id` int(11) NOT NULL AUTO_INCREMENT," .
@@ -325,7 +325,7 @@
                 "`articlenumber` varchar(50), " .
                 "`quantity` varchar(50), " .
                 "PRIMARY KEY (`id`)" .
-                ")";
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
             try {
                 Shopware()->Db()->query($sqlBankdata);
                 Shopware()->Db()->query($sqlLogging);
