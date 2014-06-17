@@ -1,7 +1,12 @@
 <link type="text/css" rel="stylesheet" href="{link file='frontend/Ratenrechner/css/style.css' fullPath}"/>
 <script type="text/javascript">
     pi_ratepay_rate_calc_path = "{link file='frontend/Ratenrechner/' fullPath}";
-    pi_ratepay_rate_ajax_path = "{url controller="RpayRatepay" action=""}";
+    {if $smarty.server.HTTPS eq "on"}
+        pi_ratepay_rate_ajax_path = "{url controller="RpayRatepay" action="" forceSecure}";
+    {else}
+        pi_ratepay_rate_ajax_path = "{url controller="RpayRatepay" action=""}";
+    {/if}
+
 </script>
 <script type="text/javascript" src="{link file='frontend/Ratenrechner/js/mouseaction.js' fullPath}"></script>
 <script type="text/javascript" src="{link file='frontend/Ratenrechner/js/layout.js' fullPath}"></script>
