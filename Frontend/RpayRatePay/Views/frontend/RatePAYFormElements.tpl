@@ -69,7 +69,14 @@
                 $.ajax({
                     type: "POST",
                     async: false,
-                    url: "{url controller='RpayRatepay' action='saveUserData'}",
+                    
+                    {if $smarty.server.HTTPS eq "on"}
+                        url: "{url controller='RpayRatepay' action='saveUserData' forceSecure}",
+                    {else}
+                        url: "{url controller='RpayRatepay' action='saveUserData'}",
+                    {/if}
+
+
                     data: requestParams
                 }).done(function (msg) {
                             if (msg == 'OK') {
