@@ -106,6 +106,9 @@
                 '@amount'   => $this->getAmount(),
                 '@currency' => $this->getCurrency()
             );
+
+            $return['items'] = array();
+
             foreach ($this->getItems() as $item) {
                 $return['items'][] = $item->toArray();
             }
