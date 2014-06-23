@@ -84,8 +84,9 @@
          *
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit $paymentInitModel
          */
-        private function fillPaymentInit(Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit &$paymentInitModel)
-        {
+        private function fillPaymentInit(
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit &$paymentInitModel
+        ) {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PAYMENT_INIT');
@@ -102,10 +103,13 @@
          *
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest $paymentRequestModel
          */
-        private function fillPaymentRequest(Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest &$paymentRequestModel)
-        {
+        private function fillPaymentRequest(
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest &$paymentRequestModel
+        ) {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
-            $method = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod(Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']);
+            $method = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod(
+                Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']
+            );
             $encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
 
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
@@ -118,12 +122,14 @@
             $head->setOrderId($this->_getOrderIdFromTransactionId());
 
             $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
-            $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
+            $shopCountry = Shopware()->Models()->find(
+                'Shopware\Models\Country\Country',
+                $shopUser->getBilling()->getCountryId()
+            );
             $customer = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer();
 
             // set merchant customer id if available
-            if($shopUser->getBilling()->getNumber() !== null)
-            {
+            if (null !== $shopUser->getBilling()->getNumber()) {
                 $head->setMerchantConsumerId($shopUser->getBilling()->getNumber());
             }
 
@@ -142,7 +148,8 @@
             $customer->setBillingAddresses($billingAddress);
 
 
-            $shopShippingAddress = $shopUser->getShipping() !== null ? $shopUser->getShipping() : $shopUser->getBilling();
+            $shopShippingAddress = $shopUser->getShipping() !== null ? $shopUser->getShipping() : $shopUser->getBilling(
+            );
             $shippingAddress = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Address();
             $shippingAddress->setType('DELIVERY');
             $shippingAddress->setCountryCode($shopCountry->getIso());
@@ -162,8 +169,7 @@
                     $bankAccount->setBankCode($bankdata['bankcode']);
                     $bankAccount->setBankName($bankdata['bankname']);
                     $bankAccount->setOwner($bankdata['bankholder']);
-                }
-                else {
+                } else {
                     $bankAccount->setBankAccount(Shopware()->Session()->RatePAY['bankdata']['account']);
                     $bankAccount->setBankCode(Shopware()->Session()->RatePAY['bankdata']['bankcode']);
                     $bankAccount->setBankName(Shopware()->Session()->RatePAY['bankdata']['bankname']);
@@ -178,13 +184,14 @@
             $customer->setEmail($shopUser->getEmail());
             $customer->setFirstName($shopBillingAddress->getFirstName());
             $customer->setLastName($shopBillingAddress->getLastName());
+
             $gender = 'U';
             if ($shopBillingAddress->getSalutation() === 'mr') {
                 $gender = 'M';
-            }
-            else if ($shopBillingAddress->getSalutation() === 'ms.') {
+            } elseif ($shopBillingAddress->getSalutation() === 'ms') {
                 $gender = 'F';
             }
+
             $customer->setGender($gender);
             $customer->setSalutation($shopBillingAddress->getSalutation());
             $customer->setPhone($shopBillingAddress->getPhone());
@@ -220,7 +227,8 @@
             }
             if (Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'] > 0) {
                 $items[] = $this->getShippingAsItem(
-                    Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'], Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
+                    Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'],
+                    Shopware()->Session()->sOrderVariables['sBasket']['sShippingcostsTax']
                 );
             }
             $basket->setItems($items);
@@ -237,8 +245,9 @@
          *
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm $paymentConfirmModel
          */
-        private function fillPaymentConfirm(Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm &$paymentConfirmModel)
-        {
+        private function fillPaymentConfirm(
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm &$paymentConfirmModel
+        ) {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PAYMENT_CONFIRM');
@@ -256,14 +265,19 @@
          *
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest $profileRequestModel
          */
-        private function fillProfileRequest(Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest &$profileRequestModel)
-        {
+        private function fillProfileRequest(
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest &$profileRequestModel
+        ) {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PROFILE_REQUEST');
             $head->setProfileId($config->get('RatePayProfileID'));
             $head->setSecurityCode($config->get('RatePaySecurityCode'));
-            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1") ? : $_SERVER['SERVER_ADDR']);
+            $head->setSystemId(
+                Shopware()->Db()->fetchOne(
+                    "SELECT `host` FROM `s_core_shops` WHERE `default`=1"
+                ) ? : $_SERVER['SERVER_ADDR']
+            );
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
             $profileRequestModel->setHead($head);
@@ -274,14 +288,19 @@
          *
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery $confirmationDeliveryModel
          */
-        private function fillConfirmationDelivery(Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery &$confirmationDeliveryModel)
-        {
+        private function fillConfirmationDelivery(
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery &$confirmationDeliveryModel
+        ) {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('CONFIRMATION_DELIVER');
             $head->setProfileId($config->get('RatePayProfileID'));
             $head->setSecurityCode($config->get('RatePaySecurityCode'));
-            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1") ? : $_SERVER['SERVER_ADDR']);
+            $head->setSystemId(
+                Shopware()->Db()->fetchOne(
+                    "SELECT `host` FROM `s_core_shops` WHERE `default`=1"
+                ) ? : $_SERVER['SERVER_ADDR']
+            );
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
             $confirmationDeliveryModel->setHead($head);
@@ -292,8 +311,9 @@
          *
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange $paymentChangeModel
          */
-        private function fillPaymentChange(Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange &$paymentChangeModel)
-        {
+        private function fillPaymentChange(
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange &$paymentChangeModel
+        ) {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
@@ -301,14 +321,24 @@
             $head->setTransactionId($this->_transactionId);
             $head->setProfileId($config->get('RatePayProfileID'));
             $head->setSecurityCode($config->get('RatePaySecurityCode'));
-            $head->setSystemId(Shopware()->Db()->fetchOne("SELECT `host` FROM `s_core_shops` WHERE `default`=1") ? : $_SERVER['SERVER_ADDR']);
+            $head->setSystemId(
+                Shopware()->Db()->fetchOne(
+                    "SELECT `host` FROM `s_core_shops` WHERE `default`=1"
+                ) ? : $_SERVER['SERVER_ADDR']
+            );
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
 
-            $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `transactionID`=?", array($this->_transactionId));
+            $order = Shopware()->Db()->fetchRow(
+                "SELECT * FROM `s_order` WHERE `transactionID`=?",
+                array($this->_transactionId)
+            );
 
             $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', $order['userID']);
-            $shopCountry = Shopware()->Models()->find('Shopware\Models\Country\Country', $shopUser->getBilling()->getCountryId());
+            $shopCountry = Shopware()->Models()->find(
+                'Shopware\Models\Country\Country',
+                $shopUser->getBilling()->getCountryId()
+            );
             $customer = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Customer();
 
             $shopBillingAddress = $shopUser->getBilling();
@@ -326,7 +356,8 @@
             $customer->setBillingAddresses($billingAddress);
 
 
-            $shopShippingAddress = $shopUser->getShipping() === null ? $shopUser->getBilling() : $shopUser->getShipping();
+            $shopShippingAddress = $shopUser->getShipping() === null ? $shopUser->getBilling() : $shopUser->getShipping(
+            );
             $shippingAddress = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Address();
             $shippingAddress->setType('DELIVERY');
             $shippingAddress->setCountryCode($shopCountry->getIso());
@@ -355,9 +386,10 @@
             $gender = 'U';
             if ($shopBillingAddress->getSalutation() === 'mr') {
                 $gender = 'M';
-            }
-            else if ($shopBillingAddress->getSalutation() === 'ms.') {
-                $gender = 'F';
+            } else {
+                if ($shopBillingAddress->getSalutation() === 'ms.') {
+                    $gender = 'F';
+                }
             }
             $customer->setGender($gender);
             $customer->setSalutation($shopBillingAddress->getSalutation());
@@ -365,12 +397,17 @@
             $customer->setNationality($shopCountry->getIso());
             $customer->setIpAddress($this->_getCustomerIP());
 
-            $order = Shopware()->Db()->fetchRow("SELECT `name`,`currency` FROM `s_order` "
+            $order = Shopware()->Db()->fetchRow(
+                "SELECT `name`,`currency` FROM `s_order` "
                 . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
-                . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+                . "WHERE `s_order`.`transactionID`=?;",
+                array($this->_transactionId)
+            );
 
             $payment = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Payment();
-            $payment->setMethod(Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod($order['name']));
+            $payment->setMethod(
+                Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod($order['name'])
+            );
             $payment->setCurrency($order['currency']);
 
             $paymentChangeModel->setPayment($payment);
@@ -389,8 +426,7 @@
             $basket = Shopware()->Session()->sOrderVariables['sBasket'];
             if (!empty($user['additional']['charge_vat'])) {
                 return empty($basket['AmountWithTaxNumeric']) ? $basket['AmountNumeric'] : $basket['AmountWithTaxNumeric'];
-            }
-            else {
+            } else {
                 return $basket['AmountNetNumeric'];
             }
         }
@@ -424,9 +460,12 @@
         {
             $returnValue = null;
             if (!empty($this->_transactionId)) {
-                $returnValue = Shopware()->Db()->fetchOne("SELECT `ordernumber` FROM `s_order` "
+                $returnValue = Shopware()->Db()->fetchOne(
+                    "SELECT `ordernumber` FROM `s_order` "
                     . "INNER JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id` = `s_order`.`paymentID` "
-                    . "WHERE `s_order`.`transactionID`=?;", array($this->_transactionId));
+                    . "WHERE `s_order`.`transactionID`=?;",
+                    array($this->_transactionId)
+                );
             }
 
             return $returnValue;
@@ -454,9 +493,10 @@
             $customerIp = null;
             if (!is_null(Shopware()->Front())) {
                 $customerIp = Shopware()->Front()->Request()->getClientIp();
-            }
-            else {
-                $customerIp = Shopware()->Db()->fetchOne("SELECT `remote_addr` FROM `s_order` WHERE `transactionID`=" . $this->_transactionId);
+            } else {
+                $customerIp = Shopware()->Db()->fetchOne(
+                    "SELECT `remote_addr` FROM `s_order` WHERE `transactionID`=" . $this->_transactionId
+                );
             }
 
             return $customerIp;
