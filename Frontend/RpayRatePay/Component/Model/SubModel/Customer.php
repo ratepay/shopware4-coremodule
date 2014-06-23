@@ -385,6 +385,7 @@
                 'salutation'                    => $this->getSalutation(),
                 'gender'                        => $this->getGender(),
                 'date-of-birth'                 => $this->getDateOfBirth(),
+                'ip-address'                    => $this->getIpAddress(),
                 'contacts'                      => array(
                     'email' => $this->getEmail(),
                     'phone' => array(
@@ -406,11 +407,9 @@
                 $return['company-name'] = $this->getCompanyName();
                 $return['vat-id'] = $this->getVatId();
             }
+
             if ($this->_bankAccount != null) {
                 $return['bank-account'] = $this->getBankAccount()->toArray();
-            }
-            if ($this->_ipAddress != null) {
-                $return['ip-address'] = $this->getIpAddress();
             }
 
             return $return;
