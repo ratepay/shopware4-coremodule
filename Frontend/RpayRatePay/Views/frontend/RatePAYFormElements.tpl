@@ -70,10 +70,10 @@
                     type: "POST",
                     async: false,
                     
-                    {if $smarty.server.HTTPS eq "on"}
-                        url: "{url controller='RpayRatepay' action='saveUserData' forceSecure}",
-                    {else}
+                    {if $smarty.server.HTTPS eq '' || $smarty.server.HTTPS eq 'off'}
                         url: "{url controller='RpayRatepay' action='saveUserData'}",
+                    {else}
+                        url: "{url controller='RpayRatepay' action='saveUserData' forceSecure}",
                     {/if}
 
 
