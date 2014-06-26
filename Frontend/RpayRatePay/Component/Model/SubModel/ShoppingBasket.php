@@ -104,11 +104,10 @@
         {
             $return = array(
                 '@amount'   => $this->getAmount(),
-                '@currency' => $this->getCurrency()
+                '@currency' => $this->getCurrency(),
+                'items'     => array()
             );
-
-            $return['items'] = array();
-
+            
             foreach ($this->getItems() as $item) {
                 $return['items'][] = $item->toArray();
             }
