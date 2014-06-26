@@ -45,7 +45,6 @@
                     {if $smarty.section.birthyear.index eq $sUserData.billingaddress.birthday|date_format:"%Y"}selected{/if}>{$smarty.section.birthyear.index}</option>
         {/section}
     </select>
-    <a id="foo">foo</a>
     </p>
 {/if}
 
@@ -73,7 +72,7 @@
             return age;
         }
 
-        $("#foo").click(function () {
+        $("#basketButton").click(function () {
             var requestParams = 'userid=' + "{$sUserData.billingaddress.userID}";
             var dob = false;
             var userUpdate = true;
