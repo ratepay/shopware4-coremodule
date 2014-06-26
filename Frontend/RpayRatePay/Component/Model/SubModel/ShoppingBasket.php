@@ -107,9 +107,11 @@
                 '@currency' => $this->getCurrency(),
                 'items'     => array()
             );
-            
-            foreach ($this->getItems() as $item) {
-                $return['items'][] = $item->toArray();
+
+            if($this->getItems() < 0) {
+                foreach ($this->getItems() as $item) {
+                    $return['items'][] = $item->toArray();
+                }
             }
 
             return $return;
