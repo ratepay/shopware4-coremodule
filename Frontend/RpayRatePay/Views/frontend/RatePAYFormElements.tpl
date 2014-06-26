@@ -23,7 +23,7 @@
     <p class='none'>
 
         <label for="ratepay_birthday" class="normal">{s namespace=RatePAY name=birthday}Geburtsdatum{/s}:</label>
-    <p>{s namespace=RatePAY name=dob_info}Sie m&uuml;ssen mindestens 18 Jahre alt sein, um mit RatePay bezahlen zu k&ouml;nnen.{/s}</p>
+    <p>{s namespace=RatePAY name=dob_info}Sie müssen mindestens 18 Jahre alt sein, um mit RatePay bezahlen zu können.{/s}</p>
     <select id="ratepay_birthday">
         <option value="">{s namespace=RatePAY name=dob_day}Tag{/s}</option>
         {section name="birthdate" start=1 loop=32 step=1}
@@ -101,10 +101,10 @@
                 dob = new Date($('#ratepay_birthyear').val() + " " + $('#ratepay_birthmonth').val() + " " + $('#ratepay_birthday').val());
 
                 /* validate age */
-                if (getAge(dob < 18)) {
+                if (getAge(dob) < 18) {
                     error = true;
                     userUpdate = false;
-                    errorMessage = '{s namespace=RatePAY name=dobtooyoung}Für eine Bezahlung mit RatePay m&uuml;ssen sie mindestens 18 Jahre alt sein.{/s}'
+                    errorMessage = '{s namespace=RatePAY name=dobtooyoung}Für eine Bezahlung mit RatePay müssen sie mindestens 18 Jahre alt sein.{/s}'
                 }
 
                 requestParams += '&ratepay_dob=' + dob.yyyymmdd();
@@ -115,12 +115,14 @@
 
             /* error handler */
             if (error) {
-                $("#ratepay_error").append(errorMessage);
+                $("#ratepay_error").text(errorMessage);
                 $("#ratepay_error").parent().show();
                 $('html, body').animate({
                     scrollTop: $("#ratepay_error").offset().top - 100
                 }, 1000);
                 return false;
+            } else {
+                $("#ratepay_error").parent().hide();
             }
 
             /* update user */
