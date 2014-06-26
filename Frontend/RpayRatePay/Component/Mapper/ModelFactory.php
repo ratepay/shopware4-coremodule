@@ -137,7 +137,6 @@
             $billingAddress = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Address();
             $billingAddress->setFirstName($shopBillingAddress->getFirstName());
             $billingAddress->setLastName($shopBillingAddress->getLastName());
-            $billingAddress->setSalutation($shopBillingAddress->getSalutation());
             $billingAddress->setCompany($shopBillingAddress->getCompany());
             $billingAddress->setType('BILLING');
             $billingAddress->setCountryCode($shopCountry->getIso());
@@ -185,15 +184,22 @@
             $customer->setFirstName($shopBillingAddress->getFirstName());
             $customer->setLastName($shopBillingAddress->getLastName());
 
+
+            /**
+             * set gender and salutation based on the given billingaddress salutation
+             */
             $gender = 'U';
             if ($shopBillingAddress->getSalutation() === 'mr') {
                 $gender = 'M';
+                $customer->setSalutation('Herr');
             } elseif ($shopBillingAddress->getSalutation() === 'ms') {
                 $gender = 'F';
+                $customer->setSalutation('Frau');
+            } else {
+                $customer->setSalutation($shopBillingAddress->getSalutation());
             }
 
             $customer->setGender($gender);
-            $customer->setSalutation($shopBillingAddress->getSalutation());
             $customer->setPhone($shopBillingAddress->getPhone());
             $customer->setNationality($shopCountry->getIso());
             $customer->setIpAddress($this->_getCustomerIP());
@@ -387,7 +393,7 @@
             if ($shopBillingAddress->getSalutation() === 'mr') {
                 $gender = 'M';
             } else {
-                if ($shopBillingAddress->getSalutation() === 'ms.') {
+                if ($shopBillingAddress->getSalutation() === 'ms') {
                     $gender = 'F';
                 }
             }

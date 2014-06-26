@@ -38,8 +38,13 @@
         public function init()
         {
             $this->_config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
-            $this->_user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', Shopware()->Session()->sUserId);
-            $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
+            $this->_user = Shopware()->Models()->find(
+                'Shopware\Models\Customer\Billing',
+                Shopware()->Session()->sUserId
+            );
+            $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get(
+                'RatePaySandbox'
+            ));
             $this->_modelFactory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory();
             $this->_logging = new Shopware_Plugins_Frontend_RpayRatePay_Component_Logging();
             $this->_encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
@@ -52,25 +57,29 @@
         {
             Shopware()->Session()->ratepayErrorRatenrechner = false;
             if (preg_match("/^rpayratepay(invoice|rate|debit)$/", $this->getPaymentShortName())) {
-                if ($this->getPaymentShortName() === 'rpayratepayrate' && !isset(Shopware()->Session()->RatePAY['ratenrechner'])) {
+                if ($this->getPaymentShortName() === 'rpayratepayrate' && !isset(Shopware()->Session(
+                    )->RatePAY['ratenrechner'])
+                ) {
                     Shopware()->Session()->ratepayErrorRatenrechner = true;
                     $this->redirect(
-                        Shopware()->Front()->Router()->assemble(array(
-                            'controller' => 'checkout',
-                            'action'     => 'confirm'
-                        ))
+                        Shopware()->Front()->Router()->assemble(
+                            array(
+                                'controller' => 'checkout',
+                                'action'     => 'confirm'
+                            )
+                        )
                     );
-                }
-                else {
+                } else {
                     $this->_proceedPayment();
                 }
-            }
-            else {
+            } else {
                 $this->redirect(
-                    Shopware()->Front()->Router()->assemble(array(
-                        'controller' => 'checkout',
-                        'action'     => 'confirm'
-                    ))
+                    Shopware()->Front()->Router()->assemble(
+                        array(
+                            'controller' => 'checkout',
+                            'action'     => 'confirm'
+                        )
+                    )
                 );
             }
         }
@@ -87,13 +96,14 @@
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
 
             $return = 'OK';
-
             $updateData = array();
             if (!is_null($user)) {
                 $updateData['phone'] = $Parameter['ratepay_phone'] ? : $user->getPhone();
                 $updateData['ustid'] = $Parameter['ratepay_ustid'] ? : $user->getVatId();
                 $updateData['company'] = $Parameter['ratepay_company'] ? : $user->getCompany();
-                $updateData['birthday'] = $Parameter['ratepay_birthday'] ? : $user->getBirthday()->format("Y-m-d");
+                $updateData['birthday'] = $Parameter['ratepay_birthyear'] . '-' .
+                $Parameter['ratepay_birthmonth'] . '-' . $Parameter['ratepay_birthday'] ? : $user->getBirthday(
+                )->format("Y-m-d");
                 try {
                     Shopware()->Db()->update('s_user_billingaddress', $updateData, 'userID=' . $Parameter['userid']);
                     Shopware()->Log()->Info('Kundendaten aktualisiert.');
@@ -133,31 +143,58 @@
          */
         private function _proceedPayment()
         {
-            $paymentInitModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit());
+            $paymentInitModel = $this->_modelFactory->getModel(
+                new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit()
+            );
             $result = $this->_service->xmlRequest($paymentInitModel->toArray());
-            if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_INIT', $result)) {
-                Shopware()->Session()->RatePAY['transactionId'] = $result->getElementsByTagName('transaction-id')->item(0)->nodeValue;
+            if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse(
+                'PAYMENT_INIT',
+                $result
+            )
+            ) {
+                Shopware()->Session()->RatePAY['transactionId'] = $result->getElementsByTagName('transaction-id')->item(
+                    0
+                )->nodeValue;
                 $this->_modelFactory->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
-                $paymentRequestModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest());
+                $paymentRequestModel = $this->_modelFactory->getModel(
+                    new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest()
+                );
                 $result = $this->_service->xmlRequest($paymentRequestModel->toArray());
-                if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_REQUEST', $result)) {
+                if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse(
+                    'PAYMENT_REQUEST',
+                    $result
+                )
+                ) {
                     $uniqueId = $this->createPaymentUniqueId();
                     $orderNumber = $this->saveOrder(Shopware()->Session()->RatePAY['transactionId'], $uniqueId, 17);
-                    $paymentConfirmModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm());
+                    $paymentConfirmModel = $this->_modelFactory->getModel(
+                        new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm()
+                    );
                     $matches = array();
                     preg_match("/<descriptor.*>(.*)<\/descriptor>/", $this->_service->getLastResponse(), $matches);
                     $dgNumber = $matches[1];
                     $result = $this->_service->xmlRequest($paymentConfirmModel->toArray());
-                    if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CONFIRM', $result)) {
+                    if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse(
+                        'PAYMENT_CONFIRM',
+                        $result
+                    )
+                    ) {
                         if (Shopware()->Session()->sOrderVariables['sBasket']['sShippingcosts'] > 0) {
                             $this->initShipping($orderNumber);
                         }
                         try {
-                            $orderId = Shopware()->Db()->fetchOne('SELECT `id` FROM `s_order` WHERE `ordernumber`=?', array($orderNumber));
-                            Shopware()->Db()->update('s_order_attributes', array(
-                                'attribute5' => $dgNumber,
-                                'attribute6' => Shopware()->Session()->RatePAY['transactionId']
-                            ), 'orderID=' . $orderId);
+                            $orderId = Shopware()->Db()->fetchOne(
+                                'SELECT `id` FROM `s_order` WHERE `ordernumber`=?',
+                                array($orderNumber)
+                            );
+                            Shopware()->Db()->update(
+                                's_order_attributes',
+                                array(
+                                    'attribute5' => $dgNumber,
+                                    'attribute6' => Shopware()->Session()->RatePAY['transactionId']
+                                ),
+                                'orderID=' . $orderId
+                            );
                         } catch (Exception $exception) {
                             Shopware()->Log()->Err($exception->getMessage());
                         }
@@ -169,21 +206,21 @@
                             12
                         );
 
-                        $this->redirect(Shopware()->Front()->Router()->assemble(array(
-                                'controller' => 'checkout',
-                                'action'     => 'finish'
-                            ))
+                        $this->redirect(
+                            Shopware()->Front()->Router()->assemble(
+                                array(
+                                    'controller' => 'checkout',
+                                    'action'     => 'finish'
+                                )
+                            )
                         );
-                    }
-                    else {
+                    } else {
                         $this->_error();
                     }
-                }
-                else {
+                } else {
                     $this->_error();
                 }
-            }
-            else {
+            } else {
                 $this->_error();
             }
         }
@@ -229,8 +266,14 @@
         private function initShipping($orderNumber)
         {
             try {
-                $orderID = Shopware()->Db()->fetchOne("SELECT `id` FROM `s_order` WHERE `ordernumber`=?", array($orderNumber));
-                Shopware()->Db()->query("INSERT INTO `rpay_ratepay_order_shipping` (`s_order_id`) VALUES(?)", array($orderID));
+                $orderID = Shopware()->Db()->fetchOne(
+                    "SELECT `id` FROM `s_order` WHERE `ordernumber`=?",
+                    array($orderNumber)
+                );
+                Shopware()->Db()->query(
+                    "INSERT INTO `rpay_ratepay_order_shipping` (`s_order_id`) VALUES(?)",
+                    array($orderID)
+                );
             } catch (Exception $exception) {
                 Shopware()->Log()->Err($exception->getMessage());
             }
