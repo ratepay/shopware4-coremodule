@@ -97,12 +97,12 @@
 
             $return = 'OK';
             $updateData = array();
+
             if (!is_null($user)) {
                 $updateData['phone'] = $Parameter['ratepay_phone'] ? : $user->getPhone();
                 $updateData['ustid'] = $Parameter['ratepay_ustid'] ? : $user->getVatId();
                 $updateData['company'] = $Parameter['ratepay_company'] ? : $user->getCompany();
-                $updateData['birthday'] = $Parameter['ratepay_birthyear'] . '-' .
-                $Parameter['ratepay_birthmonth'] . '-' . $Parameter['ratepay_birthday'] ? : $user->getBirthday(
+                $updateData['birthday'] = $Parameter['ratepay_dob'] ? : $user->getBirthday(
                 )->format("Y-m-d");
                 try {
                     Shopware()->Db()->update('s_user_billingaddress', $updateData, 'userID=' . $Parameter['userid']);
