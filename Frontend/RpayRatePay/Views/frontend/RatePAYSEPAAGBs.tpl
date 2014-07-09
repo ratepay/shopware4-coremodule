@@ -2,7 +2,7 @@
     <p class="none">
         <input type="checkbox" id='ratepay_agb'>
         {s namespace=RatePAY name='ratepaySEPAAgbFirst'}Ich willige hiermit in die Weiterleitung meiner Daten an RatePAY GmbH, Schlüterstr. 39, 10629 Berlin gemäß{/s}
-        <a href='http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis' target="_blank" style="text-decoration: underline;">RatePAY-Datenschutzerklärung</a>
+        <a href='http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis' target="_blank" style="text-decoration: underline !important;">RatePAY-Datenschutzerklärung</a>
         {s namespace=RatePAY name='ratepaySEPAAgbLast'}
             ein und ermächtige diese, mit diesem Kaufvertrag in Zusammenhang stehende Zahlungen von meinem
             o.a. Konto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von RatePAY GmbH auf mein Konto gezogenen Lastschriften einzulösen.

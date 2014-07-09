@@ -133,11 +133,22 @@
         {
 
             if (false !== strpos(strtolower($this->getBankAccount()), 'de')) {
+
                 return array(
                     'owner'     => $this->getOwner(),
                     'bank-name' => $this->getBankName(),
                     'iban'      => $this->getBankAccount()
                 );
+
+            } elseif(false !== strpos(strtolower($this->getBankAccount()), 'at')) {
+
+                return array(
+                    'owner'     => $this->getOwner(),
+                    'bank-name' => $this->getBankName(),
+                    'iban'      => $this->getBankAccount(),
+                    'bic-swift' => $this->getBankCode()
+                );
+                
             }
 
             return array(

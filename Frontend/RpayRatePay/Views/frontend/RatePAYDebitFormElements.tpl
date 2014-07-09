@@ -12,7 +12,7 @@
                class='text'>
     </p>
     <p class='none'>
-        <label for='ratepay_debit_bankcode'>{s namespace=RatePAY name=bankCode}Bankleitzahl / BIC / SWIFT{/s}:</label>
+        <label for='ratepay_debit_bankcode'>{s namespace=RatePAY name=bankCode}Bankleitzahl{/s}:</label>
         <input id='ratepay_debit_bankcode' value="{$smarty.session.Shopware.RatePAY.bankdata.bankcode}" type='text'
                class='text'>
     </p>
@@ -24,21 +24,30 @@
     <script language='javascript'>
         $(document).ready(function () {
 
-            if (!$(":input#ratepay_debit_accountnumber").val().match(/^\d+$/)) {
-                $(":input#ratepay_debit_bankcode").prop('disabled', true);
-                $(":input#ratepay_debit_bankcode").hide();
-                $("label[for='ratepay_debit_bankcode']").hide();
-            }
+            var blzInput       = $(":input#ratepay_debit_bankcode");
+            var blzInputLabel  = $("label[for='ratepay_debit_bankcode']");
+            var accNumberInput = $(":input#ratepay_debit_accountnumber");
 
-            $(":input#ratepay_debit_accountnumber").keyup(function () {
-                if ($(":input#ratepay_debit_accountnumber").val().match(/^\d+$/)) {
-                    $(":input#ratepay_debit_bankcode").prop('disabled', false);
-                    $(":input#ratepay_debit_bankcode").show();
-                    $("label[for='ratepay_debit_bankcode']").show();
-                } else {
-                    $(":input#ratepay_debit_bankcode").prop('disabled', true);
-                    $(":input#ratepay_debit_bankcode").hide();
-                    $("label[for='ratepay_debit_bankcode']").hide();
+            $(blzInput).prop('disabled', true);
+            $(blzInput).hide();
+            $(blzInputLabel).hide();
+
+            $(accNumberInput).keyup(function () {
+                if ($(this).val().match(/^\d+$/)) {
+                    $(blzInput).prop('disabled', false);
+                    $(blzInput).show();
+                    $(blzInputLabel).show();
+                    $(blzInputLabel).text('Bankleitzahl:')
+                } else if ($(this).val().match(/at/i)) {
+                    $(blzInput).prop('disabled', false);
+                    $(blzInput).show();
+                    $(blzInputLabel).show();
+                    $(blzInputLabel).text('BIC / SWIFT:')
+                }
+                else {
+                    $(blzInput).prop('disabled', true);
+                    $(blzInput).hide();
+                    $(blzInputLabel).hide();
                 }
             })
         });
