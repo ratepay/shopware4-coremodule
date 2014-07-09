@@ -74,7 +74,7 @@
             var dob = false;
             var userUpdate = true;
             var error = false;
-            var errorMessage = '{s namespace=RatePAY name=invaliddata}Bitte vervollst&auml;ndigen Sie die Daten.{/s}';
+            var errorMessage = '{s namespace=RatePAY name=invaliddata}Bitte vervollständigen Sie die Daten.{/s}';
 
             /* handle all normal inputs */
             $('input[id^="ratepay_"]').each(function () {
