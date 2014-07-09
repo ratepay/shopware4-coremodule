@@ -148,7 +148,7 @@
                     'iban'      => $this->getBankAccount(),
                     'bic-swift' => $this->getBankCode()
                 );
-                
+
             }
 
             return array(
