@@ -91,8 +91,11 @@
         {
             Shopware()->Plugins()->Controller()->ViewRenderer()->setNoRender();
             $Parameter = $this->Request()->getParams();
-            $user = Shopware()->Models()->find('Shopware\Models\Customer\Billing', $Parameter['userid']);
-            $debitUser = Shopware()->Models()->find('Shopware\Models\Customer\Debit', $Parameter['userid']);
+
+            $customerModel = Shopware()->Models()->getRepository('Shopware\Models\Customer\Customer');
+            $userModel = $customerModel->findOneBy(array('id' => Shopware()->Session()->sUserId));
+            $user = $userModel->getBilling();
+            $debitUser = $userModel->getDebit();
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
 
             $return = 'OK';
