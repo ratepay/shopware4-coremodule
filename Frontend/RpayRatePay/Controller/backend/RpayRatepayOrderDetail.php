@@ -208,7 +208,6 @@
             $orderId = $this->Request()->getParam("orderId");
             $items = json_decode($this->Request()->getParam("items"));
             $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
-
             $basketItems = array();
             foreach ($items as $item) {
                 $basketItem = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item();
@@ -223,43 +222,53 @@
                 $basketItems[] = $basketItem;
             }
 
-            $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
-            $basket->setAmount($this->getRecalculatedAmount($basketItems));
-            $basket->setCurrency($order['currency']);
-            $basket->setItems($basketItems);
+            //only call the logic if there is an amount and order was not canceled before
+            if($this->getRecalculatedAmount($basketItems) > 0) {
 
-            $subtype = 'partial-cancellation';
-            if ($this->isFullPaymentChange($orderId, $basketItems, 'cancel')) {
-                $subtype = 'full-cancellation';
-            }
+                $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
+                $basket->setAmount($this->getRecalculatedAmount($basketItems));
+                $basket->setCurrency($order['currency']);
+                $basket->setItems($basketItems);
 
-            $this->_modelFactory->setTransactionId($order['transactionID']);
-            $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange());
-            $head = $paymentChange->getHead();
-            $head->setOperationSubstring($subtype);
-            $paymentChange->setHead($head);
-            $paymentChange->setShoppingBasket($basket);
-
-            $response = $this->_service->xmlRequest($paymentChange->toArray());
-            $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
-            if ($result === true) {
-                foreach ($items as $item) {
-                    $bind = array(
-                        'cancelled' => $item->cancelled + $item->cancelledItems
-                    );
-                    $this->updateItem($orderId, $item->articlenumber, $bind);
-                    if ($item->cancelledItems <= 0) {
-                        continue;
-                    }
-                    $this->_history->logHistory($orderId, "Artikel wurde storniert.", $item->name, $item->articlenumber, $item->cancelledItems);
+                $subtype = 'partial-cancellation';
+                if ($this->isFullPaymentChange($orderId, $basketItems, 'cancel')) {
+                    $subtype = 'full-cancellation';
                 }
+
+                $this->_modelFactory->setTransactionId($order['transactionID']);
+                $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange());
+                $head = $paymentChange->getHead();
+                $head->setOperationSubstring($subtype);
+                $paymentChange->setHead($head);
+                $paymentChange->setShoppingBasket($basket);
+
+                $response = $this->_service->xmlRequest($paymentChange->toArray());
+                $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
+                if ($result === true) {
+                    foreach ($items as $item) {
+                        $bind = array(
+                            'cancelled' => $item->cancelled + $item->cancelledItems
+                        );
+                        $this->updateItem($orderId, $item->articlenumber, $bind);
+                        if ($item->cancelledItems <= 0) {
+                            continue;
+                        }
+                        $this->_history->logHistory($orderId, "Artikel wurde storniert.", $item->name, $item->articlenumber, $item->cancelledItems);
+                    }
+                }
+                $this->setNewOrderState($orderId);
+                $this->View()->assign(array(
+                        "result"  => $result,
+                        "success" => true
+                    )
+                );
+            } else
+            {
+                $this->View()->assign(array(
+                        "success" => false
+                    )
+                );
             }
-            $this->setNewOrderState($orderId);
-            $this->View()->assign(array(
-                    "result"  => $result,
-                    "success" => true
-                )
-            );
         }
 
         /**
@@ -285,43 +294,53 @@
                 $basketItems[] = $basketItem;
             }
 
-            $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
-            $basket->setAmount($this->getRecalculatedAmount($basketItems));
-            $basket->setCurrency($order['currency']);
-            $basket->setItems($basketItems);
+            //only call the logic if there is an amount and order was not returned before
+            if($this->getRecalculatedAmount($basketItems) > 0) {
 
-            $subtype = 'partial-return';
-            if ($this->isFullPaymentChange($orderId, $basketItems, 'return')) {
-                $subtype = 'full-return';
-            }
+                $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
+                $basket->setAmount($this->getRecalculatedAmount($basketItems));
+                $basket->setCurrency($order['currency']);
+                $basket->setItems($basketItems);
 
-            $this->_modelFactory->setTransactionId($order['transactionID']);
-            $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange());
-            $head = $paymentChange->getHead();
-            $head->setOperationSubstring($subtype);
-            $paymentChange->setHead($head);
-            $paymentChange->setShoppingBasket($basket);
-
-            $response = $this->_service->xmlRequest($paymentChange->toArray());
-            $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
-            if ($result === true) {
-                foreach ($items as $item) {
-                    $bind = array(
-                        'returned' => $item->returned + $item->returnedItems
-                    );
-                    $this->updateItem($orderId, $item->articlenumber, $bind);
-                    if ($item->returnedItems <= 0) {
-                        continue;
-                    }
-                    $this->_history->logHistory($orderId, "Artikel wurde retourniert.", $item->name, $item->articlenumber, $item->returnedItems);
+                $subtype = 'partial-return';
+                if ($this->isFullPaymentChange($orderId, $basketItems, 'return')) {
+                    $subtype = 'full-return';
                 }
-            }
 
-            $this->View()->assign(array(
-                    "result"  => $result,
-                    "success" => true
-                )
-            );
+                $this->_modelFactory->setTransactionId($order['transactionID']);
+                $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange());
+                $head = $paymentChange->getHead();
+                $head->setOperationSubstring($subtype);
+                $paymentChange->setHead($head);
+                $paymentChange->setShoppingBasket($basket);
+
+                $response = $this->_service->xmlRequest($paymentChange->toArray());
+                $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
+                if ($result === true) {
+                    foreach ($items as $item) {
+                        $bind = array(
+                            'returned' => $item->returned + $item->returnedItems
+                        );
+                        $this->updateItem($orderId, $item->articlenumber, $bind);
+                        if ($item->returnedItems <= 0) {
+                            continue;
+                        }
+                        $this->_history->logHistory($orderId, "Artikel wurde retourniert.", $item->name, $item->articlenumber, $item->returnedItems);
+                    }
+                }
+
+                $this->View()->assign(array(
+                        "result"  => $result,
+                        "success" => true
+                    )
+                );
+            } else
+            {
+                $this->View()->assign(array(
+                        "success" => false
+                    )
+                );
+            }
         }
 
         /**
@@ -633,8 +652,8 @@
                 $orderComplete = Shopware()->Db()->fetchOne($sql, array($orderId));
                 $newState = $orderComplete == 0 ? 7 : 6;
                 Shopware()->Db()->update('s_order', array(
-                    'status' => $newState
-                ), '`id`=' . $orderId);
+                        'status' => $newState
+                    ), '`id`=' . $orderId);
             } catch (Exception $exception) {
                 Shopware()->Log()->Err($exception->getMessage());
             }
