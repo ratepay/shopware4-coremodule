@@ -19,32 +19,31 @@
     </p>
 {/if}
 
-    <div class="none" {if $ratepayValidateIsBirthdayValid == 'true' && $ratepayValidateisAgeValid == 'true' || $sUserData.billingaddress.birthday != '0000-00-00'}style="display: none;"{/if}>
-        <label for="ratepay_birthday" class="normal">{s namespace=RatePAY name=birthday}Geburtsdatum{/s}:</label>
-        <p>{s namespace=RatePAY name=dob_info}Sie müssen mindestens 18 Jahre alt sein, um mit RatePay bezahlen zu können.{/s}</p>
-        <select id="ratepay_birthday">
-            <option value="">{s namespace=RatePAY name=dob_day}Tag{/s}</option>
-            {section name="birthdate" start=1 loop=32 step=1}
-                <option value="{$smarty.section.birthdate.index}"
-                        {if $smarty.section.birthdate.index eq $sUserData.billingaddress.birthday|date_format:"%e"}selected{/if}>{$smarty.section.birthdate.index}</option>
-            {/section}
-        </select>
-        <select id="ratepay_birthmonth">
-            <option value="">{s namespace=RatePAY name=dob_month}Monat{/s}</option>
-            {section name="birthmonth" start=1 loop=13 step=1}
-                <option value="{$smarty.section.birthmonth.index}"
-                        {if $smarty.section.birthmonth.index eq $sUserData.billingaddress.birthday|date_format:"%m"}selected{/if}>{$smarty.section.birthmonth.index}</option>
-            {/section}
-        </select>
-        <select id="ratepay_birthyear">
-            <option value="">{s namespace=RatePAY name=dob_year}Jahr{/s}</option>
-            {section name="birthyear" start=$smarty.now|date_format:"%Y"-18 loop=2000 max=90 step=-1}
-                <option value="{$smarty.section.birthyear.index}"
-                        {if $smarty.section.birthyear.index eq $sUserData.billingaddress.birthday|date_format:"%Y"}selected{/if}>{$smarty.section.birthyear.index}</option>
-            {/section}
-        </select>
-    </div>
-
+<div class="none" {if $ratepayValidateIsBirthdayValid == 'true' && $ratepayValidateisAgeValid == 'true' || $sUserData.billingaddress.birthday != '0000-00-00'}style="display: none;"{/if}>
+    <label for="ratepay_birthday" class="normal">{s namespace=RatePAY name=birthday}Geburtsdatum{/s}:</label>
+    <p>{s namespace=RatePAY name=dob_info}Sie müssen mindestens 18 Jahre alt sein, um mit RatePay bezahlen zu können.{/s}</p>
+    <select id="ratepay_birthday">
+        <option value="">{s namespace=RatePAY name=dob_day}Tag{/s}</option>
+        {section name="birthdate" start=1 loop=32 step=1}
+            <option value="{if $smarty.section.birthdate.index < 10}0{$smarty.section.birthdate.index}{else}{$smarty.section.birthdate.index}{/if}"
+                    {if $smarty.section.birthdate.index eq $sUserData.billingaddress.birthday|date_format:"%e"}selected{/if}>{$smarty.section.birthdate.index}</option>
+        {/section}
+    </select>
+    <select id="ratepay_birthmonth">
+        <option value="">{s namespace=RatePAY name=dob_month}Monat{/s}</option>
+        {section name="birthmonth" start=1 loop=13 step=1}
+            <option value="{if $smarty.section.birthmonth.index < 10}0{$smarty.section.birthmonth.index}{else}{$smarty.section.birthmonth.index}{/if}"
+                    {if $smarty.section.birthmonth.index eq $sUserData.billingaddress.birthday|date_format:"%m"}selected{/if}>{$smarty.section.birthmonth.index}</option>
+        {/section}
+    </select>
+    <select id="ratepay_birthyear">
+        <option value="">{s namespace=RatePAY name=dob_year}Jahr{/s}</option>
+        {section name="birthyear" start=$smarty.now|date_format:"%Y"-18 loop=2000 max=90 step=-1}
+            <option value="{$smarty.section.birthyear.index}"
+                    {if $smarty.section.birthyear.index eq $sUserData.billingaddress.birthday|date_format:"%Y"}selected{/if}>{$smarty.section.birthyear.index}</option>
+        {/section}
+    </select>
+</div>
 
 <script language='javascript'>
     $(document).ready(function () {
@@ -74,7 +73,7 @@
             var dob = false;
             var userUpdate = true;
             var error = false;
-            var errorMessage = '{s namespace=RatePAY name=invaliddata}Bitte vervollständigen Sie die Daten.{/s}';
+            var errorMessage = '{s namespace=RatePAY name=invaliddata}Bitte vervollst&auml;ndigen Sie die Daten.{/s}';
 
             /* handle all normal inputs */
             $('input[id^="ratepay_"]').each(function () {
@@ -95,7 +94,7 @@
 
             /* dob validation */
             if ($('#ratepay_birthyear').val() != '' && $('#ratepay_birthmonth').val() != '' && $('#ratepay_birthday').val() != '') {
-                dob = new Date($('#ratepay_birthyear').val() + " " + $('#ratepay_birthmonth').val() + " " + $('#ratepay_birthday').val());
+                dob = new Date($('#ratepay_birthyear').val() + '-' + $('#ratepay_birthmonth').val() + '-' + $('#ratepay_birthday').val());
 
                 /* validate age */
                 if (getAge(dob) < 18) {
@@ -127,14 +126,11 @@
                 $.ajax({
                     type: "POST",
                     async: false,
-
                     {if $smarty.server.HTTPS eq '' || $smarty.server.HTTPS eq 'off'}
                     url: "{url controller='RpayRatepay' action='saveUserData'}",
                     {else}
                     url: "{url controller='RpayRatepay' action='saveUserData' forceSecure}",
                     {/if}
-
-
                     data: requestParams
                 }).done(function (msg) {
                             if (msg == 'OK') {
