@@ -222,7 +222,7 @@
                 $basketItems[] = $basketItem;
             }
 
-            //only call the logic if there are items to cancle
+            //only call the logic if there are items to cancel
             if($this->countOrderPositions($orderId) !== $this->countCancelledPositions($orderId))
             {
 
