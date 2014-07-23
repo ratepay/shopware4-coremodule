@@ -150,12 +150,14 @@
         {
             $orderId = $this->Request()->getParam("orderId");
             $items = json_decode($this->Request()->getParam("items"));
-
             $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
-
+            $itemsToDeliver = null;
             $basketItems = array();
             foreach ($items as $item) {
                 $basketItem = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item();
+
+                $itemsToDeliver += $item->deliveredItems;
+
                 if ($item->quantity == 0) {
                     continue;
                 }
@@ -167,37 +169,45 @@
                 $basketItems[] = $basketItem;
             }
 
-            $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
-            $basket->setAmount($this->getRecalculatedAmount($basketItems));
-            $basket->setCurrency($order["currency"]);
-            $basket->setItems($basketItems);
+            if ($itemsToDeliver > 0) {
 
-            $confirmationDeliveryModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery());
-            $confirmationDeliveryModel->setShoppingBasket($basket);
-            $head = $confirmationDeliveryModel->getHead();
-            $head->setTransactionId($order['transactionID']);
-            $confirmationDeliveryModel->setHead($head);
-            $response = $this->_service->xmlRequest($confirmationDeliveryModel->toArray());
-            $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('CONFIRMATION_DELIVER', $response);
-            if ($result === true) {
-                foreach ($items as $item) {
-                    $bind = array(
-                        'delivered' => $item->delivered + $item->deliveredItems
-                    );
-                    $this->updateItem($orderId, $item->articlenumber, $bind);
-                    if ($item->quantity <= 0) {
-                        continue;
+                $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
+                $basket->setAmount($this->getRecalculatedAmount($basketItems));
+                $basket->setCurrency($order["currency"]);
+                $basket->setItems($basketItems);
+
+                $confirmationDeliveryModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery());
+                $confirmationDeliveryModel->setShoppingBasket($basket);
+                $head = $confirmationDeliveryModel->getHead();
+                $head->setTransactionId($order['transactionID']);
+                $confirmationDeliveryModel->setHead($head);
+                $response = $this->_service->xmlRequest($confirmationDeliveryModel->toArray());
+                $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('CONFIRMATION_DELIVER', $response);
+                if ($result === true) {
+                    foreach ($items as $item) {
+                        $bind = array(
+                            'delivered' => $item->delivered + $item->deliveredItems
+                        );
+                        $this->updateItem($orderId, $item->articlenumber, $bind);
+                        if ($item->quantity <= 0) {
+                            continue;
+                        }
+                        $this->_history->logHistory($orderId, "Artikel wurde versand.", $item->name, $item->articlenumber, $item->quantity);
                     }
-                    $this->_history->logHistory($orderId, "Artikel wurde versand.", $item->name, $item->articlenumber, $item->quantity);
                 }
-            }
 
-            $this->setNewOrderState($orderId);
-            $this->View()->assign(array(
-                    "result"  => $result,
-                    "success" => true
-                )
-            );
+                $this->setNewOrderState($orderId);
+                $this->View()->assign(array(
+                        "result"  => $result,
+                        "success" => true
+                    )
+                );
+            } else {
+                $this->View()->assign(array(
+                        "success" => false
+                    )
+                );
+            }
         }
 
         /**
@@ -207,13 +217,21 @@
         {
             $orderId = $this->Request()->getParam("orderId");
             $items = json_decode($this->Request()->getParam("items"));
+
             $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
             $basketItems = array();
+
+            $itemsToCancel = null;
             foreach ($items as $item) {
                 $basketItem = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item();
+
+                // count all item which are in cancellation process
+                $itemsToCancel += $item->cancelledItems;
+
                 if ($item->quantity <= 0) {
                     continue;
                 }
+
                 $basketItem->setArticleName($item->name);
                 $basketItem->setArticleNumber($item->articlenumber);
                 $basketItem->setQuantity($item->quantity);
@@ -223,7 +241,7 @@
             }
 
             //only call the logic if there are items to cancel
-            if($this->countOrderPositions($orderId) !== $this->countCancelledPositions($orderId))
+            if($itemsToCancel > 0)
             {
 
                 $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
@@ -282,10 +300,15 @@
             $orderId = $this->Request()->getParam("orderId");
             $items = json_decode($this->Request()->getParam("items"));
             $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
-
+            $itemsToReturn = null;
             $basketItems = array();
+
             foreach ($items as $item) {
                 $basketItem = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item();
+
+                // count all item which are in returning process
+                $itemsToReturn += $item->returnedItems;
+
                 if ($item->quantity <= 0) {
                     continue;
                 }
@@ -298,7 +321,7 @@
             }
 
             //only call the logic if there are items to return
-            if($this->countOrderPositions($orderId) !== $this->countReturnedPositions($orderId))
+            if($itemsToReturn > 0)
             {
 
                 $basket = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_ShoppingBasket();
