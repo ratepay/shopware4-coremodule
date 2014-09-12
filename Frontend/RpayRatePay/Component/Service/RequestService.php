@@ -58,7 +58,7 @@
          */
         public function __construct($sandbox)
         {
-            $uri = $sandbox ? 'https://webservices-int.eos-payment.com/custom/ratepay/xml/1_0' : 'https://webservices.eos-payment.com/custom/ratepay/xml/1_0';
+            $uri = $sandbox ? 'https://gateway-int.ratepay.com/api/xml/1_0' : 'https://gateway.ratepay.com/api/xml/1_0';
 
             $this->_zendHttpClient = new Zend_Http_Client($uri, $this->config);
             $this->_logging = new Shopware_Plugins_Frontend_RpayRatePay_Component_Logging();
