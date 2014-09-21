@@ -422,7 +422,7 @@
             if ((!in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) && in_array($newPaymentMethod->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')))
                 || (in_array($order->getPayment()->getName(), array('rpayratepayinvoice', 'rpayratepayrate', 'rpayratepaydebit')) && $newPaymentMethod->getName() != $order->getPayment()->getName())
             ) {
-                Shopware()->Log()->Warn('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
+                Shopware()->Pluginlogger()->addNotice('RatePAY', 'Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
                 $arguments->stop();
                 throw new \Symfony\Component\Config\Definition\Exception\Exception('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
             }
@@ -450,7 +450,7 @@
 
             foreach ($parameter['elements'] as $element) {
                 if (in_array($element['name'], array('RatePayProfileID', 'RatePaySecurityCode')) && empty($element['values'][0]['value'])) {
-                    Shopware()->Log()->Warn('RatePAY: Credentials are missing!');
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Credentials are missing!');
 
                     return;
                 }
@@ -466,7 +466,7 @@
             }
 
             if ($this->getRatepayConfig($profileID, $securityCode, $sandbox)) {
-                Shopware()->Log()->Info('RatePAY: Ruleset successfully updated.');
+                Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Ruleset successfully updated.');
             }
         }
 
@@ -483,7 +483,7 @@
             $parameter = $request->getParams();
             $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $parameter['orderID']);
             if ($parameter['valid'] != true && in_array($order->getPayment()->getName(), array("rpayratepayinvoice", "rpayratepayrate", "rpayratepaydebit"))) {
-                Shopware()->Log()->Warn('Positionen einer RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden. Bitte Stornieren Sie die Artikel in der Artikelverwaltung.');
+                Shopware()->Pluginlogger()->addNotice('RatePAY', 'Positionen einer RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden. Bitte Stornieren Sie die Artikel in der Artikelverwaltung.');
                 $arguments->stop();
             }
 
@@ -509,7 +509,7 @@
                 . "(`position`.`delivered` > 0 OR `position`.`cancelled` > 0 OR `position`.`returned` > 0)";
             $count = Shopware()->Db()->fetchOne($sql, array($parameter['id']));
             if ($count > 0) {
-                Shopware()->Log()->Warn('RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden, wenn sie bereits bearbeitet worden sind.');
+                Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY-Bestellung k&ouml;nnen nicht gelöscht werden, wenn sie bereits bearbeitet worden sind.');
                 $arguments->stop();
             }
             else {
@@ -529,7 +529,7 @@
                 $response = $request->xmlRequest($paymentChange->toArray());
                 $result = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PAYMENT_CHANGE', $response);
                 if (!$result) {
-                    Shopware()->Log()->Warn('Bestellung k&ouml;nnte nicht gelöscht werden, da die Stornierung bei RatePAY fehlgeschlagen ist.');
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', 'Bestellung k&ouml;nnte nicht gelöscht werden, da die Stornierung bei RatePAY fehlgeschlagen ist.');
                     $arguments->stop();
                 }
             }
@@ -585,9 +585,9 @@
                     . "JOIN `s_core_paymentmeans` ON `s_core_paymentmeans`.`id`=`s_order`.`paymentID` "
                     . "WHERE  `s_order`.`ordernumber`=? AND`s_core_paymentmeans`.`name` LIKE 'rpayratepay%';";
                 $isRatePAYpayment = Shopware()->Db()->fetchOne($isRatePAYpaymentSQL, array($ordernumber));
-                Shopware()->Log()->Debug($isRatePAYpayment);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $isRatePAYpayment);
             } catch (Exception $exception) {
-                Shopware()->Log()->Err($exception->getMessage());
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
                 $isRatePAYpayment = 0;
             }
 
@@ -605,7 +605,7 @@
                 try {
                     Shopware()->Db()->query($sqlInsert);
                 } catch (Exception $exception) {
-                    Shopware()->Log()->Err($exception->getMessage());
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
                 }
             }
 
@@ -633,7 +633,7 @@
             }
 
             if (empty(Shopware()->Session()->sUserId)) {
-                Shopware()->Log()->Debug("RatePAY: sUserId is empty");
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: sUserId is empty");
 
                 return;
             }
@@ -643,21 +643,21 @@
             if ($validation->isRatePAYPayment()) {
                 $view->sRegisterFinished = 'false';
                 $view->ratepayValidateTelephoneNumber = $validation->isTelephoneNumberSet() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isTelephoneNumberSet->" . $view->ratepayValidateTelephoneNumber);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isTelephoneNumberSet->" . $view->ratepayValidateTelephoneNumber);
                 $view->ratepayValidateUST = $validation->isUSTSet() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isUSTSet->" . $view->ratepayValidateUST);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isUSTSet->" . $view->ratepayValidateUST);
                 $view->ratepayValidateCompanyName = $validation->isCompanyNameSet() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isCompanyNameSet->" . $view->ratepayValidateCompanyName);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isCompanyNameSet->" . $view->ratepayValidateCompanyName);
                 $view->ratepayValidateIsB2B = $validation->isCompanyNameSet() || $validation->isUSTSet() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
                 $view->ratepayValidateIsAddressValid = $validation->isAddressValid() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isAddressValid->" . $view->ratepayValidateIsAddressValid);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAddressValid->" . $view->ratepayValidateIsAddressValid);
                 $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
                 $view->ratepayValidateisAgeValid = $validation->isAgeValid() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
                 $view->ratepayValidateisDebitSet = $validation->isDebitSet() ? 'true' : 'false';
-                Shopware()->Log()->Debug("RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
                 $view->ratepayErrorRatenrechner = Shopware()->Session()->ratepayErrorRatenrechner ? 'true' : 'false';
             }
         }
@@ -702,10 +702,10 @@
             }
 
             if (!$validation->isAddressValid()) {
-                Shopware()->Log()->Debug($paymentStati['address-debit'] == 'yes');
-                Shopware()->Log()->Debug($validation->isCountryValid());
-                Shopware()->Log()->Debug($showDebit);
-                Shopware()->Log()->Debug($paymentStati);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $paymentStati['address-debit'] == 'yes');
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $validation->isCountryValid());
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $showDebit);
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $paymentStati);
 
 
                 $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? : false;
@@ -723,7 +723,7 @@
             if (Shopware()->Modules()->Basket()) {
                 $basket = Shopware()->Modules()->Basket()->sGetAmount();
                 $basket = $basket['totalAmount'];
-                Shopware()->Log()->Debug("BasketAmount: $basket");
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "BasketAmount: $basket");
                 if ($basket < $paymentStati['limit-invoice-min'] || $basket > $paymentStati['limit-invoice-max']) {
                     $showInvoice = false;
                 }
@@ -741,17 +741,17 @@
             $payments = array();
             foreach ($return as $payment) {
                 if ($payment['name'] === 'rpayratepayinvoice' && !$showInvoice) {
-                    Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Invoice");
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: Filter RatePAY-Invoice");
                     $setToDefaultPayment = $paymentModel->getName() === "rpayratepayinvoice" ? : $setToDefaultPayment;
                     continue;
                 }
                 if ($payment['name'] === 'rpayratepaydebit' && !$showDebit) {
-                    Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Debit");
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: Filter RatePAY-Debit");
                     $setToDefaultPayment = $paymentModel->getName() === "rpayratepaydebit" ? : $setToDefaultPayment;
                     continue;
                 }
                 if ($payment['name'] === 'rpayratepayrate' && !$showRate) {
-                    Shopware()->Log()->Debug("RatePAY: Filter RatePAY-Rate");
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: Filter RatePAY-Rate");
                     $setToDefaultPayment = $paymentModel->getName() === "rpayratepayrate" ? : $setToDefaultPayment;
                     continue;
                 }
@@ -759,12 +759,12 @@
             }
 
             if ($setToDefaultPayment) {
-                Shopware()->Log()->Debug($user->getPaymentId());
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $user->getPaymentId());
                 $user->setPaymentId(Shopware()->Config()->get('paymentdefault'));
                 Shopware()->Models()->persist($user);
                 Shopware()->Models()->flush();
                 Shopware()->Models()->refresh($user);
-                Shopware()->Log()->Debug($user->getPaymentId());
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $user->getPaymentId());
             }
 
             return $payments;
@@ -845,14 +845,14 @@
 
                     return true;
                 } catch (Exception $exception) {
-                    Shopware()->Log()->Err($exception->getMessage());
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
                     Shopware()->Db()->query("UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'rpayratepay%'");
 
                     return false;
                 }
             }
             else {
-                Shopware()->Log()->Err('RatePAY: Profile_Request failed!');
+                Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Profile_Request failed!');
                 Shopware()->Db()->query("UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'rpayratepay%'");
 
                 return false;
