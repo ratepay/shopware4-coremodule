@@ -64,8 +64,9 @@
                     $this->redirect(
                         Shopware()->Front()->Router()->assemble(
                             array(
-                                'controller' => 'checkout',
-                                'action'     => 'confirm'
+                                'controller'  => 'checkout',
+                                'action'      => 'confirm',
+                                'forceSecure' => true
                             )
                         )
                     );
@@ -76,8 +77,9 @@
                 $this->redirect(
                     Shopware()->Front()->Router()->assemble(
                         array(
-                            'controller' => 'checkout',
-                            'action'     => 'confirm'
+                            'controller'  => 'checkout',
+                            'action'      => 'confirm',
+                            'forceSecure' => true
                         )
                     )
                 );
@@ -217,8 +219,9 @@
                         $this->redirect(
                             Shopware()->Front()->Router()->assemble(
                                 array(
-                                    'controller' => 'checkout',
-                                    'action'     => 'finish'
+                                    'controller'  => 'checkout',
+                                    'action'      => 'finish',
+                                    'forceSecure' => true
                                 )
                             )
                         );
