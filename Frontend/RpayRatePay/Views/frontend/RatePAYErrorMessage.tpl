@@ -4,7 +4,7 @@
 <script language='javascript'>
     $(document).ready(function () {
         {if $ratepayValidateisAgeValid != 'true'}
-        $("#ratepay_error").append("{s namespace=RatePAY name=invalidAge}Das angegebene Alter ist unter 18!{/s}");
+        $("#ratepay_error").append("{s namespace=RatePAY name=invalidAge}Bitte überprüfen sie die Eingabe ihres Geburtstdatums. Sie müssen mindestens 18 Jahre alt sein!{/s}");
         $("#ratepay_error").parent().show();
         {/if}
         {if $ratepayErrorRatenrechner == 'true'}

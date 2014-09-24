@@ -689,7 +689,7 @@
 
 
             $validation = new Shopware_Plugins_Frontend_RpayRatePay_Component_Validation();
-            if (!$validation->isAgeValid() || !$validation->isCountryValid()) {
+            if (!$validation->isCountryValid()) {
                 $showRate = false;
                 $showDebit = false;
                 $showInvoice = false;
