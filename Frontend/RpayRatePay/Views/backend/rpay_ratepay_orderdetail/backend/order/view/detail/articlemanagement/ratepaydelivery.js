@@ -132,10 +132,10 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
             },
             {
                 iconCls: 'sprite-plus-circle-frame',
-                text: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
+                text: '{s namespace=RatePAY name=addcredit}Nachlass hinzuf&uuml;gen{/s}',
                 handler: function () {
                     Ext.create('Ext.window.Window', {
-                        title: '{s namespace=RatePAY name=addcredit}Gutschein hinzuf&uuml;gen{/s}',
+                        title: '{s namespace=RatePAY name=addcredit}Nachlass hinzuf&uuml;gen{/s}',
                         width: 200,
                         height: 100,
                         id: 'creditWindow',
@@ -187,16 +187,16 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                                             insertedIds.push(response.data.id);
                                             if (me.initPositions(articleNumber)) {
                                                 if (me.paymentChange(id, 'credit', insertedIds)) {
-                                                    message = '{s namespace=RatePAY name=messagecreditsuccess}Gutschein wurde erfolgreich zur Bestellung hinzugef&uuml;gt.{/s}';
+                                                    message = '{s namespace=RatePAY name=messagecreditsuccess}Nachlass wurde erfolgreich zur Bestellung hinzugef&uuml;gt.{/s}';
                                                 } else {
                                                     me.deletePosition(insertedIds);
-                                                    message = '{s namespace=RatePAY name=messagecreditfailrequest}Gutschein konnte nicht korrekt an RatePAY &uuml;bermittelt werden.{/s}';
+                                                    message = '{s namespace=RatePAY name=messagecreditfailrequest}Nachlass konnte nicht korrekt an RatePAY &uuml;bermittelt werden.{/s}';
                                                 }
                                             } else {
-                                                message = '{s namespace=RatePAY name=messagecreditfailposition}Gutschein konnte nicht der Bestellung hinzugef&uuml;gt werden.{/s}';
+                                                message = '{s namespace=RatePAY name=messagecreditfailposition}Nachlass konnte nicht der Bestellung hinzugef&uuml;gt werden.{/s}';
                                             }
                                             Ext.getCmp('creditWindow').close();
-                                            Ext.Msg.alert('{s namespace=RatePAY name=messagecredittitle}Gutschein hinzuf&uuml;gen{/s}', message);
+                                            Ext.Msg.alert('{s namespace=RatePAY name=messagecredittitle}Nachlass hinzuf&uuml;gen{/s}', message);
                                             me.reloadGrid();
                                         }
                                     });
