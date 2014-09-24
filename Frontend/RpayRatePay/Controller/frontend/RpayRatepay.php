@@ -209,6 +209,11 @@
                             12
                         );
 
+                        /**
+                         * if you run into problems with the redirect method then use the forwarding
+                         * return $this->forward('finish', 'checkout', null, array('sUniqueID' => $uniqueId));
+                         **/
+                        
                         $this->redirect(
                             Shopware()->Front()->Router()->assemble(
                                 array(
