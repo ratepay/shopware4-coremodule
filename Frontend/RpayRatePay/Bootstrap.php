@@ -656,12 +656,16 @@
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
                 $view->ratepayValidateIsAddressValid = $validation->isAddressValid() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAddressValid->" . $view->ratepayValidateIsAddressValid);
+
                 /*
                 $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
                 $view->ratepayValidateisAgeValid = $validation->isAgeValid() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
                 */
+                $view->ratepayValidateIsBirthdayValid = true;
+                $view->ratepayValidateisAgeValid = true;
+
                 $view->ratepayValidateisDebitSet = $validation->isDebitSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
                 $view->ratepayErrorRatenrechner = Shopware()->Session()->ratepayErrorRatenrechner ? 'true' : 'false';

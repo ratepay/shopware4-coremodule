@@ -1,26 +1,20 @@
 {if $ratepayValidateIsB2B == 'true'}
-    {*{if $ratepayValidateUST != 'true'}*}
-        <div class="none">
-            <label for="ratepay_ustid" class="normal">{s namespace=RatePAY name=vatId}Umsatzsteuer{/s}:</label>
-            <input id="ratepay_ustid" class="text" type="text" value="{if $sUserData.billingaddress.ustid}{$sUserData.billingaddress.ustid}{/if}">
-        </div>
-    {*{/if}
-    {if $ratepayValidateCompanyName != 'true'}*}
+    <div class="none">
+        <label for="ratepay_ustid" class="normal">{s namespace=RatePAY name=vatId}Umsatzsteuer{/s}:</label>
+        <input id="ratepay_ustid" class="text" type="text" value="{if $sUserData.billingaddress.ustid}{$sUserData.billingaddress.ustid}{/if}">
+    </div>
     <div class="none">
         <label for="ratepay_company" class="normal">{s namespace=RatePAY name=company}Firmenname{/s}:</label>
         <input id="ratepay_company" class="text" type="text" value="{if $sUserData.billingaddress.company}{$sUserData.billingaddress.company}{/if}">
     </div>
-    {*{/if}*}
 {/if}
 
-{*{if $ratepayValidateTelephoneNumber != 'true'}*}
-    <div class="none">
-        <label for="ratepay_phone" class="normal">{s namespace=RatePAY name=phone}Telefonnummer{/s}:</label>
-        <input id="ratepay_phone" class="text" type="text" value="{if $sUserData.billingaddress.phone}{$sUserData.billingaddress.phone}{/if}">
-    </div>
-{*{/if}*}
+<div class="none">
+    <label for="ratepay_phone" class="normal">{s namespace=RatePAY name=phone}Telefonnummer{/s}:</label>
+    <input id="ratepay_phone" class="text" type="text" value="{if $sUserData.billingaddress.phone}{$sUserData.billingaddress.phone}{/if}">
+</div>
 
-<div class="none" {*{if $ratepayValidateIsBirthdayValid == 'true' && $ratepayValidateisAgeValid == 'true' && $sUserData.billingaddress.birthday != '0000-00-00'}style="display: none;"{/if}*}>
+<div class="none">
     <label for="ratepay_birthday" class="normal">{s namespace=RatePAY name=birthday}Geburtsdatum{/s}:</label>
     <p>{s namespace=RatePAY name=dob_info}Sie müssen mindestens 18 Jahre alt sein, um mit RatePay bezahlen zu können.{/s}</p>
     <select id="ratepay_birthday">
@@ -105,6 +99,25 @@
                 }
 
                 requestParams += '&ratepay_dob=' + dob.yyyymmdd();
+            } else {
+                error = true;
+                userUpdate = false;
+            }
+
+            /* phone number validation */
+            if($('#ratepay_phone').val() != '') {
+                {literal}
+                var regex = /[0-9-()+]{3,20}/;
+                {/literal}
+
+                var phoneNumber = $('#ratepay_phone').val().replace(/ /g,'');
+
+                if($('#ratepay_phone').val().length < 6 ||  ( phoneNumber.match(regex) != phoneNumber ) )
+                {
+                    error = true;
+                    userUpdate = false;
+                    errorMessage = '{s namespace=RatePAY name=phonenumbernotvalid}Für eine Bezahlung mit RatePay müssen Sie eine gültige Telefonnummer angeben. Die Nummer muss mindestens 6 Zeichen lang sein und darf Sonderzeichen wie - und + enthalten.{/s}'
+                }
             } else {
                 error = true;
                 userUpdate = false;
