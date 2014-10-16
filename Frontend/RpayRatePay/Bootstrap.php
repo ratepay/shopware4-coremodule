@@ -619,6 +619,7 @@
          */
         public function preValidation(Enlight_Event_EventArgs $arguments)
         {
+
             $request = $arguments->getSubject()->Request();
             $response = $arguments->getSubject()->Response();
             $view = $arguments->getSubject()->View();
@@ -642,8 +643,11 @@
 
             if ($validation->isRatePAYPayment()) {
                 $view->sRegisterFinished = 'false';
+
+                /*
                 $view->ratepayValidateTelephoneNumber = $validation->isTelephoneNumberSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isTelephoneNumberSet->" . $view->ratepayValidateTelephoneNumber);
+                */
                 $view->ratepayValidateUST = $validation->isUSTSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isUSTSet->" . $view->ratepayValidateUST);
                 $view->ratepayValidateCompanyName = $validation->isCompanyNameSet() ? 'true' : 'false';
@@ -652,10 +656,12 @@
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
                 $view->ratepayValidateIsAddressValid = $validation->isAddressValid() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAddressValid->" . $view->ratepayValidateIsAddressValid);
+                /*
                 $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
                 $view->ratepayValidateisAgeValid = $validation->isAgeValid() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
+                */
                 $view->ratepayValidateisDebitSet = $validation->isDebitSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
                 $view->ratepayErrorRatenrechner = Shopware()->Session()->ratepayErrorRatenrechner ? 'true' : 'false';
@@ -665,6 +671,7 @@
         /**
          * Filters the shown Payments
          * RatePAY-payments will be hidden, if one of the following requirement is not given
+         *  - Delivery Address is the same as Billing Address
          *  - The Customer must be over 18 years old
          *  - The Country must be germany
          *  - The Currency must be EUR
@@ -718,7 +725,6 @@
                 $showDebit = false;
                 $showInvoice = false;
             }
-
 
             if (Shopware()->Modules()->Basket()) {
                 $basket = Shopware()->Modules()->Basket()->sGetAmount();

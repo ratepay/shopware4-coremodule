@@ -191,6 +191,8 @@
          * Checks if the country is germany
          *
          * @return boolean
+         *
+         * @toDo implement Austria
          */
         public function isCountryValid()
         {
