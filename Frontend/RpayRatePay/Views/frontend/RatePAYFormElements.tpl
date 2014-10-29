@@ -1,3 +1,14 @@
+<link type="text/css" media="all" rel="stylesheet" href="{link file='frontend/_resources/styles/ratepay.css'}" />
+
+<div class="ratepay-overlay" style="display: none;">
+    <div class="ratepay-modal">
+        <p>
+            Ihre Zahlungsanfrage wird bearbeitet.
+        </p>
+    </div>
+</div>
+
+
 {if $ratepayValidateIsB2B == 'true'}
     <div class="none">
         <label for="ratepay_ustid" class="normal">{s namespace=RatePAY name=vatId}Umsatzsteuer{/s}:</label>
@@ -70,6 +81,9 @@
             var error = false;
             var errorMessage = '{s namespace=RatePAY name=invaliddata}Bitte vervollständigen Sie die Daten.{/s}';
 
+            /** show the modal window */
+            $("div.ratepay-overlay").show();
+
             /* handle all normal inputs */
             $('input[id^="ratepay_"]').each(function () {
                 requestParams += '&' + $(this).attr('id') + '=' + $(this).val();
@@ -125,12 +139,17 @@
 
             /* error handler */
             if (error) {
+
+                /** hide the modal window */
+                $("div.ratepay-overlay").hide();
+
                 $("#ratepay_error").text(errorMessage);
                 $("#ratepay_error").parent().show();
                 $('html, body').animate({
                     scrollTop: $("#ratepay_error").offset().top - 100
                 }, 1000);
                 return false;
+
             } else {
                 $("#ratepay_error").parent().hide();
             }
