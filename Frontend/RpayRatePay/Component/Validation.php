@@ -138,7 +138,7 @@
          *
          * @return boolean
          */
-        public function isAddressValid()
+        public function isBillingAddressSameLikeShippingAddress()
         {
             $billingAddress = $this->_user->getBilling();
             $shippingAddress = $this->_user->getShipping();

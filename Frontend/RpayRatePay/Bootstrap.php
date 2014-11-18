@@ -72,7 +72,7 @@
          */
         public function getVersion()
         {
-            return "3.2.2";
+            return "3.2.3";
         }
 
         /**
@@ -185,24 +185,30 @@
                 $form = $this->Form();
                 $form->setElement('text', 'RatePayProfileID', array(
                     'label' => 'Profile-ID',
-                    'value' => ''
+                    'value' => '',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                    'required' => true
                 ));
                 $form->setElement('text', 'RatePaySecurityCode', array(
                     'label' => 'Security Code',
-                    'value' => ''
+                    'value' => '',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                    'required' => true
                 ));
                 $form->setElement('checkbox', 'RatePaySandbox', array(
-                    'label' => 'Sandbox'
+                    'label' => 'Sandbox',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ));
                 $form->setElement('checkbox', 'RatePayLogging', array(
-                    'label' => 'Logging'
+                    'label' => 'Logging',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ));
                 /*$form->setElement('checkbox', 'RatePayBankData', array(
                     'label' => 'Bankdatenspeicherung aktivieren'
                 ));*/
             } catch (Exception $exception) {
                 $this->uninstall();
-                throw new Exception("Can not create configelements." . $exception->getMessage());
+                throw new Exception("Can not create config elements." . $exception->getMessage());
             }
         }
 
@@ -281,6 +287,7 @@
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlConfig = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_config` (" .
+                "`scope` int(5) NOT NULL, " .
                 "`profileId` varchar(255) NOT NULL," .
                 "`invoiceStatus` int(1) NOT NULL, " .
                 "`debitStatus` int(1) NOT NULL, " .
@@ -297,7 +304,7 @@
                 "`limit-invoice-max` int(5) NOT NULL, " .
                 "`limit-debit-max` int(5) NOT NULL, " .
                 "`limit-rate-max` int(5) NOT NULL, " .
-                "PRIMARY KEY (`profileId`)" .
+                "PRIMARY KEY (`scope`)" .
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlOrderPositions = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_order_positions` (" .
@@ -449,17 +456,20 @@
             }
 
             foreach ($parameter['elements'] as $element) {
+
                 if (in_array($element['name'], array('RatePayProfileID', 'RatePaySecurityCode')) && empty($element['values'][0]['value'])) {
                     Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Credentials are missing!');
-
                     return;
                 }
+
                 if ($element['name'] === 'RatePayProfileID') {
                     $profileID = $element['values'][0]['value'];
                 }
+
                 if ($element['name'] === 'RatePaySecurityCode') {
                     $securityCode = $element['values'][0]['value'];
                 }
+
                 if ($element['name'] === 'RatePaySandbox') {
                     $sandbox = $element['values'][0]['value'];
                 }
@@ -654,8 +664,8 @@
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isCompanyNameSet->" . $view->ratepayValidateCompanyName);
                 $view->ratepayValidateIsB2B = $validation->isCompanyNameSet() || $validation->isUSTSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
-                $view->ratepayValidateIsAddressValid = $validation->isAddressValid() ? 'true' : 'false';
-                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAddressValid->" . $view->ratepayValidateIsAddressValid);
+                $view->ratepayIsBillingAddressSameLikeShippingAddress = $validation->isBillingAddressSameLikeShippingAddress() ? 'true' : 'false';
+                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isBillingAddressSameLikeShippingAddress->" . $view->ratepayIsBillingAddressSameLikeShippingAddress);
 
                 /*
                 $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true' : 'false';
@@ -675,7 +685,7 @@
         /**
          * Filters the shown Payments
          * RatePAY-payments will be hidden, if one of the following requirement is not given
-         *  - Delivery Address is the same as Billing Address
+         *  - Delivery Address is not allowed to be not the same as billing address
          *  - The Customer must be over 18 years old
          *  - The Country must be germany
          *  - The Currency must be EUR
@@ -693,7 +703,7 @@
             }
 
             $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileID');
-            $paymentStati = Shopware()->Db()->fetchRow('SELECT * FROM `rpay_ratepay_config` WHERE `profileId`=?', array($profileId));
+            $paymentStati = Shopware()->Db()->fetchRow('SELECT * FROM `rpay_ratepay_config` WHERE `scope` =? AND `profileId`=?', array(Shopware\Models\Config\Element::SCOPE_SHOP, $profileId));
             $showRate = $paymentStati['rateStatus'] == 2 ? true : false;
             $showDebit = $paymentStati['debitStatus'] == 2 ? true : false;
             $showInvoice = $paymentStati['invoiceStatus'] == 2 ? true : false;
@@ -707,24 +717,18 @@
             }
 
             if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-                $showRate = $paymentStati['b2b-rate'] == 'yes' && $showRate ? : false;
-                $showDebit = $paymentStati['b2b-debit'] == 'yes' && $showDebit ? : false;
-                $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? : false;
+                $showRate = $paymentStati['b2b-rate'] == 'yes' && $showRate ? true : false;
+                $showDebit = $paymentStati['b2b-debit'] == 'yes' && $showDebit ? true : false;
+                $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? true : false;
             }
 
-            if (!$validation->isAddressValid()) {
-                Shopware()->Pluginlogger()->addNotice('RatePAY', $paymentStati['address-debit'] == 'yes');
-                Shopware()->Pluginlogger()->addNotice('RatePAY', $validation->isCountryValid());
-                Shopware()->Pluginlogger()->addNotice('RatePAY', $showDebit);
-                Shopware()->Pluginlogger()->addNotice('RatePAY', $paymentStati);
-
-
-                $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? : false;
-                $showDebit = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() && $showDebit ? : false;
-                $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? : false;
+            if (!$validation->isBillingAddressSameLikeShippingAddress()) {
+                $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
+                $showDebit = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
+                $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? true : false;
             }
 
-            if (Shopware()->Session()->RatePAY['hidePayment'] === true) {
+            if (true === Shopware()->Session()->RatePAY['hidePayment']) {
                 $showRate = false;
                 $showDebit = false;
                 $showInvoice = false;
@@ -799,6 +803,8 @@
             $requestService = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($sandbox);
             $response = $requestService->xmlRequest($profileRequestModel->toArray());
 
+            var_dump(Shopware\Models\Config\Element::SCOPE_SHOP);
+
             if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PROFILE_REQUEST', $response)) {
                 $data = array(
                     $response->getElementsByTagName('profile-id')->item(0)->nodeValue,
@@ -816,7 +822,8 @@
                     $response->getElementsByTagName('tx-limit-installment-min')->item(0)->nodeValue,
                     $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue,
                     $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue,
-                    $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue
+                    $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue,
+                    Shopware\Models\Config\Element::SCOPE_SHOP
                 );
 
                 $activePayments = '';
@@ -836,8 +843,9 @@
                     . "`b2b-invoice`, `b2b-debit`, `b2b-rate`, "
                     . "`address-invoice`, `address-debit`, `address-rate`, "
                     . "`limit-invoice-min`, `limit-debit-min`, `limit-rate-min`, "
-                    . "`limit-invoice-max`, `limit-debit-max`, `limit-rate-max`) "
-                    . "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    . "`limit-invoice-max`, `limit-debit-max`, `limit-rate-max`, "
+                    . "`scope`)"
+                    . "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
                 try {
                     $this->clearRuleSet();
