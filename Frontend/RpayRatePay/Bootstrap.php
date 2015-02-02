@@ -199,29 +199,25 @@
                     'label' => 'Deutschland Profile-ID',
                     'value' => '',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                    'required' => true
                 ));
 
                 $form->setElement('text', 'RatePaySecurityCodeDE', array(
                     'label' => 'Deutschland Security Code',
                     'value' => '',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                    'required' => true
                 ));
 
                 /** AT CREDENTIALS **/
                 $form->setElement('text', 'RatePayProfileIDAT', array(
                     'label' => 'Österreich Profile-ID',
                     'value' => '',
-                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                    'required' => true
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
                 ));
 
                 $form->setElement('text', 'RatePaySecurityCodeAT', array(
                     'label' => 'Österreich Security Code',
                     'value' => '',
-                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                    'required' => true
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP
                 ));
 
                 /** LOGGING AND SANDBOX **/
@@ -325,8 +321,8 @@
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlConfig = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_config` (" .
-                "`scope` int(5) NOT NULL, " .
                 "`profileId` varchar(255) NOT NULL," .
+                "`scope` int(5) NOT NULL, " .
                 "`invoiceStatus` int(1) NOT NULL, " .
                 "`debitStatus` int(1) NOT NULL, " .
                 "`rateStatus` int(1) NOT NULL, " .
@@ -342,7 +338,7 @@
                 "`limit-invoice-max` int(5) NOT NULL, " .
                 "`limit-debit-max` int(5) NOT NULL, " .
                 "`limit-rate-max` int(5) NOT NULL, " .
-                "PRIMARY KEY (`scope`)" .
+                "PRIMARY KEY (`profileId`, `scope`)" .
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlOrderPositions = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_order_positions` (" .
@@ -493,29 +489,62 @@
                 return;
             }
 
+            $credentials = array();
+            $sandbox = false;
+
             foreach ($parameter['elements'] as $element) {
 
-                if (in_array($element['name'], array('RatePayProfileID', 'RatePaySecurityCode')) && empty($element['values'][0]['value'])) {
-                    Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Credentials are missing!');
-                    return;
+                //DE
+                if ($element['name'] === 'RatePayProfileIDDE') {
+                    $credentials['de']['profileID'] = $element['values'][0]['value'];
+                    $credentials['de']['scope']     = $element['scope'];
                 }
+                if ($element['name'] === 'RatePaySecurityCodeDE') $credentials['de']['securityCode'] = $element['values'][0]['value'];
 
-                if ($element['name'] === 'RatePayProfileID') {
-                    $profileID = $element['values'][0]['value'];
+                //AT
+                if ($element['name'] === 'RatePayProfileIDAT') {
+                    $credentials['at']['profileID'] = $element['values'][0]['value'];
+                    $credentials['at']['scope']     = $element['scope'];
                 }
+                if ($element['name'] === 'RatePaySecurityCodeAT') $credentials['at']['securityCode'] = $element['values'][0]['value'];
 
-                if ($element['name'] === 'RatePaySecurityCode') {
-                    $securityCode = $element['values'][0]['value'];
-                }
 
+                //CONFIG
                 if ($element['name'] === 'RatePaySandbox') {
                     $sandbox = $element['values'][0]['value'];
                 }
+
             }
 
-            if ($this->getRatepayConfig($profileID, $securityCode, $sandbox)) {
-                Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Ruleset successfully updated.');
+            //DE Profile Request
+            if (
+                null !== $credentials['de']['profileID']
+                &&
+                null !== $credentials['de']['securityCode']
+                &&
+                null !== $credentials['de']['scope']
+            )
+            {
+                if ($this->getRatepayConfig($credentials['de']['profileID'], $credentials['de']['securityCode'], $credentials['de']['scope'], $sandbox)) {
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Ruleset for germany successfully updated.');
+                }
             }
+
+            //AT Profile Request
+            if (
+                null !== $credentials['at']['profileID']
+                &&
+                null !== $credentials['at']['securityCode']
+                &&
+                null !== $credentials['at']['scope']
+            )
+            {
+                if ($this->getRatepayConfig($credentials['at']['profileID'], $credentials['at']['securityCode'], $credentials['at']['scope'], $sandbox)) {
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', 'RatePAY: Ruleset for austria successfully updated.');
+                }
+            }
+
+
         }
 
         /**
@@ -830,7 +859,7 @@
          *
          * @return boolean
          */
-        private function getRatepayConfig($profileId, $securityCode, $sandbox)
+        private function getRatepayConfig($profileId, $securityCode, $scope, $sandbox)
         {
             $factory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory();
             $profileRequestModel = $factory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest());
@@ -840,8 +869,6 @@
             $profileRequestModel->setHead($head);
             $requestService = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($sandbox);
             $response = $requestService->xmlRequest($profileRequestModel->toArray());
-
-            var_dump(Shopware\Models\Config\Element::SCOPE_SHOP);
 
             if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PROFILE_REQUEST', $response)) {
                 $data = array(
@@ -861,7 +888,7 @@
                     $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue,
                     $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue,
                     $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue,
-                    Shopware\Models\Config\Element::SCOPE_SHOP
+                    $scope
                 );
 
                 $activePayments = '';

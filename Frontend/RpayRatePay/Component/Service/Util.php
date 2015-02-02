@@ -110,6 +110,7 @@
                 $resultCode = (string)$response->getElementsByTagName('result')->item(0)->getAttribute('code');
                 $reasonCode = (string)$response->getElementsByTagName('reason')->item(0)->getAttribute('code');
             }
+
             switch ($requestType) {
                 case 'PROFILE_REQUEST':
                     if ($statusCode == "OK" && $resultCode == "500") {
