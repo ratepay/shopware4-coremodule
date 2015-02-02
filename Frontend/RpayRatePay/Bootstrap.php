@@ -30,13 +30,23 @@
         {
             return array(
                 'version'     => $this->getVersion(),
-                'autor'       => 'RatePay GmbH',
+                'author'       => 'RatePay GmbH',
                 'source'      => $this->getSource(),
-                'support'     => 'http://www.ratepay.com/support',
-                'link'        => 'http://www.ratepay.com/',
-                'copyright'   => 'Copyright (c) 2013, RatePAY GmbH',
-                'description' => 'RatePay Payment Module.',
-                'label'       => 'RatePay Payment'
+                'supplier'    => 'RatePAY GmbH',
+                'support'     => 'https://www.ratepay.com/service-center-haendler',
+                'link'        => 'https://www.ratepay.com/',
+                'copyright'   => 'Copyright (c) 2014, RatePAY GmbH',
+                'label'       => 'RatePAY Payment',
+                'description' => '<h2>RatePAY Payment plugin for Shopware Community Edition Version 4.0.0 - 4.2.3</h2>'
+                     . '<ul>'
+                     . '<li style="list-style: inherit;">RatePAY Payment Module</li>'
+                     . '<li style="list-style: inherit;">Payment means: Invoice, Direct Debit (ELV), Rate</li>'
+                     . '<li style="list-style: inherit;">Refunds can be created from an additional tab in the order detail view</li>'
+                     . '<li style="list-style: inherit;">Integrated support for multishops</li>'
+                     . '<li style="list-style: inherit;">Improved payment form with visual feedback for your customers</li>'
+                     . '<li style="list-style: inherit;">Supported Languages: German, English</li>'
+                     . '<li style="list-style: inherit;">Backend Log with custom View accessible from your shop backend</li>'
+                     . '</ul>'
             );
         }
 
@@ -72,7 +82,7 @@
          */
         public function getVersion()
         {
-            return "3.2.3";
+            return "3.2.4";
         }
 
         /**
@@ -183,29 +193,48 @@
         {
             try {
                 $form = $this->Form();
-                $form->setElement('text', 'RatePayProfileID', array(
-                    'label' => 'Profile-ID',
+
+                /** DE CREDENTIALS **/
+                $form->setElement('text', 'RatePayProfileIDDE', array(
+                    'label' => 'Deutschland Profile-ID',
                     'value' => '',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                     'required' => true
                 ));
-                $form->setElement('text', 'RatePaySecurityCode', array(
-                    'label' => 'Security Code',
+
+                $form->setElement('text', 'RatePaySecurityCodeDE', array(
+                    'label' => 'Deutschland Security Code',
                     'value' => '',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                     'required' => true
                 ));
+
+                /** AT CREDENTIALS **/
+                $form->setElement('text', 'RatePayProfileIDAT', array(
+                    'label' => 'Österreich Profile-ID',
+                    'value' => '',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                    'required' => true
+                ));
+
+                $form->setElement('text', 'RatePaySecurityCodeAT', array(
+                    'label' => 'Österreich Security Code',
+                    'value' => '',
+                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
+                    'required' => true
+                ));
+
+                /** LOGGING AND SANDBOX **/
                 $form->setElement('checkbox', 'RatePaySandbox', array(
-                    'label' => 'Sandbox',
+                    'label' => 'Testmodus aktivieren ( Test Gateway )',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ));
+
                 $form->setElement('checkbox', 'RatePayLogging', array(
-                    'label' => 'Logging',
+                    'label' => 'Logging aktivieren',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ));
-                /*$form->setElement('checkbox', 'RatePayBankData', array(
-                    'label' => 'Bankdatenspeicherung aktivieren'
-                ));*/
+
             } catch (Exception $exception) {
                 $this->uninstall();
                 throw new Exception("Can not create config elements." . $exception->getMessage());
@@ -221,11 +250,20 @@
                 $form = $this->Form();
                 $translations = array(
                     'de_DE' => array(
-                        'RatePayProfileID'    => 'Profile-ID',
-                        'RatePaySecurityCode' => 'Security Code',
-                        'RatePaySandbox'      => 'Sandboxmodus',
-                        'RatePayLogging'      => 'Logging aktivieren',
-                        //'RatePayBankData' => 'Bankdatenspeicherung aktivieren'
+                        'RatePayProfileIDDE'    => 'Deutschland Profile-ID',
+                        'RatePaySecurityCodeDE' => 'Deutschland Security Code',
+                        'RatePayProfileIDAT'    => 'Österreich Profile-ID',
+                        'RatePaySecurityCodeAT' => 'Österreich Security Code',
+                        'RatePaySandbox'        => 'Testmodus aktivieren ( Test Gateway )',
+                        'RatePayLogging'        => 'Logging aktivieren'
+                    ),
+                    'en_EN' => array(
+                        'RatePayProfileIDDE'    => 'Profile-ID for Germany',
+                        'RatePaySecurityCodeDE' => 'Security Code for Germany',
+                        'RatePayProfileIDAT'    => 'Profile-ID for Austria',
+                        'RatePaySecurityCodeAT' => 'Security Code for Austria',
+                        'RatePaySandbox'        => 'Sandbox ( Test Gateway )',
+                        'RatePayLogging'        => 'enable Logging'
                     )
                 );
 
