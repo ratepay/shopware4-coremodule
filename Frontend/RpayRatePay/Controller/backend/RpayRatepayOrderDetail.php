@@ -176,7 +176,7 @@
                 $basket->setCurrency($order["currency"]);
                 $basket->setItems($basketItems);
 
-                $confirmationDeliveryModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery());
+                $confirmationDeliveryModel = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery(), $orderId);
                 $confirmationDeliveryModel->setShoppingBasket($basket);
                 $head = $confirmationDeliveryModel->getHead();
                 $head->setTransactionId($order['transactionID']);

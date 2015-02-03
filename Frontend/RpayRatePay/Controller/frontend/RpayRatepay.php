@@ -151,6 +151,7 @@
             $paymentInitModel = $this->_modelFactory->getModel(
                 new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit()
             );
+
             $result = $this->_service->xmlRequest($paymentInitModel->toArray());
             if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse(
                 'PAYMENT_INIT',

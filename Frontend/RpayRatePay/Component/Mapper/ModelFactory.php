@@ -51,7 +51,7 @@
          * @return filledObjectGivenToTheFunction
          * @throws Exception The submitted Class is not supported!
          */
-        public function getModel($modelName)
+        public function getModel($modelName, $orderId = null)
         {
             switch ($modelName) {
                 case is_a($modelName, 'Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit'):
@@ -67,7 +67,7 @@
                     $this->fillProfileRequest($modelName);
                     break;
                 case is_a($modelName, 'Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery'):
-                    $this->fillConfirmationDelivery($modelName);
+                    $this->fillConfirmationDelivery($modelName, $orderId);
                     break;
                 case is_a($modelName, 'Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange'):
                     $this->fillPaymentChange($modelName);
@@ -87,11 +87,14 @@
         private function fillPaymentInit(
             Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentInit &$paymentInitModel
         ) {
-            $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PAYMENT_INIT');
-            $head->setProfileId($config->get('RatePayProfileID'));
-            $head->setSecurityCode($config->get('RatePaySecurityCode'));
+
+            $user = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
+
+            $head->setProfileId($this->getProfileId($user));
+            $head->setSecurityCode($this->getSecurityCode($user));
+
             $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
@@ -106,22 +109,23 @@
         private function fillPaymentRequest(
             Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentRequest &$paymentRequestModel
         ) {
-            $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
+
             $method = Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::getPaymentMethod(
                 Shopware()->Session()->sOrderVariables['sUserData']['additional']['payment']['name']
             );
             $encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
 
+            $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
+
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setTransactionId(Shopware()->Session()->RatePAY['transactionId']);
             $head->setOperation('PAYMENT_REQUEST');
-            $head->setProfileId($config->get('RatePayProfileID'));
-            $head->setSecurityCode($config->get('RatePaySecurityCode'));
+            $head->setProfileId($this->getProfileId($shopUser));
+            $head->setSecurityCode($this->getSecurityCode($shopUser));
             $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
 
-            $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
             $shopCountry = Shopware()->Models()->find(
                 'Shopware\Models\Country\Country',
                 $shopUser->getBilling()->getCountryId()
@@ -162,18 +166,10 @@
             if ($method === 'ELV') {
                 $bankAccount = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_BankAccount();
 
-                if ($config->get('RatePayBankData') == true) {
-                    $bankdata = $encryption->loadBankdata(Shopware()->Session()->sUserId);
-                    $bankAccount->setBankAccount($bankdata['account']);
-                    $bankAccount->setBankCode($bankdata['bankcode']);
-                    $bankAccount->setBankName($bankdata['bankname']);
-                    $bankAccount->setOwner($bankdata['bankholder']);
-                } else {
-                    $bankAccount->setBankAccount(Shopware()->Session()->RatePAY['bankdata']['account']);
-                    $bankAccount->setBankCode(Shopware()->Session()->RatePAY['bankdata']['bankcode']);
-                    $bankAccount->setBankName(Shopware()->Session()->RatePAY['bankdata']['bankname']);
-                    $bankAccount->setOwner(Shopware()->Session()->RatePAY['bankdata']['bankholder']);
-                }
+                $bankAccount->setBankAccount(Shopware()->Session()->RatePAY['bankdata']['account']);
+                $bankAccount->setBankCode(Shopware()->Session()->RatePAY['bankdata']['bankcode']);
+                $bankAccount->setBankName(Shopware()->Session()->RatePAY['bankdata']['bankname']);
+                $bankAccount->setOwner(Shopware()->Session()->RatePAY['bankdata']['bankholder']);
 
                 $customer->setBankAccount($bankAccount);
             }
@@ -254,11 +250,11 @@
         private function fillPaymentConfirm(
             Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentConfirm &$paymentConfirmModel
         ) {
-            $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
+            $customer = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PAYMENT_CONFIRM');
-            $head->setProfileId($config->get('RatePayProfileID'));
-            $head->setSecurityCode($config->get('RatePaySecurityCode'));
+            $head->setProfileId($this->getProfileId($customer));
+            $head->setSecurityCode($this->getSecurityCode($customer));
             $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
             $head->setTransactionId($this->getTransactionId());
             $head->setSystemVersion($this->_getVersion());
@@ -272,13 +268,12 @@
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest $profileRequestModel
          */
         private function fillProfileRequest(
-            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest &$profileRequestModel
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ProfileRequest &$profileRequestModel, $profileId = null, $securityCode = null
         ) {
-            $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PROFILE_REQUEST');
-            $head->setProfileId($config->get('RatePayProfileID'));
-            $head->setSecurityCode($config->get('RatePaySecurityCode'));
+            $head->setProfileId($profileId);
+            $head->setSecurityCode($securityCode);
             $head->setSystemId(
                 Shopware()->Db()->fetchOne(
                     "SELECT `host` FROM `s_core_shops` WHERE `default`=1"
@@ -295,20 +290,23 @@
          * @param Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery $confirmationDeliveryModel
          */
         private function fillConfirmationDelivery(
-            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery &$confirmationDeliveryModel
+            Shopware_Plugins_Frontend_RpayRatePay_Component_Model_ConfirmationDelivery &$confirmationDeliveryModel, $orderId
         ) {
-            $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
+
+            $order = Shopware()->Models()->find('Shopware\Models\Order\Order', $orderId);
+            $customer = $order->getCustomer();
+
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('CONFIRMATION_DELIVER');
-            $head->setProfileId($config->get('RatePayProfileID'));
-            $head->setSecurityCode($config->get('RatePaySecurityCode'));
+            $head->setProfileId($this->getProfileId($customer));
+            $head->setSecurityCode($this->getSecurityCode($customer));
             $head->setSystemId(
                 Shopware()->Db()->fetchOne(
                     "SELECT `host` FROM `s_core_shops` WHERE `default`=1"
                 ) ? : $_SERVER['SERVER_ADDR']
             );
             $head->setSystemVersion($this->_getVersion());
-            $head->setOrderId($this->_getOrderIdFromTransactionId());
+            $head->setOrderId($orderId);
             $confirmationDeliveryModel->setHead($head);
         }
 
@@ -320,13 +318,19 @@
         private function fillPaymentChange(
             Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange &$paymentChangeModel
         ) {
-            $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
+
+            $order = Shopware()->Db()->fetchRow(
+                "SELECT * FROM `s_order` WHERE `transactionID`=?",
+                array($this->_transactionId)
+            );
+            $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', $order['userID']);
+
             $head = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_Head();
             $head->setOperation('PAYMENT_CHANGE');
             $head->setTransactionId($this->_transactionId);
-            $head->setProfileId($config->get('RatePayProfileID'));
-            $head->setSecurityCode($config->get('RatePaySecurityCode'));
+            $head->setProfileId($this->getProfileId($shopUser));
+            $head->setSecurityCode($this->getSecurityCode($shopUser));
             $head->setSystemId(
                 Shopware()->Db()->fetchOne(
                     "SELECT `host` FROM `s_core_shops` WHERE `default`=1"
@@ -335,12 +339,6 @@
             $head->setSystemVersion($this->_getVersion());
             $head->setOrderId($this->_getOrderIdFromTransactionId());
 
-            $order = Shopware()->Db()->fetchRow(
-                "SELECT * FROM `s_order` WHERE `transactionID`=?",
-                array($this->_transactionId)
-            );
-
-            $shopUser = Shopware()->Models()->find('Shopware\Models\Customer\Customer', $order['userID']);
             $shopCountry = Shopware()->Models()->find(
                 'Shopware\Models\Country\Country',
                 $shopUser->getBilling()->getCountryId()
@@ -506,6 +504,38 @@
             }
 
             return $customerIp;
+        }
+
+        public function getProfileId(Shopware\Models\Customer\Customer $customer)
+        {
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $customer->getBilling()->getCountryId());
+
+            $profileId = null;
+            if('DE' === $country->getIso())
+            {
+                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDDE');
+            } elseif ('AT' === $country->getIso())
+            {
+                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDAT');
+            }
+
+            return $profileId;
+        }
+
+        public function getSecurityCode(Shopware\Models\Customer\Customer $customer)
+        {
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $customer->getBilling()->getCountryId());
+
+            $securityCode = null;
+            if('DE' === $country->getIso())
+            {
+                $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySecurityCodeDE');
+            } elseif ('AT' === $country->getIso())
+            {
+                $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySecurityCodeAT');
+            }
+
+            return $securityCode;
         }
 
     }
