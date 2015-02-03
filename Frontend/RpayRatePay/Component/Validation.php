@@ -188,17 +188,15 @@
         }
 
         /**
-         * Checks if the country is germany
+         * Checks if the country is germany or austria
          *
          * @return boolean
-         *
-         * @toDo implement Austria
          */
         public function isCountryValid()
         {
             $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $this->_user->getBilling()->getCountryId());
 
-            return $country->getIso() === "DE";
+            return ($country->getIso() === "DE") || ($country->getIso() === 'AT');
         }
 
 

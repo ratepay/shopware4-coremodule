@@ -144,6 +144,17 @@
         }
 
         /**
+         * @param $iso
+         *
+         * @return null|\Shopware\Models\Country\Country
+         */
+        final private function getCountry($iso)
+        {
+            return Shopware()->Models()->getRepository('Shopware\Models\Country\Country')
+                             ->findOneBy(array('iso' => $iso));
+        }
+
+        /**
          * Creates the Paymentmeans
          */
         private function _createPaymentmeans()
@@ -158,7 +169,11 @@
                         'position'              => 1,
                         'additionaldescription' => 'Kauf auf Rechnung',
                         'template'              => 'RatePAYInvoice.tpl',
-                        'pluginID'              => $this->getId()
+                        'pluginID'              => $this->getId(),
+                        'countries'             => array(
+                            $this->getCountry('DE'),
+                            $this->getCountry('AT')
+                        )
                     )
                 );
                 $this->createPayment(
@@ -170,7 +185,11 @@
                         'position'              => 2,
                         'additionaldescription' => 'Kauf mit Ratenzahlung',
                         'template'              => 'RatePAYRate.tpl',
-                        'pluginID'              => $this->getId()
+                        'pluginID'              => $this->getId(),
+                        'countries'             => array(
+                            $this->getCountry('DE'),
+                            $this->getCountry('AT')
+                        )
                     )
                 );
                 $this->createPayment(
@@ -182,7 +201,11 @@
                         'position'              => 3,
                         'additionaldescription' => 'Kauf mit SEPA Lastschrift',
                         'template'              => 'RatePAYDebit.tpl',
-                        'pluginID'              => $this->getId()
+                        'pluginID'              => $this->getId(),
+                        'countries'             => array(
+                            $this->getCountry('DE'),
+                            $this->getCountry('AT')
+                        )
                     )
                 );
             } catch (Exception $exception) {
@@ -201,7 +224,7 @@
 
                 /** DE CREDENTIALS **/
                 $form->setElement('button', 'button0', array(
-                    'label' => '<b style="color:red;">Zugangsdaten für Deutschland:</b>',
+                    'label' => '<b>Zugangsdaten für Deutschland:</b>',
                     'value' => ''
                 ));
                 $form->setElement('text', 'RatePayProfileIDDE', array(
@@ -218,7 +241,7 @@
 
                 /** AT CREDENTIALS **/
                 $form->setElement('button', 'button1', array(
-                    'label' => '<b style="color:red;">Zugangsdaten für Österreich:</b>',
+                    'label' => '<b>Zugangsdaten für Österreich:</b>',
                     'value' => ''
                 ));
                 $form->setElement('text', 'RatePayProfileIDAT', array(
@@ -235,7 +258,7 @@
 
                 /** LOGGING AND SANDBOX **/
                 $form->setElement('button', 'button2', array(
-                    'label' => '<b style="color:red;">Testmodus und Logging:</b>',
+                    'label' => '<b>Testmodus und Logging:</b>',
                     'value' => ''
                 ));
                 $form->setElement('checkbox', 'RatePaySandbox', array(
@@ -268,7 +291,10 @@
                         'RatePayProfileIDAT'    => 'Österreich Profile-ID',
                         'RatePaySecurityCodeAT' => 'Österreich Security Code',
                         'RatePaySandbox'        => 'Testmodus aktivieren ( Test Gateway )',
-                        'RatePayLogging'        => 'Logging aktivieren'
+                        'RatePayLogging'        => 'Logging aktivieren',
+                        'button0'               => 'Zugangsdaten für Deutschland',
+                        'button1'               => 'Zugangsdaten für Österreich',
+                        'button2'               => 'Testmodus und Logging',
                     ),
                     'en_EN' => array(
                         'RatePayProfileIDDE'    => 'Profile-ID for Germany',
@@ -276,7 +302,10 @@
                         'RatePayProfileIDAT'    => 'Profile-ID for Austria',
                         'RatePaySecurityCodeAT' => 'Security Code for Austria',
                         'RatePaySandbox'        => 'Sandbox ( Test Gateway )',
-                        'RatePayLogging'        => 'enable Logging'
+                        'RatePayLogging'        => 'enable Logging',
+                        'button0'               => 'Credentials for Germany',
+                        'button1'               => 'Credentials for Austria',
+                        'button2'               => 'Sandbox and Logging',
                     )
                 );
 
@@ -482,7 +511,7 @@
             ) {
                 Shopware()->Pluginlogger()->addNotice('RatePAY', 'Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
                 $arguments->stop();
-                throw new \Symfony\Component\Config\Definition\Exception\Exception('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
+                throw new Exception('Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf RatePay Zahlungsmethoden ge&auml;ndert werden und RatePay Bestellungen k&ouml;nnen nicht nachtr&auml;glich auf andere Zahlarten ge&auml;ndert werden.');
             }
 
             return false;
@@ -738,30 +767,24 @@
             if ($validation->isRatePAYPayment()) {
                 $view->sRegisterFinished = 'false';
 
-                /*
-                $view->ratepayValidateTelephoneNumber = $validation->isTelephoneNumberSet() ? 'true' : 'false';
-                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isTelephoneNumberSet->" . $view->ratepayValidateTelephoneNumber);
-                */
                 $view->ratepayValidateUST = $validation->isUSTSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isUSTSet->" . $view->ratepayValidateUST);
+
                 $view->ratepayValidateCompanyName = $validation->isCompanyNameSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isCompanyNameSet->" . $view->ratepayValidateCompanyName);
+
                 $view->ratepayValidateIsB2B = $validation->isCompanyNameSet() || $validation->isUSTSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isB2B->" . $view->ratepayValidateIsB2B);
+
                 $view->ratepayIsBillingAddressSameLikeShippingAddress = $validation->isBillingAddressSameLikeShippingAddress() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isBillingAddressSameLikeShippingAddress->" . $view->ratepayIsBillingAddressSameLikeShippingAddress);
 
-                /*
-                $view->ratepayValidateIsBirthdayValid = $validation->isBirthdayValid() ? 'true' : 'false';
-                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isBirthdayValid->" . $view->ratepayValidateIsBirthdayValid);
-                $view->ratepayValidateisAgeValid = $validation->isAgeValid() ? 'true' : 'false';
-                Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isAgeValid->" . $view->ratepayValidateisAgeValid);
-                */
                 $view->ratepayValidateIsBirthdayValid = true;
                 $view->ratepayValidateisAgeValid = true;
 
                 $view->ratepayValidateisDebitSet = $validation->isDebitSet() ? 'true' : 'false';
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "RatePAY: isDebitSet->" . $view->ratepayValidateisDebitSet);
+
                 $view->ratepayErrorRatenrechner = Shopware()->Session()->ratepayErrorRatenrechner ? 'true' : 'false';
             }
         }
@@ -771,7 +794,7 @@
          * RatePAY-payments will be hidden, if one of the following requirement is not given
          *  - Delivery Address is not allowed to be not the same as billing address
          *  - The Customer must be over 18 years old
-         *  - The Country must be germany
+         *  - The Country must be germany or austria
          *  - The Currency must be EUR
          *
          * @param Enlight_Event_EventArgs $arguments
@@ -782,60 +805,85 @@
         {
             $return = $arguments->getReturn();
             $currency = Shopware()->Config()->get('currency');
+
             if (empty(Shopware()->Session()->sUserId) || empty($currency)) {
                 return;
             }
 
-            $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileID');
+            $user = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $user->getBilling()->getCountryId());
+
+            //fetch correct config based on user country
+            $profileId = null;
+            if('DE' === $country->getIso())
+            {
+                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDDE');
+            } elseif ('AT' === $country->getIso())
+            {
+                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDAT');
+            }
+
+            //get ratepay config based on scope and profile id
             $paymentStati = Shopware()->Db()->fetchRow('SELECT * FROM `rpay_ratepay_config` WHERE `scope` =? AND `profileId`=?', array(Shopware\Models\Config\Element::SCOPE_SHOP, $profileId));
-            $showRate = $paymentStati['rateStatus'] == 2 ? true : false;
-            $showDebit = $paymentStati['debitStatus'] == 2 ? true : false;
+
+            $showRate    = $paymentStati['rateStatus'] == 2 ? true : false;
+            $showDebit   = $paymentStati['debitStatus'] == 2 ? true : false;
             $showInvoice = $paymentStati['invoiceStatus'] == 2 ? true : false;
 
-
+            //check if the country is germany or austria
             $validation = new Shopware_Plugins_Frontend_RpayRatePay_Component_Validation();
             if (!$validation->isCountryValid()) {
-                $showRate = false;
-                $showDebit = false;
+                $showRate    = false;
+                $showDebit   = false;
                 $showInvoice = false;
             }
 
+            //check if it is a b2b transaction
             if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-                $showRate = $paymentStati['b2b-rate'] == 'yes' && $showRate ? true : false;
-                $showDebit = $paymentStati['b2b-debit'] == 'yes' && $showDebit ? true : false;
+                $showRate    = $paymentStati['b2b-rate'] == 'yes' && $showRate ? true : false;
+                $showDebit   = $paymentStati['b2b-debit'] == 'yes' && $showDebit ? true : false;
                 $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? true : false;
             }
 
+            //check if there is an alternate delivery address
             if (!$validation->isBillingAddressSameLikeShippingAddress()) {
-                $showRate = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
-                $showDebit = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
+                $showRate    = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
+                $showDebit   = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
                 $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? true : false;
             }
 
+            //check if payments are hidden by session
             if (true === Shopware()->Session()->RatePAY['hidePayment']) {
-                $showRate = false;
-                $showDebit = false;
+                $showRate    = false;
+                $showDebit   = false;
                 $showInvoice = false;
             }
 
+            //check the limits
             if (Shopware()->Modules()->Basket()) {
+
                 $basket = Shopware()->Modules()->Basket()->sGetAmount();
                 $basket = $basket['totalAmount'];
+
                 Shopware()->Pluginlogger()->addNotice('RatePAY', "BasketAmount: $basket");
+
                 if ($basket < $paymentStati['limit-invoice-min'] || $basket > $paymentStati['limit-invoice-max']) {
                     $showInvoice = false;
                 }
+
                 if ($basket < $paymentStati['limit-debit-min'] || $basket > $paymentStati['limit-debit-max']) {
                     $showDebit = false;
                 }
+
                 if ($basket < $paymentStati['limit-rate-min'] || $basket > $paymentStati['limit-rate-max']) {
                     $showRate = false;
                 }
+
             }
 
-            $user = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
             $paymentModel = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $user->getPaymentId());
             $setToDefaultPayment = false;
+
             $payments = array();
             foreach ($return as $payment) {
                 if ($payment['name'] === 'rpayratepayinvoice' && !$showInvoice) {
