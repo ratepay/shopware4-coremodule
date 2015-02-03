@@ -37,11 +37,12 @@
                 'link'        => 'https://www.ratepay.com/',
                 'copyright'   => 'Copyright (c) 2014, RatePAY GmbH',
                 'label'       => 'RatePAY Payment',
-                'description' => '<h2>RatePAY Payment plugin for Shopware Community Edition Version 4.0.0 - 4.2.3</h2>'
+                'description' =>
+                       '<h2>RatePAY Payment plugin for Shopware Community Edition Version 4.0.0 - 4.2.3</h2>'
                      . '<ul>'
                      . '<li style="list-style: inherit;">RatePAY Payment Module</li>'
                      . '<li style="list-style: inherit;">Payment means: Invoice, Direct Debit (ELV), Rate</li>'
-                     . '<li style="list-style: inherit;">Refunds can be created from an additional tab in the order detail view</li>'
+                     . '<li style="list-style: inherit;">Cancellations, Returns, etc. can be created from an additional tab in the order detail view</li>'
                      . '<li style="list-style: inherit;">Integrated support for multishops</li>'
                      . '<li style="list-style: inherit;">Improved payment form with visual feedback for your customers</li>'
                      . '<li style="list-style: inherit;">Supported Languages: German, English</li>'
@@ -111,6 +112,7 @@
         public function update($oldversion)
         {
             $this->_subscribeEvents();
+            $this->_createForm();
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
         }
@@ -152,10 +154,11 @@
                         'name'                  => 'rpayratepayinvoice',
                         'description'           => 'RatePAY Rechnung',
                         'action'                => 'rpay_ratepay',
-                        'active'                => 0,
+                        'active'                => 1,
                         'position'              => 1,
                         'additionaldescription' => 'Kauf auf Rechnung',
-                        'template'              => 'RatePAYInvoice.tpl'
+                        'template'              => 'RatePAYInvoice.tpl',
+                        'pluginID'              => $this->getId()
                     )
                 );
                 $this->createPayment(
@@ -163,10 +166,11 @@
                         'name'                  => 'rpayratepayrate',
                         'description'           => 'RatePAY Ratenzahlung',
                         'action'                => 'rpay_ratepay',
-                        'active'                => 0,
+                        'active'                => 1,
                         'position'              => 2,
                         'additionaldescription' => 'Kauf mit Ratenzahlung',
-                        'template'              => 'RatePAYRate.tpl'
+                        'template'              => 'RatePAYRate.tpl',
+                        'pluginID'              => $this->getId()
                     )
                 );
                 $this->createPayment(
@@ -174,10 +178,11 @@
                         'name'                  => 'rpayratepaydebit',
                         'description'           => 'RatePAY SEPA-Lastschrift',
                         'action'                => 'rpay_ratepay',
-                        'active'                => 0,
+                        'active'                => 1,
                         'position'              => 3,
                         'additionaldescription' => 'Kauf mit SEPA Lastschrift',
-                        'template'              => 'RatePAYDebit.tpl'
+                        'template'              => 'RatePAYDebit.tpl',
+                        'pluginID'              => $this->getId()
                     )
                 );
             } catch (Exception $exception) {
@@ -195,6 +200,10 @@
                 $form = $this->Form();
 
                 /** DE CREDENTIALS **/
+                $form->setElement('button', 'button0', array(
+                    'label' => '<b style="color:red;">Zugangsdaten für Deutschland:</b>',
+                    'value' => ''
+                ));
                 $form->setElement('text', 'RatePayProfileIDDE', array(
                     'label' => 'Deutschland Profile-ID',
                     'value' => '',
@@ -208,6 +217,10 @@
                 ));
 
                 /** AT CREDENTIALS **/
+                $form->setElement('button', 'button1', array(
+                    'label' => '<b style="color:red;">Zugangsdaten für Österreich:</b>',
+                    'value' => ''
+                ));
                 $form->setElement('text', 'RatePayProfileIDAT', array(
                     'label' => 'Österreich Profile-ID',
                     'value' => '',
@@ -221,6 +234,10 @@
                 ));
 
                 /** LOGGING AND SANDBOX **/
+                $form->setElement('button', 'button2', array(
+                    'label' => '<b style="color:red;">Testmodus und Logging:</b>',
+                    'value' => ''
+                ));
                 $form->setElement('checkbox', 'RatePaySandbox', array(
                     'label' => 'Testmodus aktivieren ( Test Gateway )',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
