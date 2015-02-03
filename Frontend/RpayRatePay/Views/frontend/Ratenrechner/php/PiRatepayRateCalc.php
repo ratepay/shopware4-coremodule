@@ -130,6 +130,7 @@
             $response = $this->ratepay->paymentOperation($request);
             $request_reason_msg = 'serveroff';
 
+
             if ($response) {
 
                 $response_result_code = (string)$response->head->processing->result->attributes()->code;

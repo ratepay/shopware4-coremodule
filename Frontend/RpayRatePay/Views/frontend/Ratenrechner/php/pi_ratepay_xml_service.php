@@ -26,7 +26,9 @@
          */
         function pi_ratepay_xml_service($live)
         {
+
             $this->live = $live;
+
         }
 
         // Getter
@@ -82,6 +84,8 @@
                 "Pragma: no-cache",
                 "Connection: keep-alive"
             ));
+            //TLS
+            curl_setopt($this->_curl, CURLOPT_SSLVERSION,6);
             // Request
             curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlRequest);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -92,6 +96,7 @@
             curl_close($ch);
             // Uncomment for xml debug
             //return $this->createXML();
+
             return $result;
         }
 

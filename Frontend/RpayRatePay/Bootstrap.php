@@ -30,7 +30,7 @@
         {
             return array(
                 'version'     => $this->getVersion(),
-                'author'       => 'RatePay GmbH',
+                'author'      => 'RatePay GmbH',
                 'source'      => $this->getSource(),
                 'supplier'    => 'RatePAY GmbH',
                 'support'     => 'https://www.ratepay.com/service-center-haendler',

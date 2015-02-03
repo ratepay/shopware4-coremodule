@@ -23,7 +23,21 @@
          */
         public function getProfileId()
         {
-            return Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePayProfileID;
+            $customer = Shopware()->Models()->getRepository('Shopware\Models\Customer\Customer')
+                ->findOneBy(array('id' => Shopware()->Session()->sUserId));
+
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $customer->getBilling()->getCountryId());
+
+            $profileId = null;
+            if('DE' === $country->getIso())
+            {
+                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePayProfileIDDE;
+            } elseif('AT' === $country->getIso())
+            {
+                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePayProfileIDAT;
+            }
+
+            return $profileId;
         }
 
         /**
@@ -45,7 +59,21 @@
          */
         public function getSecurityCodeHashed()
         {
-            return Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePaySecurityCode;
+            $customer = Shopware()->Models()->getRepository('Shopware\Models\Customer\Customer')
+                                  ->findOneBy(array('id' => Shopware()->Session()->sUserId));
+
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $customer->getBilling()->getCountryId());
+
+            $securityCode = null;
+            if('DE' === $country->getIso())
+            {
+                $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePaySecurityCodeDE;
+            } elseif('AT' === $country->getIso())
+            {
+                $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePaySecurityCodeAT;
+            }
+
+            return $securityCode;
         }
 
         /**
