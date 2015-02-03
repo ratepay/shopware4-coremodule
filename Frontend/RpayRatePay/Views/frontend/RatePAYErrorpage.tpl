@@ -9,7 +9,15 @@
                         Datenverarbeitung getroffen worden. Einzelheiten hierzu finden Sie in der
                     {/s}
                 </span>
-                <a href='http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis' target='_blank'>RatePAY-Datenschutzerklärung</a>.
+
+                {if $sUserData.additional.country.countryiso == 'DE'}
+                    <a href='http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis' target="_blank">RatePAY-Datenschutzerklärung</a>
+                {elseif $sUserData.additional.country.countryiso == 'AT'}
+                    <a href='http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis-at' target="_blank">RatePAY-Datenschutzerklärung</a>
+                {else}
+                    <a href='http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis' target="_blank">RatePAY-Datenschutzerklärung</a>
+                {/if}
+
             </p>
         </div>
         <div class="actions">
