@@ -32,8 +32,28 @@
          */
         public function init()
         {
-            $this->_config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
-            $this->_modelFactory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory();
+            //set correct subshop for backend processes
+            $orderId = $this->Request()->getParam("orderId");
+            if(null !== $orderId)
+            {
+                $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
+                $orderAttributeModel = Shopware()->Db()->fetchRow("SELECT * FROM `s_order_attributes` WHERE `orderID`=?", array($orderId));
+                $shopId = $orderAttributeModel['RatePAY_ShopId'];
+
+                //if shop id is not set then use main shop
+                if(!$shopId) $shopId = 1;
+
+
+
+
+                $config = array();
+                $config['shop'] = Shopware()->Models()->find("Shopware\\Models\\Shop\\Shop", $shopId );
+                $config['db'] = Shopware()->Db();
+                $this->_config = new \Shopware_Components_Config($config);
+            }
+
+            #$this->_config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
+            $this->_modelFactory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory($this->_config);
             $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get('RatePaySandbox'));
             $this->_history = new Shopware_Plugins_Frontend_RpayRatePay_Component_History();
         }
@@ -43,8 +63,8 @@
          */
         public function initPositionsAction()
         {
-            $articleNumbers = json_decode($this->Request()->getParam("articleNumber"));
-            $orderID = $this->Request()->getParam("orderID");
+            $articleNumbers = json_decode($this->Request()->getParam('articleNumber'));
+            $orderID = $this->Request()->getParam('orderID');
             $success = true;
             $bindings = array($orderID);
             foreach (array_unique($articleNumbers) as $articleNumber) {
@@ -152,6 +172,7 @@
             $items = json_decode($this->Request()->getParam("items"));
             $order = Shopware()->Db()->fetchRow("SELECT * FROM `s_order` WHERE `id`=?", array($orderId));
             $itemsToDeliver = null;
+
             $basketItems = array();
             foreach ($items as $item) {
                 $basketItem = new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_SubModel_item();

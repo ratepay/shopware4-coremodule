@@ -101,6 +101,16 @@
             $this->_createDataBaseTables();
             $this->Plugin()->setActive(true);
 
+            //add own fields
+            Shopware()->Models()->addAttribute('s_order_attributes','RatePAY','ShopId','int(5)', false, 0);
+            Shopware()->Models()->addAttribute('s_order_attributes','RatePAY','TransactionId','varchar(255)', false, 0);
+            Shopware()->Models()->addAttribute('s_order_attributes','RatePAY','DgNumber','varchar(255)', false, 0);
+            $metaDataCache  = Shopware()->Models()->getConfiguration()->getMetadataCacheImpl();
+            $metaDataCache->deleteAll();
+            Shopware()->Models()->generateAttributeModels(
+                array('s_order_attributes')
+            );
+
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
         }
 

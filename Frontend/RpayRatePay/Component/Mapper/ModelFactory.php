@@ -23,6 +23,13 @@
 
         private $_transactionId;
 
+        private $_config;
+
+        public function __construct($config = null)
+        {
+            $this->_config = $config;
+        }
+
         /**
          * Gets the TransactionId for Requests
          *
@@ -513,10 +520,20 @@
             $profileId = null;
             if('DE' === $country->getIso())
             {
-                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDDE');
+                if(null !== $this->_config)
+                {
+                    $profileId = $this->_config['RatePayProfileIDDE'];
+                } else {
+                    $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDDE');
+                }
             } elseif ('AT' === $country->getIso())
             {
-                $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDAT');
+                if(null !== $this->_config) {
+                    $profileId = $this->_config['RatePayProfileIDAT'];
+                }
+                else{
+                    $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDAT');
+                }
             }
 
             return $profileId;
@@ -529,10 +546,22 @@
             $securityCode = null;
             if('DE' === $country->getIso())
             {
-                $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySecurityCodeDE');
+                if(null !== $this->_config)
+                {
+                    $securityCode = $this->_config['RatePaySecurityCodeDE'];
+                }
+                else {
+                    $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySecurityCodeDE');
+                }
             } elseif ('AT' === $country->getIso())
             {
-                $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySecurityCodeAT');
+                if(null !== $this->_config)
+                {
+                    $securityCode = $this->_config['RatePaySecurityCodeAT'];
+                } else
+                {
+                    $securityCode = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySecurityCodeAT');
+                }
             }
 
             return $securityCode;
