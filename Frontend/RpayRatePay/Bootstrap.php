@@ -243,10 +243,6 @@
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ));
 
-                $form->setElement('checkbox', 'RatePayLoggingDE', array(
-                    'label' => 'Logging aktivieren',
-                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                ));
 
                 /** AT CREDENTIALS **/
                 $form->setElement('button', 'button1', array(
@@ -266,11 +262,6 @@
                 ));
                 $form->setElement('checkbox', 'RatePaySandboxAT', array(
                     'label' => 'Testmodus aktivieren ( Test Gateway )',
-                    'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                ));
-
-                $form->setElement('checkbox', 'RatePayLoggingAT', array(
-                    'label' => 'Logging aktivieren',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
                 ));
 
@@ -294,7 +285,6 @@
                         'RatePayProfileIDAT'    => 'Österreich Profile-ID',
                         'RatePaySecurityCodeAT' => 'Österreich Security Code',
                         'RatePaySandboxDE'      => 'Testmodus aktivieren ( Test Gateway )',
-                        'RatePayLoggingAT'      => 'Logging aktivieren',
                         'button0'               => 'Zugangsdaten für Deutschland',
                         'button1'               => 'Zugangsdaten für Österreich',
                     ),
@@ -304,7 +294,6 @@
                         'RatePayProfileIDAT'    => 'Profile-ID for Austria',
                         'RatePaySecurityCodeAT' => 'Security Code for Austria',
                         'RatePaySandboxDE'      => 'Sandbox ( Test Gateway )',
-                        'RatePayLoggingAT'      => 'enable Logging',
                         'button0'               => 'Credentials for Germany',
                         'button1'               => 'Credentials for Austria',
                     )
@@ -557,11 +546,6 @@
                         $credentials[$element['shopId']]['de']['sandbox'] = $element['value'];
                     }
                 }
-                if ($element['name'] === 'RatePayLoggingDE') {
-                    foreach($element['values'] as $element) {
-                        $credentials[$element['shopId']]['de']['logging'] = $element['value'];
-                    }
-                }
 
                 //AT
                 if ($element['name'] === 'RatePayProfileIDAT') {
@@ -580,16 +564,6 @@
                         $credentials[$element['shopId']]['at']['sandbox'] = $element['value'];
                     }
                 }
-                if ($element['name'] === 'RatePayLoggingAT') {
-                    foreach($element['values'] as $element) {
-                        $credentials[$element['shopId']]['at']['logging'] = $element['value'];
-                    }
-                }
-
-                //CONFIG
-                if ($element['name'] === 'RatePaySandbox') {
-                    $sandbox = $element['values'][0]['value'];
-                }
 
             }
 
@@ -602,8 +576,6 @@
                     null !== $credentials['de']['securityCode']
                     &&
                     null !== $credentials['de']['sandbox']
-                    &&
-                    null !== $credentials['de']['logging']
                 )
                 {
                     if ($this->getRatepayConfig($credentials['de']['profileID'], $credentials['de']['securityCode'], $shopId, $credentials['de']['sandbox'])) {
@@ -618,8 +590,6 @@
                     null !== $credentials['at']['securityCode']
                     &&
                     null !== $credentials['at']['sandbox']
-                    &&
-                    null !== $credentials['at']['logging']
                 )
                 {
                     if ($this->getRatepayConfig($credentials['at']['profileID'], $credentials['at']['securityCode'], $shopId, $credentials['at']['sandbox'])) {

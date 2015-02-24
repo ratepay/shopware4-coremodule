@@ -30,38 +30,37 @@
         {
             $config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
             $version = Shopware()->Plugins()->Frontend()->RpayRatePay()->getVersion();
-            if ($config->get('RatePayLogging') === true) {
-                preg_match("/<operation.*>(.*)<\/operation>/", $requestXml, $operationMatches);
-                $operation = $operationMatches[1];
 
-                preg_match('/<operation subtype=\"(.*)">(.*)<\/operation>/', $requestXml, $operationSubtypeMatches);
-                $operationSubtype = $operationSubtypeMatches[1] ? : 'N/A';
+            preg_match("/<operation.*>(.*)<\/operation>/", $requestXml, $operationMatches);
+            $operation = $operationMatches[1];
 
-                preg_match("/<transaction-id>(.*)<\/transaction-id>/", $requestXml, $transactionMatches);
-                $transactionId = $transactionMatches[1] ? : 'N/A';
+            preg_match('/<operation subtype=\"(.*)">(.*)<\/operation>/', $requestXml, $operationSubtypeMatches);
+            $operationSubtype = $operationSubtypeMatches[1] ? : 'N/A';
 
-                preg_match("/<transaction-id>(.*)<\/transaction-id>/", $responseXml, $transactionMatchesResponse);
-                $transactionId = $transactionId == 'N/A' && $transactionMatchesResponse[1] ? $transactionMatchesResponse[1] : $transactionId;
+            preg_match("/<transaction-id>(.*)<\/transaction-id>/", $requestXml, $transactionMatches);
+            $transactionId = $transactionMatches[1] ? : 'N/A';
 
-                $requestXml = preg_replace("/<owner>(.*)<\/owner>/", "<owner>xxxxxxxx</owner>", $requestXml);
-                $requestXml = preg_replace("/<bank-account-number>(.*)<\/bank-account-number>/", "<bank-account-number>xxxxxxxx</bank-account-number>", $requestXml);
-                $requestXml = preg_replace("/<bank-code>(.*)<\/bank-code>/", "<bank-code>xxxxxxxx</bank-code>", $requestXml);
-                $requestXml = preg_replace("/<bank-name>(.*)<\/bank-name>/", "<bank-name>xxxxxxxx</bank-name>", $requestXml);
+            preg_match("/<transaction-id>(.*)<\/transaction-id>/", $responseXml, $transactionMatchesResponse);
+            $transactionId = $transactionId == 'N/A' && $transactionMatchesResponse[1] ? $transactionMatchesResponse[1] : $transactionId;
 
-                $bind = array(
-                    'version'       => $version,
-                    'operation'     => $operation,
-                    'suboperation'  => $operationSubtype,
-                    'transactionId' => $transactionId,
-                    'request'       => $requestXml,
-                    'response'      => $responseXml
-                );
+            $requestXml = preg_replace("/<owner>(.*)<\/owner>/", "<owner>xxxxxxxx</owner>", $requestXml);
+            $requestXml = preg_replace("/<bank-account-number>(.*)<\/bank-account-number>/", "<bank-account-number>xxxxxxxx</bank-account-number>", $requestXml);
+            $requestXml = preg_replace("/<bank-code>(.*)<\/bank-code>/", "<bank-code>xxxxxxxx</bank-code>", $requestXml);
+            $requestXml = preg_replace("/<bank-name>(.*)<\/bank-name>/", "<bank-name>xxxxxxxx</bank-name>", $requestXml);
 
-                try {
-                    Shopware()->Db()->insert('rpay_ratepay_logging', $bind);
-                } catch (Exception $exception) {
-                    Shopware()->Log()->Err('Fehler beim Loggen: ' . $exception->getMessage());
-                }
+            $bind = array(
+                'version'       => $version,
+                'operation'     => $operation,
+                'suboperation'  => $operationSubtype,
+                'transactionId' => $transactionId,
+                'request'       => $requestXml,
+                'response'      => $responseXml
+            );
+
+            try {
+                Shopware()->Db()->insert('rpay_ratepay_logging', $bind);
+            } catch (Exception $exception) {
+                Shopware()->Log()->Err('Fehler beim Loggen: ' . $exception->getMessage());
             }
         }
 

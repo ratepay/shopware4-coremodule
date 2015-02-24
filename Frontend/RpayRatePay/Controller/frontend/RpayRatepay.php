@@ -44,9 +44,20 @@
                 Shopware()->Session()->sUserId
             );
 
-            $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get(
-                'RatePaySandbox'
-            ));
+            //get country of order
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $this->_user->getCountryId());
+
+            //set sandbox mode based on config
+            $sandbox = false;
+            if('DE' === $country->getIso())
+            {
+                $sandbox = $this->_config->get('RatePaySandboxDE');
+            } elseif ('AT' === $country->getIso())
+            {
+                $sandbox = $this->_config->get('RatePaySandboxAT');
+            }
+
+            $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($sandbox);
 
             $this->_modelFactory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory();
             $this->_logging      = new Shopware_Plugins_Frontend_RpayRatePay_Component_Logging();
