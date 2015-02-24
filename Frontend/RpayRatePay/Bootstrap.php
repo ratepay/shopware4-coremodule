@@ -369,7 +369,7 @@
 
             $sqlConfig = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_config` (" .
                 "`profileId` varchar(255) NOT NULL," .
-                "`shopeId` int(5) NOT NULL, " .
+                "`shopId` int(5) NOT NULL, " .
                 "`invoiceStatus` int(1) NOT NULL, " .
                 "`debitStatus` int(1) NOT NULL, " .
                 "`rateStatus` int(1) NOT NULL, " .
@@ -385,7 +385,7 @@
                 "`limit-invoice-max` int(5) NOT NULL, " .
                 "`limit-debit-max` int(5) NOT NULL, " .
                 "`limit-rate-max` int(5) NOT NULL, " .
-                "PRIMARY KEY (`profileId`, `shopeId`)" .
+                "PRIMARY KEY (`profileId`, `shopId`)" .
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
             $sqlOrderPositions = "CREATE TABLE IF NOT EXISTS `rpay_ratepay_order_positions` (" .
@@ -842,6 +842,7 @@
          */
         public function filterPayments(Enlight_Event_EventArgs $arguments)
         {
+
             $return = $arguments->getReturn();
             $currency = Shopware()->Config()->get('currency');
 
@@ -850,9 +851,14 @@
             }
 
             $user = Shopware()->Models()->find('Shopware\Models\Customer\Customer', Shopware()->Session()->sUserId);
+
+            //get country of order
             $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $user->getBilling()->getCountryId());
 
-            //fetch correct config based on user country
+            //get current shopId
+            $shopId = Shopware()->Shop()->getId();
+
+            //fetch correct config for current shop based on user country
             $profileId = null;
             if('DE' === $country->getIso())
             {
@@ -869,10 +875,10 @@
                 FROM
                 `rpay_ratepay_config`
                 WHERE
-                `shopeId` =?
+                `shopId` =?
                 AND
                 `profileId`=?
-            ', array(Shopware\Models\Config\Element::SCOPE_SHOP, $profileId));
+            ', array($shopId, $profileId));
 
             $showRate    = $paymentStati['rateStatus']    == 2 ? true : false;
             $showDebit   = $paymentStati['debitStatus']   == 2 ? true : false;
@@ -888,15 +894,15 @@
 
             //check if it is a b2b transaction
             if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-                $showRate    = $paymentStati['b2b-rate'] == 'yes' && $showRate ? true : false;
-                $showDebit   = $paymentStati['b2b-debit'] == 'yes' && $showDebit ? true : false;
+                $showRate    = $paymentStati['b2b-rate']    == 'yes' && $showRate ? true : false;
+                $showDebit   = $paymentStati['b2b-debit']   == 'yes' && $showDebit ? true : false;
                 $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? true : false;
             }
 
             //check if there is an alternate delivery address
             if (!$validation->isBillingAddressSameLikeShippingAddress()) {
-                $showRate    = $paymentStati['address-rate'] == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
-                $showDebit   = $paymentStati['address-debit'] == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
+                $showRate    = $paymentStati['address-rate']    == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
+                $showDebit   = $paymentStati['address-debit']   == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
                 $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? true : false;
             }
 

@@ -38,16 +38,19 @@
         public function init()
         {
             $this->_config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
-            $this->_user = Shopware()->Models()->find(
+
+            $this->_user   = Shopware()->Models()->find(
                 'Shopware\Models\Customer\Billing',
                 Shopware()->Session()->sUserId
             );
+
             $this->_service = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($this->_config->get(
                 'RatePaySandbox'
             ));
+
             $this->_modelFactory = new Shopware_Plugins_Frontend_RpayRatePay_Component_Mapper_ModelFactory();
-            $this->_logging = new Shopware_Plugins_Frontend_RpayRatePay_Component_Logging();
-            $this->_encryption = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
+            $this->_logging      = new Shopware_Plugins_Frontend_RpayRatePay_Component_Logging();
+            $this->_encryption   = new Shopware_Plugins_Frontend_RpayRatePay_Component_Encryption_ShopwareEncryption();
         }
 
         /**
