@@ -110,7 +110,7 @@
                 if (getAge(dob) < 18 || getAge(dob) > 120) {
                     error = true;
                     userUpdate = false;
-                    errorMessage = '{s namespace=RatePAY name=dobtooyoung}Für eine Bezahlung mit RatePay müssen sie mindestens 18 Jahre alt sein.{/s}'
+                    errorMessage = '{s namespace=RatePAY name=dobtooyoung}Für eine Bezahlung mit RatePAY müssen Sie mindestens 18 Jahre alt sein.{/s}'
                 }
 
                 requestParams += '&ratepay_dob=' + dob.yyyymmdd();
