@@ -99,9 +99,19 @@
             $this->_subscribeEvents();
             $this->_createMenu();
             $this->_createDataBaseTables();
+            $this->_createExtraFields();
+
             $this->Plugin()->setActive(true);
 
-            //add own fields
+
+            return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
+        }
+
+        /**
+         * creates extra fields for ratepay orders in s_order_attributes
+         */
+        public function _createExtraFields()
+        {
             Shopware()->Models()->addAttribute('s_order_attributes','RatePAY','ShopId','int(5)', false, 0);
             Shopware()->Models()->addAttribute('s_order_attributes','RatePAY','TransactionId','varchar(255)', false, 0);
             Shopware()->Models()->addAttribute('s_order_attributes','RatePAY','DgNumber','varchar(255)', false, 0);
@@ -110,19 +120,26 @@
             Shopware()->Models()->generateAttributeModels(
                 array('s_order_attributes')
             );
-
-            return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
         }
 
         /**
          * Updates the Plugin and its components
          *
-         * @param string $oldversion
+         * @param string $version
          */
-        public function update($oldversion)
+        public function update($version)
         {
             $this->_subscribeEvents();
             $this->_createForm();
+            $this->_createPluginConfigTranslation();
+
+            switch($version) {
+                case '3.2.2':
+                    $sql = 'ALTER TABLE `rpay_ratepay_config` ADD `shopId` INT(5) NOT NULL ;';
+                    Shopware()->Db()->query($sql);
+                    $sql = 'ALTER TABLE `rpay_ratepay_config` ADD PRIMARY KEY (`profileId`,`shopId`);';
+                    Shopware()->Db()->query($sql);
+            }
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
         }
