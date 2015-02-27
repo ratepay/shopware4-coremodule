@@ -104,7 +104,6 @@
 
             $head->setSystemId(Shopware()->Shop()->getHost() ? : $_SERVER['SERVER_ADDR']);
             $head->setSystemVersion($this->_getVersion());
-            $head->setOrderId($this->_getOrderIdFromTransactionId());
             $paymentInitModel->setHead($head);
         }
 
@@ -287,7 +286,6 @@
                 ) ? : $_SERVER['SERVER_ADDR']
             );
             $head->setSystemVersion($this->_getVersion());
-            $head->setOrderId($this->_getOrderIdFromTransactionId());
             $profileRequestModel->setHead($head);
         }
 
@@ -313,7 +311,6 @@
                 ) ? : $_SERVER['SERVER_ADDR']
             );
             $head->setSystemVersion($this->_getVersion());
-            $head->setOrderId($orderId);
             $confirmationDeliveryModel->setHead($head);
         }
 
@@ -344,7 +341,6 @@
                 ) ? : $_SERVER['SERVER_ADDR']
             );
             $head->setSystemVersion($this->_getVersion());
-            $head->setOrderId($this->_getOrderIdFromTransactionId());
 
             $shopCountry = Shopware()->Models()->find(
                 'Shopware\Models\Country\Country',

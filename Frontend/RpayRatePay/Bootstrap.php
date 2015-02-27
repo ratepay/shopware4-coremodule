@@ -83,7 +83,7 @@
          */
         public function getVersion()
         {
-            return "3.2.4";
+            return "3.2.5";
         }
 
         /**

@@ -270,7 +270,7 @@
                     )
                 )
             );
-            if ($this->_orderId != null) {
+            if (null !== $this->_orderId) {
                 $return['external']['order-id'] = $this->getOrderId();
             }
             if ($this->_merchantConsumerId ==! null) {
