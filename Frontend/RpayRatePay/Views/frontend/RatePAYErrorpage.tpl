@@ -1,4 +1,4 @@
-{extends file="frontend/detail/index.tpl"}
+{extends file="frontend/checkout/confirm.tpl"}
 {block name="frontend_index_content"}
     <div>
         <div>
