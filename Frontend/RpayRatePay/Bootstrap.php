@@ -135,6 +135,7 @@
 
             switch($version) {
                 case '3.2.2':
+                    $this->uninstall();
                     $sql = 'ALTER TABLE `rpay_ratepay_config` DROP PRIMARY KEY;';
                     Shopware()->Db()->query($sql);
                     $sql = 'ALTER TABLE `rpay_ratepay_config` ADD `shopId` INT(5) NOT NULL ;';
@@ -155,7 +156,6 @@
         public function uninstall()
         {
             $this->disable();
-
             return parent::uninstall();
         }
 
@@ -166,7 +166,7 @@
          */
         public function disable()
         {
-            $sql = "UPDATE `s_core_paymentmeans` SET `active` =0 WHERE `name` LIKE 'rpayratepay%'";
+            $sql = "UPDATE `s_core_paymentmeans` SET `active` = 0 WHERE `name` LIKE 'rpayratepay%'";
             Shopware()->Db()->query($sql);
 
             return true;
@@ -199,10 +199,10 @@
                         'additionaldescription' => 'Kauf auf Rechnung',
                         'template'              => 'RatePAYInvoice.tpl',
                         'pluginID'              => $this->getId(),
-                        'countries'             => array(
+                        /*'countries'             => array(
                             $this->getCountry('DE'),
                             $this->getCountry('AT')
-                        )
+                        )*/
                     )
                 );
                 $this->createPayment(
@@ -215,10 +215,10 @@
                         'additionaldescription' => 'Kauf mit Ratenzahlung',
                         'template'              => 'RatePAYRate.tpl',
                         'pluginID'              => $this->getId(),
-                        'countries'             => array(
+                        /*'countries'             => array(
                             $this->getCountry('DE'),
                             $this->getCountry('AT')
-                        )
+                        )*/
                     )
                 );
                 $this->createPayment(
@@ -231,10 +231,10 @@
                         'additionaldescription' => 'Kauf mit SEPA Lastschrift',
                         'template'              => 'RatePAYDebit.tpl',
                         'pluginID'              => $this->getId(),
-                        'countries'             => array(
+                        /*'countries'             => array(
                             $this->getCountry('DE'),
                             $this->getCountry('AT')
-                        )
+                        )*/
                     )
                 );
             } catch (Exception $exception) {
