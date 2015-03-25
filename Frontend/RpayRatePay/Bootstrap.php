@@ -142,6 +142,9 @@
                     Shopware()->Db()->query($sql);
                     $sql = 'ALTER TABLE `rpay_ratepay_config` ADD PRIMARY KEY (`profileId`,`shopId`);';
                     Shopware()->Db()->query($sql);
+
+                    //create extra fields
+                    $this->_createExtraFields();
             }
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
