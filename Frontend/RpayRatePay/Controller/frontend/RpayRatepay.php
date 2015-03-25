@@ -39,9 +39,8 @@
         {
             $this->_config = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config();
 
-            $this->_user   = Shopware()->Models()->find(
-                'Shopware\Models\Customer\Billing',
-                Shopware()->Session()->sUserId
+            $this->_user = Shopware()->Models()->getRepository('Shopware\Models\Customer\Billing')->findOneBy(
+                array('customerId' => Shopware()->Session()->sUserId)
             );
 
             //get country of order
