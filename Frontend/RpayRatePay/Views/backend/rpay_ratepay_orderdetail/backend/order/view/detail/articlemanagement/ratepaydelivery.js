@@ -120,7 +120,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                     me.reconfigure(me.store);
                 }
             },
-            {
+            /*{
                 iconCls: 'sprite-inbox--plus',
                 text: '{s namespace=RatePAY name=addarticle}Artikel hinzuf&uuml;gen{/s}',
                 handler: function () {
@@ -129,7 +129,7 @@ Ext.define('Shopware.apps.Order.view.detail.ratepaydelivery', {
                         record: me.record
                     }).show();
                 }
-            },
+            },*/
             {
                 iconCls: 'sprite-plus-circle-frame',
                 text: '{s namespace=RatePAY name=addcredit}Nachlass hinzuf&uuml;gen{/s}',
