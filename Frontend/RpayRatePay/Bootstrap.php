@@ -989,6 +989,7 @@
             $head->setSecurityCode($securityCode);
             $profileRequestModel->setHead($head);
             $requestService = new Shopware_Plugins_Frontend_RpayRatePay_Component_Service_RequestService($sandbox);
+
             $response = $requestService->xmlRequest($profileRequestModel->toArray());
 
             if (Shopware_Plugins_Frontend_RpayRatePay_Component_Service_Util::validateResponse('PROFILE_REQUEST', $response)) {

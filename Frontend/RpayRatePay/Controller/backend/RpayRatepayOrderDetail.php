@@ -285,10 +285,6 @@
                 $basket->setItems($basketItems);
 
                 $subtype = 'partial-cancellation';
-                if ($this->isFullPaymentChange($orderId, $basketItems, 'cancel')) {
-                    $subtype = 'full-cancellation';
-                }
-
                 $this->_modelFactory->setTransactionId($order['transactionID']);
                 $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange());
                 $head = $paymentChange->getHead();
@@ -365,9 +361,6 @@
                 $basket->setItems($basketItems);
 
                 $subtype = 'partial-return';
-                if ($this->isFullPaymentChange($orderId, $basketItems, 'return')) {
-                    $subtype = 'full-return';
-                }
 
                 $this->_modelFactory->setTransactionId($order['transactionID']);
                 $paymentChange = $this->_modelFactory->getModel(new Shopware_Plugins_Frontend_RpayRatePay_Component_Model_PaymentChange());
@@ -606,35 +599,6 @@
 
             return $orderModel->getInvoiceAmount();
         }
-
-        /**
-         * Checks if the Transaction is Full or Partial
-         *
-         * @param string $orderId
-         * @param array  $remainingBasket
-         * @param string $type
-         *
-         * @return boolean
-         */
-        private function isFullPaymentChange($orderId, $remainingBasket, $type)
-        {
-            if ($type == 'return') {
-                $count = $this->countOpenPositions('returned', $orderId);
-            }
-            elseif ($type == 'cancel') {
-                $count = $this->countOpenPositions('cancelled', $orderId);
-                $count += $this->countOpenPositions('delivered', $orderId);
-            }
-
-            //No Items remaining and no partial-requests done before.
-            if (count($remainingBasket) === 0 && $count == 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
 
         /**
          * Returns the whole Basket
