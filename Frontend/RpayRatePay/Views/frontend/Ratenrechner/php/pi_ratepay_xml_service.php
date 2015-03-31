@@ -26,9 +26,7 @@
          */
         function pi_ratepay_xml_service($live)
         {
-
             $this->live = $live;
-
         }
 
         // Getter

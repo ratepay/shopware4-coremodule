@@ -83,7 +83,21 @@
          */
         public function isLive()
         {
-            return !Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePaySandbox;
+            $customer = Shopware()->Models()->getRepository('Shopware\Models\Customer\Customer')
+                                  ->findOneBy(array('id' => Shopware()->Session()->sUserId));
+
+            $country = Shopware()->Models()->find('Shopware\Models\Country\Country', $customer->getBilling()->getCountryId());
+
+            $isLive = true;
+            if('DE' === $country->getIso())
+            {
+                $isLive = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePaySandboxDE;
+            } elseif('AT' === $country->getIso())
+            {
+                $isLive = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->RatePaySandboxAT;
+            }
+
+            return !$isLive;
         }
 
         /**
