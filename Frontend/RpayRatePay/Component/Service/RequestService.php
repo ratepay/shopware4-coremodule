@@ -29,7 +29,7 @@
                 CURLOPT_SSL_VERIFYPEER => 0,
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_SSLVERSION     => 6,
+                //CURLOPT_SSLVERSION     => 6,
                 CURLOPT_POST           => 1,
                 CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
                 CURLOPT_HTTPHEADER     => array(
