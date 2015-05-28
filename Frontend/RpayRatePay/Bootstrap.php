@@ -83,7 +83,7 @@
          */
         public function getVersion()
         {
-            return "3.2.6";
+            return "3.2.7";
         }
 
         /**
@@ -99,12 +99,28 @@
             $this->_subscribeEvents();
             $this->_createMenu();
             $this->_createDataBaseTables();
+            $this->_createPaymentStati();
             $this->_createExtraFields();
 
             $this->Plugin()->setActive(true);
 
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
+        }
+
+        /**
+         * creates ratepay payment stati
+         */
+        public function _createPaymentStati()
+        {
+            $sql = "INSERT IGNORE INTO `s_core_states` SET `id` =?, `description` =?, `position` =?, `group` =?, `mail`=?";
+            try {
+                Shopware()->Db()->query($sql, array(
+                    155, 'Zahlungsabwicklung durch RatePAY', 155, 'payment', 0
+                ));
+            } catch (Exception $exception) {
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
+            }
         }
 
         /**
@@ -127,13 +143,13 @@
          *
          * @param string $version
          */
-        public function update($version)
+        public function update($oldVersion)
         {
             $this->_subscribeEvents();
             $this->_createForm();
-            $this->_createPluginConfigTranslation();
+            //$this->_createPluginConfigTranslation();
 
-            switch($version) {
+            switch($oldVersion) {
                 case '3.2.2':
                     $this->uninstall();
                     $sql = 'ALTER TABLE `rpay_ratepay_config` DROP PRIMARY KEY;';
@@ -145,6 +161,8 @@
 
                     //create extra fields
                     $this->_createExtraFields();
+                case '3.2.6':
+                    $this->_createPaymentStati();
             }
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));

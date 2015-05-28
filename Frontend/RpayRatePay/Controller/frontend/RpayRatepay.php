@@ -223,7 +223,7 @@
                         $this->savePaymentStatus(
                             Shopware()->Session()->RatePAY['transactionId'],
                             $uniqueId,
-                            12
+                            155
                         );
 
                         /**

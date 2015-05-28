@@ -231,7 +231,7 @@
                     }
                 }
 
-                $this->setNewOrderState($orderId);
+                $this->setNewOrderState($orderId, 'delivery');
                 $this->View()->assign(array(
                         "result"  => $result,
                         "success" => true
@@ -306,7 +306,7 @@
                         $this->_history->logHistory($orderId, "Artikel wurde storniert.", $item->name, $item->articlenumber, $item->cancelledItems);
                     }
                 }
-                $this->setNewOrderState($orderId);
+                $this->setNewOrderState($orderId, 'cancellation');
                 $this->View()->assign(array(
                         "result"  => $result,
                         "success" => true
@@ -383,6 +383,8 @@
                         $this->_history->logHistory($orderId, "Artikel wurde retourniert.", $item->name, $item->articlenumber, $item->returnedItems);
                     }
                 }
+
+                $this->setNewOrderState($orderId, 'return');
 
                 $this->View()->assign(array(
                         "result"  => $result,
@@ -747,7 +749,7 @@
          *
          * @param boolean $orderComplete
          */
-        private function setNewOrderState($orderId)
+        private function setNewOrderState($orderId, $operation = null)
         {
             $sql = "SELECT COUNT((`quantity` - `delivered` - `cancelled`)) AS 'itemsLeft' "
                 . "FROM `s_order_details` "
@@ -755,7 +757,22 @@
                 . "WHERE `orderID`=? AND (`quantity` - `delivered` - `cancelled`) > 0";
             try {
                 $orderComplete = Shopware()->Db()->fetchOne($sql, array($orderId));
-                $newState = $orderComplete == 0 ? 7 : 6;
+
+                if($operation === 'cancellation')
+                {
+                    $newState = $orderComplete == 0 ? 4 : null;
+                } elseif($operation === 'delivery') {
+                    $newState = $orderComplete == 0 ? 7 : 6;
+                } elseif($operation === 'return') {
+                    $newState = $orderComplete == 0 ? 2: null;
+                }
+
+                // return if no status update
+                if(null === $newState)
+                {
+                    return;
+                }
+
                 Shopware()->Db()->update('s_order', array(
                         'status' => $newState
                     ), '`id`=' . $orderId);
