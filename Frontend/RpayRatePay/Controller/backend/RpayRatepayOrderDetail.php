@@ -764,7 +764,7 @@
                 } elseif($operation === 'delivery') {
                     $newState = $orderComplete == 0 ? 7 : 6;
                 } elseif($operation === 'return') {
-                    $newState = $orderComplete == 0 ? 2: null;
+                    $newState = $orderComplete == 0 ? 255: null;
                 }
 
                 // return if no status update

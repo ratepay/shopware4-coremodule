@@ -100,12 +100,28 @@
             $this->_createMenu();
             $this->_createDataBaseTables();
             $this->_createPaymentStati();
+            $this->_createDeliveryStati();
             $this->_createExtraFields();
 
             $this->Plugin()->setActive(true);
 
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
+        }
+
+        /**
+         * creates ratepay delivery stati
+         */
+        public function _createDeliveryStati()
+        {
+            $sql = "INSERT IGNORE INTO `s_core_states` SET `id` =?, `description` =?, `position` =?, `group` =?, `mail`=?";
+            try {
+                Shopware()->Db()->query($sql, array(
+                    255, 'Teil-(Retoure)', 255, 'state', 0
+                ));
+            } catch (Exception $exception) {
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
+            }
         }
 
         /**
@@ -163,6 +179,7 @@
                     $this->_createExtraFields();
                 case '3.2.6':
                     $this->_createPaymentStati();
+                    $this->_createDeliveryStati();
             }
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
