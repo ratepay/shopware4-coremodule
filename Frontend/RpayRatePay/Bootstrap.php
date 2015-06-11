@@ -122,6 +122,14 @@
             } catch (Exception $exception) {
                 Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
             }
+
+            try {
+                Shopware()->Db()->query($sql, array(
+                    265, 'Teil-(Storno)', 265, 'state', 0
+                ));
+            } catch (Exception $exception) {
+                Shopware()->Pluginlogger()->addNotice('RatePAY', $exception->getMessage());
+            }
         }
 
         /**

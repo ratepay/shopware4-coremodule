@@ -760,11 +760,15 @@
 
                 if($operation === 'cancellation')
                 {
-                    $newState = $orderComplete == 0 ? 4 : null;
+                    $newState = $orderComplete == 0 ? 265 : 265;
                 } elseif($operation === 'delivery') {
-                    $newState = $orderComplete == 0 ? 7 : 6;
+                    //only set if order is not partial returned / cancelled
+                    if($orderComplete != 255 && $orderComplete != 265)
+                    {
+                        $newState = $orderComplete == 0 ? 7 : 6;
+                    }
                 } elseif($operation === 'return') {
-                    $newState = $orderComplete == 0 ? 255: null;
+                    $newState = $orderComplete == 0 ? 255: 265;
                 }
 
                 // return if no status update
