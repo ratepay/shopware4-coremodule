@@ -83,7 +83,7 @@
          */
         public function getVersion()
         {
-            return "3.2.8";
+            return "3.3.0";
         }
 
         /**
@@ -188,6 +188,9 @@
                 case '3.2.6':
                     $this->_createPaymentStati();
                     $this->_createDeliveryStati();
+                case '3.2.8':
+                    Shopware()->Db()->query('ALTER TABLE `rpay_ratepay_config` ADD `deviceFingerprintStatus` varchar(3) NOT NULL,');
+                    Shopware()->Db()->query('ALTER TABLE `rpay_ratepay_config` ADD `deviceFingerprintSnippetId` varchar(55) NOT NULL');
             }
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
@@ -449,6 +452,8 @@
                 "`limit-invoice-max` int(5) NOT NULL, " .
                 "`limit-debit-max` int(5) NOT NULL, " .
                 "`limit-rate-max` int(5) NOT NULL, " .
+                "`deviceFingerprintStatus` varchar(3) NOT NULL, " .
+                "`deviceFingerprintSnippetId` varchar(55) NOT NULL, " .
                 "PRIMARY KEY (`profileId`, `shopId`)" .
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
 
@@ -1053,6 +1058,8 @@
                     $response->getElementsByTagName('tx-limit-invoice-max')->item(0)->nodeValue,
                     $response->getElementsByTagName('tx-limit-elv-max')->item(0)->nodeValue,
                     $response->getElementsByTagName('tx-limit-installment-max')->item(0)->nodeValue,
+                    $response->getElementsByTagName('eligibility-device-fingerprint')->item(0)->nodeValue ? : 'no',
+                    $response->getElementsByTagName('device-fingerprint-snippet-id')->item(0)->nodeValue,
                     $shopId
                 );
 
@@ -1074,8 +1081,9 @@
                     . "`address-invoice`, `address-debit`, `address-rate`, "
                     . "`limit-invoice-min`, `limit-debit-min`, `limit-rate-min`, "
                     . "`limit-invoice-max`, `limit-debit-max`, `limit-rate-max`, "
+                    . '`deviceFingerprintStatus`, `deviceFingerprintSnippetId`,'
                     . "`shopId`)"
-                    . "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    . "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
                 try {
                     $this->clearRuleSet();
