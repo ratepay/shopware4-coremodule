@@ -248,10 +248,6 @@
                         'additionaldescription' => 'Kauf auf Rechnung',
                         'template'              => 'RatePAYInvoice.tpl',
                         'pluginID'              => $this->getId(),
-                        /*'countries'             => array(
-                            $this->getCountry('DE'),
-                            $this->getCountry('AT')
-                        )*/
                     )
                 );
                 $this->createPayment(
@@ -264,10 +260,6 @@
                         'additionaldescription' => 'Kauf mit Ratenzahlung',
                         'template'              => 'RatePAYRate.tpl',
                         'pluginID'              => $this->getId(),
-                        /*'countries'             => array(
-                            $this->getCountry('DE'),
-                            $this->getCountry('AT')
-                        )*/
                     )
                 );
                 $this->createPayment(
@@ -280,10 +272,6 @@
                         'additionaldescription' => 'Kauf mit SEPA Lastschrift',
                         'template'              => 'RatePAYDebit.tpl',
                         'pluginID'              => $this->getId(),
-                        /*'countries'             => array(
-                            $this->getCountry('DE'),
-                            $this->getCountry('AT')
-                        )*/
                     )
                 );
             } catch (Exception $exception) {
@@ -560,9 +548,51 @@
                 $this->subscribeEvent(
                     'Shopware_Modules_Order_SaveOrder_ProcessDetails', 'insertRatepayPositions'
                 );
+                $this->subscribeEvent('Enlight_Controller_Action_PostDispatch', 'onPostDispatch', 110
+                );
             } catch (Exception $exception) {
                 $this->uninstall();
                 throw new Exception('Can not create events.' . $exception->getMessage());
+            }
+        }
+
+        /**
+         * @param Enlight_Event_EventArgs $args
+         */
+        public function onPostDispatch(Enlight_Event_EventArgs $args)
+        {
+            /** @var $action Enlight_Controller_Action */
+            $action = $args->getSubject();
+            $request = $action->Request();
+            $response = $action->Response();
+            $view = $action->View();
+            if (!$request->isDispatched()
+                || $response->isException()
+                || $request->getModuleName() != 'frontend'
+                || !$view->hasTemplate()
+            ) {
+                return;
+            }
+            Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
+            //get ratepay config based on shopId @toDo: IF DI SNIPPET ID WILL BE VARIABLE BETWEEN SUBSHOPS WE NEED TO SELECT BY SHOPID AND COUNTRY CREDENTIALS!!!
+            $diConfig = Shopware()->Db()->fetchRow('
+                SELECT
+                *
+                FROM
+                `rpay_ratepay_config`
+                WHERE
+                `shopId` =?
+            ', array(Shopware()->Shop()->getId()));
+            //if no DF token is set, receive all the necessary data to set it and extend template
+            if(true == $diConfig['deviceFingerprintStatus']) {
+                $view->assign('snippetId', $diConfig['deviceFingerprintSnippetId']);
+                if(!Shopware()->Session()->RatePAY['devicefinterprintident']['token'])
+                {
+                    $token = md5(Shopware()->Session()->get('sessionId') . new \DateTime());
+                    Shopware()->Session()->RatePAY['devicefinterprintident']['token'] = $token;
+                }
+                $view->assign('token', Shopware()->Session()->RatePAY['devicefinterprintident']['token']);
+                $view->extendsTemplate('frontend/payment_rpay_part/index/index.tpl');
             }
         }
 
