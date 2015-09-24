@@ -1206,12 +1206,15 @@
 
             //fetch correct config for current shop based on user country
             $profileId = null;
+            $sandbox   = false;
             if('DE' === $country->getIso())
             {
                 $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDDE');
+                $sandbox = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySandboxDE');
             } elseif ('AT' === $country->getIso())
             {
                 $profileId = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePayProfileIDAT');
+                $sandbox = Shopware()->Plugins()->Frontend()->RpayRatePay()->Config()->get('RatePaySandboxAT');
             }
 
             //get ratepay config based on shopId and profileId
@@ -1230,55 +1233,59 @@
             $showDebit   = $paymentStati['debitStatus']   == 2 ? true : false;
             $showInvoice = $paymentStati['invoiceStatus'] == 2 ? true : false;
 
-            //check if the country is germany or austria
-            $validation = new Shopware_Plugins_Frontend_RpayRatePay_Component_Validation();
-            if (!$validation->isCountryValid()) {
-                $showRate    = false;
-                $showDebit   = false;
-                $showInvoice = false;
-            }
+            if(! $sandbox)
+            {
 
-            //check if it is a b2b transaction
-            if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
-                $showRate    = $paymentStati['b2b-rate']    == 'yes' && $showRate ? true : false;
-                $showDebit   = $paymentStati['b2b-debit']   == 'yes' && $showDebit ? true : false;
-                $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? true : false;
-            }
-
-            //check if there is an alternate delivery address
-            if (!$validation->isBillingAddressSameLikeShippingAddress()) {
-                $showRate    = $paymentStati['address-rate']    == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
-                $showDebit   = $paymentStati['address-debit']   == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
-                $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? true : false;
-            }
-
-            //check if payments are hidden by session
-            if (true === Shopware()->Session()->RatePAY['hidePayment']) {
-                $showRate    = false;
-                $showDebit   = false;
-                $showInvoice = false;
-            }
-
-            //check the limits
-            if (Shopware()->Modules()->Basket()) {
-
-                $basket = Shopware()->Modules()->Basket()->sGetAmount();
-                $basket = $basket['totalAmount'];
-
-                Shopware()->Pluginlogger()->addNotice('RatePAY', "BasketAmount: $basket");
-
-                if ($basket < $paymentStati['limit-invoice-min'] || $basket > $paymentStati['limit-invoice-max']) {
+                //check if the country is germany or austria
+                $validation = new Shopware_Plugins_Frontend_RpayRatePay_Component_Validation();
+                if (!$validation->isCountryValid()) {
+                    $showRate    = false;
+                    $showDebit   = false;
                     $showInvoice = false;
                 }
 
-                if ($basket < $paymentStati['limit-debit-min'] || $basket > $paymentStati['limit-debit-max']) {
-                    $showDebit = false;
+                //check if it is a b2b transaction
+                if ($validation->isCompanyNameSet() || $validation->isUSTSet()) {
+                    $showRate    = $paymentStati['b2b-rate']    == 'yes' && $showRate ? true : false;
+                    $showDebit   = $paymentStati['b2b-debit']   == 'yes' && $showDebit ? true : false;
+                    $showInvoice = $paymentStati['b2b-invoice'] == 'yes' && $showInvoice ? true : false;
                 }
 
-                if ($basket < $paymentStati['limit-rate-min'] || $basket > $paymentStati['limit-rate-max']) {
-                    $showRate = false;
+                //check if there is an alternate delivery address
+                if (!$validation->isBillingAddressSameLikeShippingAddress()) {
+                    $showRate    = $paymentStati['address-rate']    == 'yes' && $validation->isCountryValid() && $showRate ? true : false;
+                    $showDebit   = $paymentStati['address-debit']   == 'yes' && $validation->isCountryValid() && $showDebit ? true : false;
+                    $showInvoice = $paymentStati['address-invoice'] == 'yes' && $validation->isCountryValid() && $showInvoice ? true : false;
                 }
 
+                //check if payments are hidden by session
+                if (true === Shopware()->Session()->RatePAY['hidePayment']) {
+                    $showRate    = false;
+                    $showDebit   = false;
+                    $showInvoice = false;
+                }
+
+                //check the limits
+                if (Shopware()->Modules()->Basket()) {
+
+                    $basket = Shopware()->Modules()->Basket()->sGetAmount();
+                    $basket = $basket['totalAmount'];
+
+                    Shopware()->Pluginlogger()->addNotice('RatePAY', "BasketAmount: $basket");
+
+                    if ($basket < $paymentStati['limit-invoice-min'] || $basket > $paymentStati['limit-invoice-max']) {
+                        $showInvoice = false;
+                    }
+
+                    if ($basket < $paymentStati['limit-debit-min'] || $basket > $paymentStati['limit-debit-max']) {
+                        $showDebit = false;
+                    }
+
+                    if ($basket < $paymentStati['limit-rate-min'] || $basket > $paymentStati['limit-rate-max']) {
+                        $showRate = false;
+                    }
+
+                }
             }
 
             $paymentModel = Shopware()->Models()->find('Shopware\Models\Payment\Payment', $user->getPaymentId());
