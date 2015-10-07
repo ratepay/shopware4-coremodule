@@ -131,7 +131,7 @@
                 {
                     error = true;
                     userUpdate = false;
-                    errorMessage = '{s namespace=RatePAY name=phonenumbernotvalid}Für eine Bezahlung mit RatePay müssen Sie eine gültige Telefonnummer angeben. Die Nummer muss mindestens 6 Zeichen lang sein und darf Sonderzeichen wie - und + enthalten.{/s}'
+                    errorMessage = '{s namespace=RatePAY name=phonenumbernotvalid}Bitte geben Sie eine gültige Telefonnummer an. Die Nummer muss mindestens 6 Zeichen lang sein und darf Sonderzeichen wie - und + enthalten.{/s}'
                 }
             } else {
                 error = true;
