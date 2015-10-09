@@ -94,7 +94,6 @@
                 }
 
                 /* validate sepa direct debit - no error if no blz is net @toDo: fix for international direct debits */
-
                 if ($(this).attr('id') == 'ratepay_debit_bankcode' && !$(":input#ratepay_debit_accountnumber").val().match(/^\d+$/)) {
                     error = false;
                     userUpdate = true;
