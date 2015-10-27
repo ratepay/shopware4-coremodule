@@ -332,16 +332,16 @@
                 ));
 
                 /** BIDIRECTIONAL ORDER SETTINGS **/
-                $form->setElement('button', 'button2', array(
+                /*$form->setElement('button', 'button2', array(
                     'label' => '<b>Bidirektionale RatePAY-Bestellungen:</b>',
                     'value' => ''
                 ));
                 $form->setElement('checkbox', 'RatePayBidirectional', array(
                     'label' => 'Bidirektionalität aktivieren ( Automatische Operationen an RatePAY senden, wenn sich der Bestellstatus einer RatePAY-Bestellung ändert )',
                     'scope' => Shopware\Models\Config\Element::SCOPE_SHOP,
-                ));
+                ));*/
                 /** ORDERSTATUS **/
-                $form->setElement('button', 'button3', array(
+                /*$form->setElement('button', 'button3', array(
                     'label' => '<b>Bestellstati:</b>',
                     'value' => ''
                 ));
@@ -356,7 +356,7 @@
                         'valueField' => 'id',
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
                     )
-                );
+                );*/
                 /*$form->setElement(
                     'select',
                     'RatePayPartialDelivery',
@@ -369,7 +369,7 @@
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
                     )
                 );*/
-                $form->setElement(
+                /*$form->setElement(
                     'select',
                     'RatePayFullCancellation',
                     array(
@@ -380,7 +380,7 @@
                         'valueField' => 'id',
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
                     )
-                );
+                );*/
                 /*$form->setElement(
                     'select',
                     'RatePayPartialCancellation',
@@ -393,7 +393,7 @@
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
                     )
                 );*/
-                $form->setElement(
+                /*$form->setElement(
                     'select',
                     'RatePayFullReturn',
                     array(
@@ -404,7 +404,7 @@
                         'valueField' => 'id',
                         'scope' => \Shopware\Models\Config\Element::SCOPE_SHOP
                     )
-                );
+                );*/
                 /*$form->setElement(
                     'select',
                     'RatePayPartialReturn',
@@ -605,9 +605,9 @@
                 $this->subscribeEvent(
                     'Shopware_Controllers_Backend_Order::saveAction::before', 'beforeSaveOrderInBackend'
                 );
-                $this->subscribeEvent(
+                /*$this->subscribeEvent(
                     'Shopware_Controllers_Backend_Order::saveAction::after', 'onBidirectionalSendOrderOperation'
-                );
+                );*/
                 $this->subscribeEvent(
                     'Enlight_Controller_Dispatcher_ControllerPath_Frontend_RpayRatepay', 'frontendPaymentController'
                 );
@@ -646,7 +646,7 @@
             }
         }
 
-        public function onBidirectionalSendOrderOperation(Enlight_Hook_HookArgs $arguments)
+        /*public function onBidirectionalSendOrderOperation(Enlight_Hook_HookArgs $arguments)
         {
             $request = $arguments->getSubject()->Request();
             $parameter = $request->getParams();
@@ -782,7 +782,9 @@
                     }
                 }
             }
-        }
+        }*/
+        
+        
         /**
          * Updates the given binding for the given article
          *
