@@ -880,7 +880,7 @@
                 $view->assign('snippetId', $diConfig['deviceFingerprintSnippetId']);
                 if(!Shopware()->Session()->RatePAY['devicefinterprintident']['token'])
                 {
-                    $token = md5(Shopware()->Session()->get('sessionId') . new \DateTime());
+                    $token = md5(rand() . microtime());
                     Shopware()->Session()->RatePAY['devicefinterprintident']['token'] = $token;
                 }
                 $view->assign('token', Shopware()->Session()->RatePAY['devicefinterprintident']['token']);
