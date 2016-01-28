@@ -212,6 +212,7 @@
         public function uninstall()
         {
             $this->disable();
+            $this->_dropDatabaseTables();
             return parent::uninstall();
         }
 
@@ -226,6 +227,22 @@
             Shopware()->Db()->query($sql);
 
             return true;
+        }
+
+        /**
+         * Drops all RatePAY database tables
+         */
+        private function _dropDatabaseTables() {
+            try {
+                Shopware()->Db()->query('DROP TABLE `rpay_ratepay_logging`');
+                Shopware()->Db()->query('DROP TABLE `rpay_ratepay_config`');
+                Shopware()->Db()->query('DROP TABLE `rpay_ratepay_order_positions`');
+                Shopware()->Db()->query('DROP TABLE `rpay_ratepay_order_shipping`');
+                Shopware()->Db()->query('DROP TABLE `rpay_ratepay_order_history`');
+                Shopware()->Db()->query('DROP TABLE `rpay_ratepay_user_bankdata`');
+            } catch (Exception $exception) {
+                throw new Exception('Can not delete RatePAY tables - ' . $exception->getMessage());
+            }
         }
 
         /**
