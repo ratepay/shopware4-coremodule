@@ -1,13 +1,31 @@
-### Install
-1. Download the module here (https://github.com/ratepay/shopware4-coremodule/archive/master.zip)
-2. Extract the zipfile.
-3. Merge the content of the "shopware4-coremodule-master"-folder into `engine/Shopware/Plugins/Default/Frontend`
-4. Log into your Shopware-backend
-5. Install & configure the module
+# RatePAY GmbH - Shopware Payment Module
+============================================
 
-### Installation
-1. Laden Sie sich das Modul hier herunter(https://github.com/ratepay/shopware4-coremodule/archive/master.zip)
-2. Entpacken Sie die Zipdatei.
-3. Integrieren Sie den Inhalt des "shopware4-coremodule-master"-Ordners in `engine/Shopware/Plugins/Default/Frontend`
-4. Loggen Sie sich in ihr Shopware-Backend ein
-5. Installieren & konfigurieren Sie das Modul
+|Module | RatePAY Module for Shopware
+|------|----------
+|Author | Aarne Welschlau
+|Shop Version | `4.x.x`
+|Version | `3.3.1`
+|Link | http://www.ratepay.com
+|Mail | integration@ratepay.com
+|Installation | see below
+
+## Installation
+1. Integrieren Sie den Inhalt in `engine/Shopware/Plugins/Community/`
+2. Loggen Sie sich in ihr Shopware-Backend ein
+3. Installieren & konfigurieren Sie das Modul
+
+## Install
+1. Merge the content into `engine/Shopware/Plugins/Community/`
+2. Log into your Shopware-backend
+3. Install & configure the module
+
+## Changelog
+
+### Version Version 3.3.1 - Released 2016-02-01
+* Changed DFP token creation
+* Improved update method
+* Removing of rpay_ tables on uninstall
+* Fixed CURL TLS bug
+
+### Version Version 3.3.0 - Released 2015-10-27

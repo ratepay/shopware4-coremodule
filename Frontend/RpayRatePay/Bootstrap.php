@@ -83,7 +83,7 @@
          */
         public function getVersion()
         {
-            return "3.3.0";
+            return "3.3.1";
         }
 
         /**
@@ -1259,7 +1259,7 @@
             $showDebit   = $paymentStati['debitStatus']   == 2 ? true : false;
             $showInvoice = $paymentStati['invoiceStatus'] == 2 ? true : false;
 
-            if(! $sandbox)
+            if(!$sandbox)
             {
 
                 //check if the country is germany or austria
