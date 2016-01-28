@@ -173,7 +173,12 @@
             $this->_createForm();
             //$this->_createPluginConfigTranslation();
 
+            if (intval(str_replace('.','', $oldVersion)) < 322) {
+                $oldVersion = 'older';
+            }
+
             switch($oldVersion) {
+                case 'older':
                 case '3.2.2':
                     $this->uninstall();
                     $sql = 'ALTER TABLE `rpay_ratepay_config` DROP PRIMARY KEY;';
@@ -189,8 +194,10 @@
                     $this->_createPaymentStati();
                     $this->_createDeliveryStati();
                 case '3.2.8':
-                    Shopware()->Db()->query('ALTER TABLE `rpay_ratepay_config` ADD `deviceFingerprintStatus` varchar(3) NOT NULL,');
-                    Shopware()->Db()->query('ALTER TABLE `rpay_ratepay_config` ADD `deviceFingerprintSnippetId` varchar(55) NULL');
+                    $sql = 'ALTER TABLE `rpay_ratepay_config` ADD `deviceFingerprintStatus` varchar(3) NOT NULL;';
+                    Shopware()->Db()->query($sql);
+                    $sql = 'ALTER TABLE `rpay_ratepay_config` ADD `deviceFingerprintSnippetId` varchar(55) NULL';
+                    Shopware()->Db()->query($sql);
             }
 
             return array('success' => true, 'invalidateCache' => array('frontend', 'backend'));
