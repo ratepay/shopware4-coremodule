@@ -866,7 +866,8 @@
                 return;
             }
             Shopware()->Template()->addTemplateDir($this->Path() . 'Views/');
-            //get ratepay config based on shopId @toDo: IF DI SNIPPET ID WILL BE VARIABLE BETWEEN SUBSHOPS WE NEED TO SELECT BY SHOPID AND COUNTRY CREDENTIALS!!!
+
+            //get ratepay config based on sessionId
             $diConfig = Shopware()->Db()->fetchRow('
                 SELECT
                 *
@@ -875,16 +876,26 @@
                 WHERE
                 `shopId` =?
             ', array(Shopware()->Shop()->getId()));
+
             //if no DF token is set, receive all the necessary data to set it and extend template
-            if(true == $diConfig['deviceFingerprintStatus']) {
+            if(true == $diConfig['deviceFingerprintStatus'] && !Shopware()->Session()->RatePAY['devicefinterprintident']['token']) {
+
                 $view->assign('snippetId', $diConfig['deviceFingerprintSnippetId']);
-                if(!Shopware()->Session()->RatePAY['devicefinterprintident']['token'])
-                {
-                    $token = md5(rand() . microtime());
-                    Shopware()->Session()->RatePAY['devicefinterprintident']['token'] = $token;
-                }
+
+                try {
+                    $sId = Shopware()->SessionID();
+                } catch (Exception $exception) {}
+
+                $tokenFirstPart = (!empty($sId)) ? $sId : rand();
+
+                $tokenSecondPart = Shopware()->Shop()->getId();
+
+                $token = md5($tokenFirstPart . $tokenSecondPart . microtime());
+                Shopware()->Session()->RatePAY['devicefinterprintident']['token'] = $token;
                 $view->assign('token', Shopware()->Session()->RatePAY['devicefinterprintident']['token']);
+
                 $view->extendsTemplate('frontend/payment_rpay_part/index/index.tpl');
+
             }
         }
 
