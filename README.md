@@ -5,7 +5,7 @@
 |------|----------
 |Author | Aarne Welschlau
 |Shop Version | `4.x.x`
-|Version | `3.3.1`
+|Version | `3.3.2`
 |Link | http://www.ratepay.com
 |Mail | integration@ratepay.com
 |Installation | see below
@@ -21,6 +21,9 @@
 3. Install & configure the module
 
 ## Changelog
+
+### Version Version 3.3.2 - Released 2017-01-02
+* Fixed update method
 
 ### Version Version 3.3.1 - Released 2016-02-01
 * Changed DFP token creation

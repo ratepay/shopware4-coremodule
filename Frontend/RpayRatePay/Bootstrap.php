@@ -83,7 +83,7 @@
          */
         public function getVersion()
         {
-            return "3.3.1";
+            return "3.3.2";
         }
 
         /**
@@ -180,7 +180,6 @@
             switch($oldVersion) {
                 case 'older':
                 case '3.2.2':
-                    $this->uninstall();
                     $sql = 'ALTER TABLE `rpay_ratepay_config` DROP PRIMARY KEY;';
                     Shopware()->Db()->query($sql);
                     $sql = 'ALTER TABLE `rpay_ratepay_config` ADD `shopId` INT(5) NOT NULL ;';
