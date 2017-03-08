@@ -39,11 +39,6 @@
                     $(blzInput).show();
                     $(blzInputLabel).show();
                     $(blzInputLabel).text('Bankleitzahl:')
-                } else if ($(this).val().match(/at/i)) {
-                    $(blzInput).prop('disabled', false);
-                    $(blzInput).show();
-                    $(blzInputLabel).show();
-                    $(blzInputLabel).text('BIC / SWIFT:')
                 }
                 else {
                     $(blzInput).prop('disabled', true);
