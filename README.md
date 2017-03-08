@@ -3,9 +3,9 @@
 
 |Module | RatePAY Module for Shopware
 |------|----------
-|Author | Aarne Welschlau
+|Author | Aarne Welschlau, Annegret Seufert
 |Shop Version | `4.x.x`
-|Version | `3.3.2`
+|Version | `3.3.3`
 |Link | http://www.ratepay.com
 |Mail | integration@ratepay.com
 |Installation | see below
@@ -21,6 +21,10 @@
 3. Install & configure the module
 
 ## Changelog
+
+### Version Version 3.3.3 - Released 2017-03-08
+* SEPA - BIC field removed
+* IBAN country prefix validation removed
 
 ### Version Version 3.3.2 - Released 2017-01-02
 * Fixed update method
