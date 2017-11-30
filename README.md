@@ -5,7 +5,7 @@
 |------|----------
 |Author | Aarne Welschlau, Annegret Seufert
 |Shop Version | `4.x.x`
-|Version | `3.3.3`
+|Version | `3.3.3.1`
 |Link | http://www.ratepay.com
 |Mail | integration@ratepay.com
 |Installation | see below
@@ -21,6 +21,9 @@
 3. Install & configure the module
 
 ## Changelog
+
+### Version Version 3.3.3.1 - Released 2017-11-30
+* change company address
 
 ### Version Version 3.3.3 - Released 2017-03-08
 * SEPA - BIC field removed
